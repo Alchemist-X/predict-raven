@@ -16,6 +16,8 @@ python3 scripts/research.py --start-date 2026-03-11 --end-date 2026-09-11 orgpt 
   --prompt-file path/to/research-prompt.md --out path/to/report.md
 ```
 
+重跑已有问题时，传入原来的 `--resolution`；引擎在审题和复核之后均保留这段原文，复核意见不能悄悄改写条件。
+
 日期是订阅目录的检索窗口，不是预测事件的期限，也不保证是原始发布日期。问题中的“六个月”须由 framing 明确结算标准；历史研究还须核验正文原始日期。
 
 个人工作流在 `~/.config/raven/research/runtime.json` 中设置 `forecast_repo`，或通过 `RAVEN_FORECAST_REPO` 指向含本接入的 checkout。本次已将接线迁移到最新 main，保留研究规划和证据交叉核验逻辑。Signal Desk 的服务实现由个人私有工作区维护，公开仓库只包含通用进程调用适配器；内容缓存和凭证不随代码分发。

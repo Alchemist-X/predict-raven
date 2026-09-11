@@ -58,3 +58,5 @@ The launcher creates private `~/.local/share/raven/signal-desk/research-runs/<ru
 Validation covers schema/error behavior, trace integrity, complete JSON pagination and legacy public-search compatibility. A real Claude MCP run completed combined search and summary reading: both sources succeeded and the model correctly reported 500 characters read with more content remaining. Detailed acceptance evidence remains in the private local run directory. OpenRouter and DeepSeek loops were tested with simulated model responses rather than additional paid model calls. Service validation includes real search/read and cached PDF page extraction.
 
 Research cost coverage is marked `partial` when external search costs are not included in the model bill.
+
+When rerunning an existing question, pass its original `--resolution`. The engine preserves those supplied criteria after both framing and audit; caveats may identify ambiguities but cannot rewrite the pinned rules.

@@ -19,10 +19,14 @@ import type { EventFraming } from "./types";
 const NO_WEB_LINE =
   "You have no web access; use your own knowledge and state uncertainty honestly in assumptions/framingCaveats.";
 
-function buildFramingPrompt(question: string, userResolution: string | null, hasWebSearch: boolean): string {
-  const pinned = userResolution
-    ? `\nUSER-SPECIFIED RESOLUTION (authoritative — keep it, do not override; only fill in the date/source/assumptions around it):\n"${userResolution}"\n`
+function pinnedResolutionDirective(userResolution: string | null): string {
+  return userResolution
+    ? `\nUSER-SPECIFIED RESOLUTION (authoritative — immutable rules):\n"${userResolution}"\nCopy it verbatim into resolution_criteria. Do not rewrite, translate, add, remove, or narrow its conditions, comparison operators, or timing. Other frame fields may clarify metadata only; they must not introduce rules that contradict or qualify this resolution.\n`
     : "";
+}
+
+function buildFramingPrompt(question: string, userResolution: string | null, hasWebSearch: boolean): string {
+  const pinned = pinnedResolutionDirective(userResolution);
   const research = hasWebSearch
     ? "You MAY use WebSearch to look up dates, definitions, or context needed to frame this well."
     : NO_WEB_LINE;
@@ -50,12 +54,16 @@ function buildAuditPrompt(
   question: string,
   frame: EventFraming,
   hasWebSearch: boolean,
+  userResolution: string | null,
   violationNotice = ""
 ): string {
   const research = hasWebSearch ? "You MAY WebSearch to check dates/definitions." : NO_WEB_LINE;
+  const auditInstruction = userResolution
+    ? "Audit the frame independently while preserving the USER-SPECIFIED RESOLUTION verbatim. Correct other fields only when consistent with those immutable rules. If the user's rules have ambiguities or raise concerns, report them in framing_caveats without changing the rules."
+    : "Re-derive the frame independently. Return a CORRECTED frame (keep it if already correct), PLUS an honest audit. Be strict: if the resolution bar is ambiguous or unfaithful to the user's intent, fix it and say so in framing_caveats.";
   return `You are a SKEPTICAL forecasting-question auditor. Another editor framed a user's prompt into a binary question. Your job is to catch errors that would make the whole forecast quantify the WRONG question: an ambiguous or drifted YES/NO bar, an inverted edge case, a wrong resolution date, a mis-judged forecastable verdict, or a base-rate prior that ignores the reference class. ${research}
 
-ORIGINAL USER PROMPT: "${question}"
+ORIGINAL USER PROMPT: "${question}"${pinnedResolutionDirective(userResolution)}
 PROPOSED FRAME:
 - normalized_question: ${frame.normalizedQuestion}
 - resolution_criteria: ${frame.resolutionCriteria}
@@ -64,7 +72,7 @@ PROPOSED FRAME:
 - prior_probability: ${frame.priorProbability}
 - prior_rationale: ${frame.priorRationale}
 ${violationNotice}
-Re-derive the frame independently. Return a CORRECTED frame (keep it if already correct), PLUS an honest audit. Be strict: if the resolution bar is ambiguous or unfaithful to the user's intent, fix it and say so in framing_caveats.
+${auditInstruction}
 ${marketBlindDirective()}${languageDirective()}
 OUTPUT only a single JSON object, no prose, no code fence:
 {"normalized_question":"...","resolution_criteria":"...","resolution_date":"2026-12-31","settlement_source":"...","assumptions":"...","forecastable":true,"clarification_needed":"","prior_probability":0.45,"prior_rationale":"...","framing_caveats":"edge cases / ambiguities the user should know, or '' if none","framing_confidence":"high|medium|low"}`;
@@ -146,10 +154,17 @@ export async function frameEvent(
   opts: { userResolution?: string | null; model?: string } = {}
 ): Promise<FrameResult> {
   const hasWebSearch = providerHasWebSearch();
+  const userResolution = opts.userResolution?.trim() || null;
+  // Enforce the user's rules after every validated model response, including
+  // retries. Prompts alone cannot prevent an editor or auditor from drifting.
+  const pinResolution = (frame: EventFraming): EventFraming =>
+    userResolution === null ? frame : { ...frame, resolutionCriteria: userResolution };
+  const validatePinnedFraming = (raw: unknown) => pinResolution(validateFraming(raw));
+  const validatePinnedAudit = (raw: unknown) => pinResolution(validateAudit(raw));
   // Pass 1: frame + base-rate prior.
-  const first = await runValidated(buildFramingPrompt(question, opts.userResolution ?? null, hasWebSearch), validateFraming, opts.model);
-  // Pass 2 (P0-1): independent skeptical audit; its corrected frame is authoritative.
-  let audited = await runValidated(buildAuditPrompt(question, first.value, hasWebSearch), validateAudit, opts.model);
+  const first = await runValidated(buildFramingPrompt(question, userResolution, hasWebSearch), validatePinnedFraming, opts.model);
+  // Pass 2 (P0-1): independently audit the frame, preserving any pinned rules.
+  let audited = await runValidated(buildAuditPrompt(question, first.value, hasWebSearch, userResolution), validatePinnedAudit, opts.model);
   let totalCost = (first.costUsd ?? 0) + (audited.costUsd ?? 0);
   let allQueries = [...first.searchQueries, ...audited.searchQueries];
   let priorSuspect = false;
@@ -163,8 +178,8 @@ export async function frameEvent(
     const notice =
       "\nVIOLATION NOTICE: the previous audit's prior_rationale anchored on prediction-market prices, which is forbidden here. Re-derive prior_probability STRICTLY from a reference class of comparable past events — no market prices, odds, or implied probabilities.\n";
     const retried = await runValidated(
-      buildAuditPrompt(question, first.value, hasWebSearch, notice),
-      validateAudit,
+      buildAuditPrompt(question, first.value, hasWebSearch, userResolution, notice),
+      validatePinnedAudit,
       opts.model
     );
     totalCost += retried.costUsd ?? 0;
