@@ -225,6 +225,8 @@ export interface RoundRecord {
   searchQueries: string[];
   searchResultUrlCount: number;
   costUsd: number | null;
+  // Aggregate model/tool usage when every attempt in this round reports it.
+  usage?: import("./claude-agent").AgentUsage;
   analystConsumedIds?: string[]; // ids of analyst notes consumed (injected) this round
 }
 
