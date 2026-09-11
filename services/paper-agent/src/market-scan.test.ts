@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_SCAN_OPTIONS, filterScanRows, scanMarkets, type ScanRow } from "./market-scan";
 
 const NOW = Date.parse("2026-07-03T00:00:00Z");
@@ -61,6 +61,9 @@ describe("filterScanRows", () => {
 });
 
 describe("scanMarkets", () => {
+  beforeEach(() => { vi.spyOn(Date, "now").mockReturnValue(NOW); });
+  afterEach(() => { vi.restoreAllMocks(); });
+
   // Same shortlist behind every category tag — only the rng differs between cases.
   const rows = Array.from({ length: 5 }, (_, i) => ({ ...base, slug: `m${i}`, volume24hr: 50_000 - i * 1000 }));
   const fetchFn = (async () => ({ ok: true, json: async () => rows })) as unknown as typeof fetch;
