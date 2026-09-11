@@ -247,7 +247,7 @@ export function parseStreamJson(stdout: string): ParsedStreamJson {
   }
 
   if (!finalText && lastAssistantTexts.length) {
-    finalText = lastAssistantTexts[lastAssistantTexts.length - 1];
+    finalText = lastAssistantTexts[lastAssistantTexts.length - 1] ?? "";
   }
   let usage = resultUsage ?? modelUsage ?? (assistantUsageObserved ? assistantUsage : null);
   // Older Claude Code builds did not put tool counts in the result usage. The
@@ -275,7 +275,7 @@ export function extractJsonObject(text: string): unknown | null {
   let s = text.trim();
   // Strip ```json ... ``` fences if present.
   const fence = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  if (fence) s = fence[1].trim();
+  if (fence) s = (fence[1] ?? "").trim();
   const start = s.indexOf("{");
   if (start === -1) return null;
   let depth = 0;
@@ -395,8 +395,8 @@ export function validateRoundOutput(raw: unknown): AgentRoundOutput {
     );
     if (!sources.length) throw new Error(`claim[${i}] has no source URL`);
     const supportingSources = sources.filter((source) => source.relation === "supports");
-    if (!supportingSources.length) throw new Error(`claim[${i}] has no source that supports the factual claim`);
     const best = supportingSources[0];
+    if (!best) throw new Error(`claim[${i}] has no source that supports the factual claim`);
     const independent = new Set(sources.map((source) => source.independenceGroup)).size;
     const hasContradiction = sources.some((source) => source.relation === "contradicts");
     const derivedStatus: CrossCheckStatus = hasContradiction
