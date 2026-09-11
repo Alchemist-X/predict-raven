@@ -11,6 +11,7 @@
 import { runAgentRaw } from "./claude-agent";
 import type { AgentRunResult, RunAgentOptions } from "./claude-agent";
 import { runCodexRaw } from "./codex-agent";
+import { recordResearchModel, signalDeskEnabled } from "./research-tools";
 import { runDeepSeekRaw, webSearchEnabled } from "./deepseek-agent";
 
 export type ProviderName = "claude" | "codex" | "deepseek";
@@ -30,12 +31,24 @@ export function providerHasWebSearch(name: ProviderName = providerName()): boole
 }
 
 export async function runAgent(prompt: string, opts: RunAgentOptions = {}): Promise<AgentRunResult> {
-  switch (providerName()) {
+  const provider = providerName();
+  let result: AgentRunResult;
+  switch (provider) {
     case "deepseek":
-      return runDeepSeekRaw(prompt, opts);
+      result = await runDeepSeekRaw(prompt, opts);
+      break;
     case "codex":
+      if (signalDeskEnabled()) throw new Error("Signal Desk research currently supports the Claude and DeepSeek providers; choose one explicitly.");
       return runCodexRaw(prompt, opts);
     default:
-      return runAgentRaw(prompt, opts);
+      result = await runAgentRaw(prompt, opts);
   }
+  recordResearchModel(prompt, provider, {
+    requested_model: opts.model ?? process.env.FORECAST_MODEL ?? (provider === "deepseek" ? process.env.FORECAST_DEEPSEEK_MODEL ?? "deepseek-chat" : "cli-default"),
+    resolved_model: result.resolvedModel ?? null, usage: result.usage ?? null,
+    cost_usd: result.costUsd, cost_coverage: result.costCoverage ?? "unavailable", num_turns: result.numTurns,
+    search_queries: result.searchQueries, source_urls: [...result.searchResultUrls],
+    exit_code: result.exitCode, json_error: result.jsonError, output: result.jsonObject
+  });
+  return result;
 }

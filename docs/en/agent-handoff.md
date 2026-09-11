@@ -1,5 +1,8 @@
 # Agent Handoff — Current State and Next Actions
 
+> 2026-09-12: Signal Desk research was ported onto current main, preserving planning and claim cross-checking. `FORECAST_SIGNAL_DESK=1` enables combined public/subscription search and Markdown/PDF reading for Claude/DeepSeek. Tool-disabled stages load no MCP servers; Codex mode is explicitly unsupported. The private service/content stays local; this repository contains the adapter. See [integration](signal-desk-research.md).
+
+
 > Last updated: 2026-09-06 by Codex.
 >
 > **Startup contract for a new agent: read only this file for current project state.** Do not replay dated handoffs or historical notes at startup. Consult git history, merged PRs, [`docs/internal/review/`](../internal/review/), or [`docs/agent-onboarding.md`](../agent-onboarding.md) only when background is needed.

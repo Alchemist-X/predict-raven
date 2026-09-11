@@ -19,17 +19,20 @@
 import { extractJsonObject } from "./claude-agent";
 import type { AgentRunResult, RunAgentOptions } from "./claude-agent";
 import { fetchPageText, webSearch } from "./web-search";
+import { callResearchTool, RESEARCH_POLICY, researchSourceUrls, researchTools, signalDeskEnabled, type ResearchToolSchema } from "./research-tools";
 
 export function webSearchEnabled(): boolean {
   const v = (process.env.FORECAST_WEB_SEARCH ?? "").trim().toLowerCase();
   // "duckduckgo" still *enables* search even though the backend was removed
   // (2026-08-22): enabling makes backendName() throw loudly at tool time,
   // which beats silently downgrading a configured run to no-research mode.
-  return v === "1" || v === "true" || v === "exa" || v === "duckduckgo" || v === "tavily";
+  return signalDeskEnabled() || v === "1" || v === "true" || v === "exa" || v === "duckduckgo" || v === "tavily";
 }
 
 export interface DeepSeekDeps {
   fetchFn?: typeof fetch; // injectable for tests
+  researchCall?: typeof callResearchTool;
+  researchSchemas?: ResearchToolSchema[];
 }
 
 // Deep-scan the agent's structured output for every cited URL (claim sources,
@@ -181,8 +184,8 @@ export async function runDeepSeekRaw(
   const fetchFn = deps.fetchFn ?? fetch;
   const timeoutMs = opts.timeoutMs ?? (Number(process.env.FORECAST_AGENT_TIMEOUT_MS) || 360_000);
 
-  if (webSearchEnabled()) {
-    return runWithTools(prompt, { baseUrl, apiKey, model, fetchFn, timeoutMs });
+  if (webSearchEnabled() && opts.allowedTools !== "") {
+    return runWithTools(prompt, { baseUrl, apiKey, model, fetchFn, timeoutMs, researchCall: deps.researchCall ?? callResearchTool, researchSchemas: signalDeskEnabled() ? (deps.researchSchemas ?? await researchTools(opts.allowedTools)) : undefined });
   }
 
   // The timeout must cover the BODY read too, not just the response headers — a
@@ -255,6 +258,8 @@ interface ToolLoopCtx {
   model: string;
   fetchFn: typeof fetch;
   timeoutMs: number;
+  researchCall: typeof callResearchTool;
+  researchSchemas?: ResearchToolSchema[];
 }
 
 // The research tool loop: standard OpenAI function calling against the same
@@ -279,7 +284,7 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
         body: JSON.stringify({
           model: ctx.model,
           messages,
-          ...(withTools ? { tools: RESEARCH_TOOLS } : {}),
+          ...(withTools ? { tools: ctx.researchSchemas ?? RESEARCH_TOOLS } : {}),
           ...(forceJson ? { response_format: { type: "json_object" } } : {}),
           max_tokens: 6000
         }),
@@ -303,7 +308,7 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
     }
   };
 
-  const messages: ChatMessage[] = [{ role: "user", content: prompt }];
+  const messages: ChatMessage[] = [{ role: "user", content: ctx.researchSchemas ? `${RESEARCH_POLICY}\n\n${prompt}` : prompt }];
   const searchQueries: string[] = [];
   const traceUrls = new Set<string>();
   let toolCalls = 0;
@@ -318,8 +323,16 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
         toolCalls += 1;
         let resultText: string;
         try {
-          const args = JSON.parse(tc.function.arguments || "{}") as { query?: string; url?: string };
-          if (tc.function.name === "web_search" && args.query) {
+          const args = JSON.parse(tc.function.arguments || "{}") as { query?: string; url?: string } & Record<string, unknown>;
+          if (ctx.researchSchemas) {
+            if (!ctx.researchSchemas.some(t => t.function.name === tc.function.name)) throw new Error("tool is not enabled");
+            if (["web_search", "signal_desk_search"].includes(tc.function.name)) searchQueries.push(String(args.query ?? args.keywords ?? ""));
+            const remaining = deadline - Date.now();
+            if (remaining <= 1000) throw new Error("research tool budget exhausted");
+            const result = await ctx.researchCall(tc.function.name, args, Math.min(90_000, remaining));
+            for (const url of researchSourceUrls(result)) traceUrls.add(url);
+            resultText = JSON.stringify(result);
+          } else if (tc.function.name === "web_search" && args.query) {
             searchQueries.push(args.query);
             const hits = await webSearch(args.query, ctx.fetchFn);
             for (const h of hits) traceUrls.add(h.url);
@@ -333,7 +346,7 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
         } catch (error) {
           resultText = `[tool failed: ${error instanceof Error ? error.message : String(error)}]`;
         }
-        messages.push({ role: "tool", content: resultText.slice(0, 8000), tool_call_id: tc.id });
+        messages.push({ role: "tool", content: ctx.researchSchemas ? resultText : resultText.slice(0, 8000), tool_call_id: tc.id });
       }
       continue;
     }
@@ -357,7 +370,7 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
 
   // Verified set: the REAL tool trace when the model researched; liveness
   // fallback (weaker) only when it never touched the tools.
-  const searchResultUrls = traceUrls.size
+  const searchResultUrls = ctx.researchSchemas || traceUrls.size
     ? traceUrls
     : await verifyCitedUrls(collectCitedUrls(jsonObject), ctx.fetchFn);
 
@@ -375,6 +388,7 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
     searchQueries,
     searchResultUrls,
     costUsd,
+    costCoverage: costUsd == null ? "unavailable" : ctx.researchSchemas ? "partial" : "complete",
     numTurns: Math.min(MAX_MODEL_TURNS, toolCalls + 1),
     exitCode: 0,
     stderrTail: ""

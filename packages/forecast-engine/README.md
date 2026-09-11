@@ -162,3 +162,10 @@ log-odds space. Additional sources change verification quality, not update count
 用真实搜索轨迹**核对信源防编造**、达到检索广度后才允许判定收敛、`--max-rounds` **封顶成本**。
 
 局限:暂不自动打分(无统一结算源)、仅二元、置信区间仍是启发式。
+
+
+## Personal subscription research / 个人订阅投研
+
+Opt in with `FORECAST_SIGNAL_DESK=1` to route Claude/DeepSeek research through the local public-web + Signal Desk gateway. General searches query both sources; Markdown/PDF reads preserve provenance. Planning and summary stages with tools disabled load no MCP servers. The Codex provider explicitly rejects this mode until supported. See [runtime integration](../../docs/en/signal-desk-research.md).
+
+设置 `FORECAST_SIGNAL_DESK=1` 后，Claude/DeepSeek 投研通过本机网关联合检索公开网页与个人订阅。规划、总结等禁止工具的阶段不会加载 MCP；Codex provider 暂未接入，会明确报错。全局默认关闭，不改变交易入口。详见[投研接入说明](../../docs/signal-desk-research.md)。

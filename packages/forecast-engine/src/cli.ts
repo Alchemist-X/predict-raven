@@ -18,6 +18,7 @@ import { marketBlind } from "./market-blind";
 import { createResearchPlan } from "./research-plan";
 import { eventDir, loadState, makeEventId, saveState } from "./store";
 import type { ForecastState } from "./types";
+import { researchCommand, researchTools, signalDeskEnabled } from "./research-tools";
 
 interface CliArgs {
   question: string;
@@ -64,6 +65,13 @@ async function main(): Promise<void> {
   // token from `claude setup-token`, the headless-server path), or the CLI's
   // stored interactive login (assumed when neither var is set).
   const provider = providerName();
+  if (signalDeskEnabled()) {
+    if (provider === "codex") throw new Error("Signal Desk research currently supports the Claude and DeepSeek providers; choose one explicitly.");
+    const registry = await researchTools();
+    console.log(`execution mode: research-only · decision source: user-enabled Signal Desk gateway`);
+    console.log(`research sources: public web + personal Signal Desk · tools: ${registry.length}`);
+    console.log(`research gateway: ${researchCommand()} · trace: ${process.env.RAVEN_RESEARCH_TRACE ?? "private service default"}`);
+  }
   if (provider === "deepseek" && !process.env.DEEPSEEK_API_KEY) {
     console.error("DEEPSEEK_API_KEY is required for the deepseek provider (FORECAST_PROVIDER=deepseek).");
     process.exit(1);

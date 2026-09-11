@@ -12,6 +12,7 @@
 // no secret is committed here.
 
 import { spawn } from "node:child_process";
+import { RESEARCH_MCP_PREFIX, RESEARCH_POLICY, researchClaudeArgs, researchSourceUrls, researchToolNames, signalDeskEnabled } from "./research-tools";
 import { rankClaimSources } from "./claims";
 import type {
   AgentRoundOutput,
@@ -24,6 +25,15 @@ import type {
   SupportQuality
 } from "./types";
 
+export interface AgentUsage {
+  inputTokens: number;
+  outputTokens: number;
+  cacheCreationInputTokens: number;
+  cacheReadInputTokens: number;
+  webSearchRequests: number;
+  webFetchRequests: number;
+}
+
 export interface AgentRunResult {
   rawFinalText: string;
   jsonObject: unknown | null; // first balanced JSON object extracted from the final text
@@ -31,6 +41,14 @@ export interface AgentRunResult {
   searchQueries: string[];
   searchResultUrls: Set<string>; // every URL the agent's searches actually returned
   costUsd: number | null;
+  // The provider/runtime reports these after the call. They are deliberately
+  // separate from the requested model archived before the call: aliases and
+  // provider routing can resolve to a different concrete model.
+  resolvedModel?: string | null;
+  usage?: AgentUsage;
+  costSource?: "provider_reported" | "configured_rates" | "unavailable";
+  costCoverage?: "complete" | "partial" | "unavailable";
+  agentRuntimeVersion?: string | null;
   numTurns: number | null;
   exitCode: number;
   stderrTail: string;
@@ -43,13 +61,28 @@ const DEFAULT_TIMEOUT_MS = Number(process.env.FORECAST_AGENT_TIMEOUT_MS) || 360_
 // Two strong signals, captured without over-capturing page-embedded links:
 //   - tool_use with input.url  → e.g. WebFetch: the URL the agent explicitly fetched
 //   - {title, url} pairs        → WebSearch result links returned to the agent
-function collectToolUrlsDeep(node: unknown, urls: Set<string>): void {
+function collectToolUrlsDeep(node: unknown, urls: Set<string>, researchIds: Set<string>): void {
   if (!node || typeof node !== "object") return;
   if (Array.isArray(node)) {
-    for (const item of node) collectToolUrlsDeep(item, urls);
+    for (const item of node) collectToolUrlsDeep(item, urls, researchIds);
     return;
   }
   const rec = node as Record<string, unknown>;
+  if (rec.type === "tool_use" && typeof rec.name === "string" && rec.name.startsWith(RESEARCH_MCP_PREFIX)) {
+    if (typeof rec.id === "string") researchIds.add(rec.id);
+    return;
+  }
+  if (rec.type === "tool_result" && typeof rec.tool_use_id === "string" && researchIds.has(rec.tool_use_id)) {
+    if (rec.is_error) return;
+    const blocks = Array.isArray(rec.content) ? rec.content : [{ text: rec.content }];
+    for (const block of blocks) {
+      if (!block || typeof block !== "object" || typeof block.text !== "string") continue;
+      try { for (const url of researchSourceUrls(JSON.parse(block.text))) urls.add(url); }
+      catch { /* A malformed result provides no source verification. */ }
+    }
+    for (const url of researchSourceUrls(rec.structuredContent)) urls.add(url);
+    return;
+  }
   if (rec.type === "tool_use" && rec.input && typeof rec.input === "object") {
     const u = (rec.input as Record<string, unknown>).url;
     if (typeof u === "string" && u) urls.add(u);
@@ -57,18 +90,19 @@ function collectToolUrlsDeep(node: unknown, urls: Set<string>): void {
   if (typeof rec.url === "string" && typeof rec.title === "string") {
     urls.add(rec.url);
   }
-  for (const v of Object.values(rec)) collectToolUrlsDeep(v, urls);
+  for (const v of Object.values(rec)) collectToolUrlsDeep(v, urls, researchIds);
 }
 
 // Exported for testing: pull the tool-interaction URL set out of a raw
 // stream-json stdout (covers both WebSearch results and WebFetch fetches).
 export function extractToolUrls(stdout: string): Set<string> {
   const urls = new Set<string>();
+  const researchIds = new Set<string>();
   for (const line of stdout.split("\n")) {
     const t = line.trim();
     if (!t || t[0] !== "{") continue;
     try {
-      collectToolUrlsDeep(JSON.parse(t), urls);
+      collectToolUrlsDeep(JSON.parse(t), urls, researchIds);
     } catch {
       /* skip non-JSON lines */
     }
@@ -76,18 +110,86 @@ export function extractToolUrls(stdout: string): Set<string> {
   return urls;
 }
 
-function parseStreamJson(stdout: string): {
+interface ParsedStreamJson {
   finalText: string;
   searchQueries: string[];
   searchResultUrls: Set<string>;
   costUsd: number | null;
   numTurns: number | null;
-} {
+  resolvedModel: string | null;
+  usage: AgentUsage | null;
+  agentRuntimeVersion: string | null;
+}
+
+const zeroUsage = (): AgentUsage => ({
+  inputTokens: 0,
+  outputTokens: 0,
+  cacheCreationInputTokens: 0,
+  cacheReadInputTokens: 0,
+  webSearchRequests: 0,
+  webFetchRequests: 0
+});
+
+function finiteNumber(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function usageFromRecord(raw: unknown): AgentUsage | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const o = raw as Record<string, unknown>;
+  const server =
+    o.server_tool_use && typeof o.server_tool_use === "object" ? (o.server_tool_use as Record<string, unknown>) : {};
+  const hasUsageField =
+    [
+      "input_tokens",
+      "inputTokens",
+      "output_tokens",
+      "outputTokens",
+      "cache_creation_input_tokens",
+      "cacheCreationInputTokens",
+      "cache_read_input_tokens",
+      "cacheReadInputTokens",
+      "web_search_requests",
+      "webSearchRequests"
+    ].some((key) => key in o) || Object.keys(server).length > 0;
+  if (!hasUsageField) return null;
+  return {
+    inputTokens: finiteNumber(o.input_tokens ?? o.inputTokens),
+    outputTokens: finiteNumber(o.output_tokens ?? o.outputTokens),
+    cacheCreationInputTokens: finiteNumber(o.cache_creation_input_tokens ?? o.cacheCreationInputTokens),
+    cacheReadInputTokens: finiteNumber(o.cache_read_input_tokens ?? o.cacheReadInputTokens),
+    webSearchRequests: finiteNumber(server.web_search_requests ?? o.web_search_requests ?? o.webSearchRequests),
+    webFetchRequests: finiteNumber(server.web_fetch_requests ?? o.web_fetch_requests ?? o.webFetchRequests)
+  };
+}
+
+function addUsage(target: AgentUsage, source: AgentUsage): void {
+  target.inputTokens += source.inputTokens;
+  target.outputTokens += source.outputTokens;
+  target.cacheCreationInputTokens += source.cacheCreationInputTokens;
+  target.cacheReadInputTokens += source.cacheReadInputTokens;
+  target.webSearchRequests += source.webSearchRequests;
+  target.webFetchRequests += source.webFetchRequests;
+}
+
+// Exported for provenance tests. Claude Code's result event is preferred as
+// the authoritative aggregate; assistant-message usage is only a fallback.
+export function parseStreamJson(stdout: string): ParsedStreamJson {
   const queries: string[] = [];
   const urls = new Set<string>();
+  const researchIds = new Set<string>();
   let finalText = "";
   let costUsd: number | null = null;
   let numTurns: number | null = null;
+  let systemModel: string | null = null;
+  let assistantModel: string | null = null;
+  let modelUsageModel: string | null = null;
+  let agentRuntimeVersion: string | null = null;
+  const assistantUsage = zeroUsage();
+  let assistantUsageObserved = false;
+  let resultUsage: AgentUsage | null = null;
+  let modelUsage: AgentUsage | null = null;
+  let observedWebFetchCalls = 0;
   const lastAssistantTexts: string[] = [];
 
   for (const line of stdout.split("\n")) {
@@ -100,16 +202,26 @@ function parseStreamJson(stdout: string): {
       continue;
     }
     const type = obj.type;
-    collectToolUrlsDeep(obj, urls); // tool_use.input.url (WebFetch) + {title,url} (WebSearch)
-    if (type === "assistant") {
-      const msg = obj.message as { content?: unknown } | undefined;
+    collectToolUrlsDeep(obj, urls, researchIds); // tool_use.input.url (WebFetch) + {title,url} (WebSearch)
+    if (type === "system" && obj.subtype === "init") {
+      if (typeof obj.model === "string" && obj.model) systemModel = obj.model;
+      if (typeof obj.claude_code_version === "string") agentRuntimeVersion = obj.claude_code_version;
+    } else if (type === "assistant") {
+      const msg = obj.message as { content?: unknown; model?: unknown; usage?: unknown } | undefined;
+      if (typeof msg?.model === "string" && msg.model !== "<synthetic>") assistantModel = msg.model;
+      const observed = usageFromRecord(msg?.usage);
+      if (observed) {
+        assistantUsageObserved = true;
+        addUsage(assistantUsage, observed);
+      }
       const content = (msg?.content as unknown[]) ?? [];
       for (const block of content) {
         const b = block as Record<string, unknown>;
-        if (b.type === "tool_use" && b.name === "WebSearch") {
+        if (b.type === "tool_use" && (b.name === "WebSearch" || b.name === RESEARCH_MCP_PREFIX + "web_search" || b.name === RESEARCH_MCP_PREFIX + "signal_desk_search")) {
           const input = b.input as { query?: unknown } | undefined;
           if (typeof input?.query === "string") queries.push(input.query);
         }
+        if (b.type === "tool_use" && (b.name === "WebFetch" || ["fetch_page", "signal_desk_read", "signal_desk_pdf"].some(name => b.name === RESEARCH_MCP_PREFIX + name))) observedWebFetchCalls += 1;
         if (b.type === "text" && typeof b.text === "string") {
           lastAssistantTexts.push(b.text);
         }
@@ -118,13 +230,43 @@ function parseStreamJson(stdout: string): {
       if (typeof obj.result === "string") finalText = obj.result;
       if (typeof obj.total_cost_usd === "number") costUsd = obj.total_cost_usd;
       if (typeof obj.num_turns === "number") numTurns = obj.num_turns;
+      resultUsage = usageFromRecord(obj.usage);
+      if (obj.modelUsage && typeof obj.modelUsage === "object" && !Array.isArray(obj.modelUsage)) {
+        const aggregate = zeroUsage();
+        let found = false;
+        for (const [model, rawUsage] of Object.entries(obj.modelUsage as Record<string, unknown>)) {
+          const observed = usageFromRecord(rawUsage);
+          if (!observed) continue;
+          found = true;
+          addUsage(aggregate, observed);
+          if (!modelUsageModel) modelUsageModel = model;
+        }
+        if (found) modelUsage = aggregate;
+      }
     }
   }
 
   if (!finalText && lastAssistantTexts.length) {
     finalText = lastAssistantTexts[lastAssistantTexts.length - 1];
   }
-  return { finalText, searchQueries: queries, searchResultUrls: urls, costUsd, numTurns };
+  let usage = resultUsage ?? modelUsage ?? (assistantUsageObserved ? assistantUsage : null);
+  // Older Claude Code builds did not put tool counts in the result usage. The
+  // actual tool trace is a safe lower-bound fallback and avoids a misleading 0.
+  if (!usage && (queries.length > 0 || observedWebFetchCalls > 0)) usage = zeroUsage();
+  if (usage) {
+    usage.webSearchRequests = Math.max(usage.webSearchRequests, queries.length);
+    usage.webFetchRequests = Math.max(usage.webFetchRequests, observedWebFetchCalls);
+  }
+  return {
+    finalText,
+    searchQueries: queries,
+    searchResultUrls: urls,
+    costUsd,
+    numTurns,
+    resolvedModel: assistantModel ?? modelUsageModel ?? systemModel,
+    usage,
+    agentRuntimeVersion
+  };
 }
 
 // Pull the first balanced JSON object out of possibly-chatty model text.
@@ -336,7 +478,10 @@ export async function runAgentRaw(prompt: string, opts: RunAgentOptions = {}): P
   const baseUrl = process.env.ANTHROPIC_BASE_URL;
   const allowedTools = opts.allowedTools ?? process.env.FORECAST_ALLOWED_TOOLS ?? "WebSearch WebFetch";
   const model = opts.model ?? process.env.FORECAST_MODEL ?? "";
-  const args = ["--print", "--output-format", "stream-json", "--verbose", "--allowedTools", allowedTools];
+  const research = signalDeskEnabled();
+  const researchActive = research && researchToolNames(opts.allowedTools).length > 0;
+  const args = ["--print", "--output-format", "stream-json", "--verbose",
+    ...(research ? researchClaudeArgs(opts.allowedTools) : ["--allowedTools", allowedTools])];
   if (model) args.push("--model", model);
 
   return await new Promise<AgentRunResult>((resolve, reject) => {
@@ -372,12 +517,17 @@ export async function runAgentRaw(prompt: string, opts: RunAgentOptions = {}): P
         searchQueries: parsedStream.searchQueries,
         searchResultUrls: parsedStream.searchResultUrls,
         costUsd: parsedStream.costUsd,
+        resolvedModel: parsedStream.resolvedModel,
+        usage: parsedStream.usage ?? undefined,
+        costSource: parsedStream.costUsd == null ? "unavailable" : "provider_reported",
+        costCoverage: parsedStream.costUsd == null ? "unavailable" : researchActive ? "partial" : "complete",
+        agentRuntimeVersion: parsedStream.agentRuntimeVersion,
         numTurns: parsedStream.numTurns,
         exitCode: code ?? -1,
         stderrTail: stderr.slice(-800)
       });
     });
-    child.stdin.write(prompt);
+    child.stdin.write(researchActive ? `${RESEARCH_POLICY}\n\n${prompt}` : prompt);
     child.stdin.end();
   });
 }

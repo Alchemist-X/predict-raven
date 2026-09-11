@@ -1,5 +1,8 @@
 # Agent Handoff — 当前状态与下一步
 
+> 2026-09-12：Signal Desk 研究网关已迁入最新 main，保留现有研究规划／证据交叉核验。`FORECAST_SIGNAL_DESK=1` 为 Claude/DeepSeek 启用公开＋订阅搜索和 Markdown/PDF 读取；禁用工具的阶段不加载 MCP，Codex 模式暂报不支持。私有服务和材料留在个人工作区，公开仓库仅有适配器。见 [接入说明](signal-desk-research.md)。
+
+
 > 最后更新：2026-09-06 by Codex。
 >
 > **新 agent 的启动约定：只读这份文件了解项目当前状态。** 不要在启动时读取旧 handoff 或按日期回放历史；需要背景时再查 git log、PR、[`docs/internal/review/`](internal/review/) 或 [`docs/agent-onboarding.md`](agent-onboarding.md)。
