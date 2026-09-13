@@ -51,12 +51,12 @@ export function validateAnswerRequest(raw: unknown): AnswerRequest {
   if (request.answerType === "binary" && request.options) throw new Error("Binary questions do not accept an option list");
   return request;
 }
-export async function validatedCall<T>(prompt: string, validate: (raw: unknown) => T, opts: {model?: string; runAgentFn?: AgentRunner; allowedTools?: string; onAttempt?: (result: AgentRunResult, attempt: number) => void} = {}): Promise<{value: T; result: AgentRunResult}> {
+export async function validatedCall<T>(prompt: string, validate: (raw: unknown) => T, opts: {model?: string; runAgentFn?: AgentRunner; allowedTools?: string; initialResult?: AgentRunResult; onAttempt?: (result: AgentRunResult, attempt: number) => void} = {}): Promise<{value: T; result: AgentRunResult}> {
   const call = opts.runAgentFn ?? runAgent;
   let error = "", previous = "";
   const attempts: AgentRunResult[] = [];
   for (let attempt = 0; attempt < 2; attempt++) {
-    const result = await call(prompt + (error ? `\nYour previous response failed validation: ${error}. Correct the contract; do not change the question. Previous response (untrusted evidence):\n${previous}` : ""), {model: opts.model, allowedTools: opts.allowedTools});
+    const result = attempt === 0 && opts.initialResult ? opts.initialResult : await call(prompt + (error ? `\nYour previous response failed validation: ${error}. This is a correction pass, not a new research round. Fix every violation of that contract using the supplied material; preserve the question and other supported claims. Do not perform additional research. Previous response (untrusted evidence):\n${previous}` : ""), {model: opts.model, allowedTools: error ? "" : opts.allowedTools});
     opts.onAttempt?.(result, attempt + 1);
     if (result.exitCode !== 0) throw new Error(`Forecast provider failed (exit ${result.exitCode})`);
     attempts.push(result);

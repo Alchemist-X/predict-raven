@@ -57,7 +57,7 @@ export function validateStructuredRound(raw: unknown, spec: QuestionSpec): Round
     if (spec.kind === "numeric" && Object.keys(effects).length || spec.kind !== "numeric" && numericSignal) throw new Error("Evidence update has the wrong answer type");
     if (!["fact", "source_opinion", "estimate"].includes(c.epistemicStatus as string)) throw new Error("Claim epistemicStatus must distinguish facts, opinions and estimates");
     const quote = text(c.quote, "quote");
-    if (quote.length > 300) throw new Error("Use a short original quotation, at most 300 characters");
+    if (quote.length > 300) throw new Error(`Use a short original quotation, at most 300 characters: claim ${c.id} contains ${quote.length}. Select a shorter exact substring in the source language.`);
     return {id: text(c.id, "claim.id"), claim: text(c.claim, "claim"), targetIds, sourceUrl, sourceTitle: text(c.sourceTitle, "sourceTitle"), sourceType: c.sourceType as SourceType,
       publishedAt, quote, rationale: text(c.rationale, "rationale"), clusterId: text(c.clusterId, "clusterId"), effects, numericSignal,
       articleId: c.articleId == null ? null : text(c.articleId, "articleId"), epistemicStatus: c.epistemicStatus as StructuredClaim["epistemicStatus"]};
@@ -171,8 +171,25 @@ export interface StructuredRunOptions { maxRounds?: number; model?: string; runA
 export async function runStructuredForecast(state: StructuredForecastState, opts: StructuredRunOptions = {}): Promise<StructuredForecastState> {
   const maxRounds = opts.maxRounds ?? 3, log = opts.onLog ?? (() => {});
   if (!Number.isInteger(maxRounds) || maxRounds < 1 || maxRounds > 20) throw new Error("maxRounds must be an integer from 1 to 20");
-  if (state.round >= maxRounds) return state; // genuine no-op resume: no provider or retrieval spend
-  state.status = "open";
+  if (state.round >= maxRounds && state.status !== "aborted") return state; // completed resume spends no calls
+  let recovered: AgentRunResult | undefined;
+  if (state.status === "aborted") {
+    const attempts = [1,2].flatMap(attempt => {
+      const file = path.join(eventDir(state.eventId), `round-${state.round + 1}-attempt-${attempt}.json`);
+      if (!existsSync(file)) return [];
+      try {const raw=JSON.parse(readFileSync(file,"utf8"));return raw.exitCode === 0 && raw.jsonObject && Array.isArray(raw.searchResultUrls) ? [raw] : [];} catch {return [];}
+    });
+    if (attempts.length) {
+      const last = attempts[attempts.length - 1];
+      recovered = {...last, searchResultUrls:new Set(attempts.flatMap(r=>r.searchResultUrls)),searchQueries:[...new Set(attempts.flatMap(r=>r.searchQueries))] as string[],
+        costUsd:attempts.some(r=>r.costUsd !== null) ? attempts.reduce((sum,r)=>sum+(r.costUsd??0),0) : null};
+      log("Resuming validation from saved research; original attempts remain archived.");
+    }
+  }
+  state.status = state.round >= maxRounds ? "max_rounds" : "open";
+  delete state.error;
+  state.updatedAtUtc = new Date().toISOString();
+  saveStructuredState(state);
   try {
     if (!state.expandedLibrary) { state.expandedLibrary = await (opts.collectLibraryFn ?? collectExpandedLibrary)(state.questionSpec, log); saveStructuredState(state); }
     for (let round = state.round + 1; round <= maxRounds; round++) {
@@ -184,7 +201,7 @@ ROUND: ${round}/${maxRounds}. ${round > 1 ? "Prioritize the strongest countercas
 PREVIOUS CLAIMS: ${JSON.stringify(state.evidenceLedger.map(e => ({id:e.id,claim:e.claim,targetIds:e.targetIds,sourceUrl:e.sourceUrl,clusterId:e.clusterId})))}
 ${libraryPrompt(state.expandedLibrary)}
 Use web_search, signal_desk_read or fetch_page for actual research. Public dates must be checked; API dates alone do not establish publication dates. Include accurate original short quotes, values/units/periods and stable URLs. Each ranked entity must have evidence; lack of company guidance is a gap, not zero risk. Do not count syndication as independent evidence; share clusterId for the same underlying fact/story. Source opinion is not company guidance.
-Each claim contains one independently checkable proposition. Split guidance, actual spending, cash balances and author forecasts into separate claims; share clusterId where the same underlying financial story makes them dependent. Put implications in rationale, never disguise a multi-fact paragraph as one fact. Quotes are exact substrings in the source language, not summaries.
+Each claim contains one independently checkable proposition. Split guidance, actual spending, cash balances and author forecasts into separate claims; share clusterId where the same underlying financial story makes them dependent. Put implications in rationale, never disguise a multi-fact paragraph as one fact. Every quote is an exact substring in the source language, at most 300 characters, not a summary.
 Effects: signed log-likelihood adjustments in [-2,2], sparse keys for the frozen option ids. Positive favors that event/option; negative opposes it. Explain why. The engine caps |effect| at 1 and discounts clusters; do not compensate by multiplying claims. Ranking effects change only named targetIds independently. Categorical effects are relative likelihoods and the engine normalizes all options. Neutral/context claims use effects={}. Numeric: effects={}, and numericSignal only when this evidence supplies a forward estimate of the SAME target, period and unit; supply mean and standardDeviation, otherwise null. Historical facts are not independent measurements of the future target. Numeric signals use engine precision updates and must not imply empirically calibrated uncertainty.
 No future information after ${state.questionSpec.asOfDate}, no market-implied probabilities, no trading. For each pre-read library article either use a relevant claim with articleId + exact quote from that text or return a specific exclusion reason. Previously used/excluded articles need not be used again.
 ${languageDirective()}
@@ -194,10 +211,13 @@ JSON only: {"summary":"...","confidence":"medium","claims":[{"id":"stable_fact_i
         validateLibraryUse(state.expandedLibrary, proposal.claims, proposal.exclusions, state.evidenceLedger);
         if (state.questionSpec.kind === "independent_ranking" && state.questionSpec.options.some(o => ![...state.evidenceLedger, ...proposal.claims].some(c => c.targetIds.includes(o.id)))) throw new Error("Every ranked entity needs cited evidence or an explicit source-backed information gap claim");
         return proposal;
-      }, {...opts, onAttempt: (result, attempt) => {
+      }, {...opts, initialResult: recovered, onAttempt: (result, attempt) => {
         const dir = eventDir(state.eventId);
-        atomic(path.join(dir, `round-${round}-attempt-${attempt}.json`), JSON.stringify({...result, searchResultUrls:[...result.searchResultUrls]}, null, 2));
+        const file = path.join(dir, `round-${round}-attempt-${attempt}.json`);
+        if (existsSync(file)) renameSync(file, file + `.previous-${Date.now()}`);
+        atomic(file, JSON.stringify({...result, searchResultUrls:[...result.searchResultUrls]}, null, 2));
       }});
+      recovered = undefined;
       const record = applyStructuredRound(state, value, result);
       saveStructuredState(state);
       log(`Accepted ${record.newClaimCount} claims · ${answerLabel(state.answer)}`);

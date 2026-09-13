@@ -234,6 +234,38 @@ describe("native typed research loop", () => {
     expect(s.evidenceLedger.every(e => e.effectiveWeight === 0)).toBe(true);
   });
 
+  it("resumes a rejected saved round with a tool-free correction and preserves original attempts", async () => {
+    const s = state();
+    const claims = [claim("meta-recovered", "meta", 0.4),claim("google-recovered", "google", -0.2)];
+    const collectLibraryFn = vi.fn().mockResolvedValue({...coverage(),required:false,readings:[],queries:[]});
+    await expect(runStructuredForecast(s,{maxRounds:1,collectLibraryFn,runAgentFn:vi.fn().mockResolvedValue(result({...proposal(claims),confidence:"invalid"},claims))})).rejects.toThrow(/confidence/);
+    const repair = vi.fn().mockResolvedValueOnce(result(proposal(claims))).mockResolvedValueOnce(result(summary));
+    await runStructuredForecast(s,{maxRounds:1,collectLibraryFn,runAgentFn:repair});
+    expect(repair).toHaveBeenCalledTimes(2);
+    expect(repair.mock.calls.every(call=>call[1].allowedTools === "")).toBe(true);
+    expect(s.status).toBe("max_rounds");
+    expect(s.error).toBeUndefined();
+    expect(s.evidenceLedger.every(entry=>entry.verifiedInSearchTrace)).toBe(true);
+    expect(collectLibraryFn).toHaveBeenCalledTimes(1);
+    expect(readdirSync(eventDir(s.eventId)).filter(name=>name.includes('.previous-'))).toHaveLength(2);
+    expect(validateStructuredState(s)).toBe(s);
+  });
+
+  it("retries a failed explanation without reapplying completed evidence rounds", async () => {
+    const s=state();
+    const claims=[claim("meta-done","meta",0.2),claim("google-done","google",-0.2)];
+    const collectLibraryFn=vi.fn().mockResolvedValue({...coverage(),required:false,readings:[],queries:[]});
+    const failed=vi.fn().mockResolvedValueOnce(result(proposal(claims),claims)).mockResolvedValue(result({}));
+    await expect(runStructuredForecast(s,{maxRounds:1,collectLibraryFn,runAgentFn:failed})).rejects.toThrow(/verdict/);
+    const before=structuredClone(s.answer), finish=vi.fn().mockResolvedValue(result(summary));
+    await runStructuredForecast(s,{maxRounds:1,collectLibraryFn,runAgentFn:finish});
+    expect(finish).toHaveBeenCalledTimes(1);
+    expect(s.answer).toEqual(before);
+    expect(s.round).toBe(1);
+    expect(s.status).toBe("max_rounds");
+    expect(s.summary).toEqual(summary);
+  });
+
   it("stops after an empty second round without counting duplicate support again", async () => {
     const s = state();
     const first = [claim("meta-1", "meta", 0.4), claim("google-1", "google", -0.3)];
