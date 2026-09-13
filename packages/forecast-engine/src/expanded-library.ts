@@ -65,7 +65,7 @@ export function validateLibraryUse(coverage: ExpandedLibraryCoverage | null, cla
     used.add(claim.articleId);
   }
   for (const exclusion of exclusions) {
-    if (!readings.has(exclusion.articleId) || exclusion.reason.trim().length < 12) throw new Error("Library exclusions need a real article and concrete reason");
+    if (!readings.has(exclusion.articleId) || exclusion.reason.trim().length < 12) throw new Error(`Library exclusions need a real article and concrete reason: ${exclusion.articleId}. Only use these pre-read ids: ${[...readings.keys()].join(", ")}. Discuss other sources in the summary instead.`);
   }
   const excluded = new Set([...coverage.exclusions, ...exclusions].map(e => e.articleId));
   for (const id of readings.keys()) {
