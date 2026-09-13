@@ -59,6 +59,8 @@ async function gatewayJson(mode: string, input?: unknown, timeoutMs = 90_000): P
       reject(error);
     };
     const timer = setTimeout(() => fail(new Error(`research gateway timed out after ${timeoutMs}ms`)), timeoutMs);
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
     child.stdout.on("data", chunk => {
       stdout += chunk.toString();
       if (stdout.length > 1_000_000) fail(new Error("research gateway output exceeds 1 MB"));

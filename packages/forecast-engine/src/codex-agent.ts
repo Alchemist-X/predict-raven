@@ -96,6 +96,8 @@ export async function runCodexRaw(
       child.kill("SIGTERM");
       reject(new Error(`codex agent timed out after ${opts.timeoutMs ?? DEFAULT_TIMEOUT_MS}ms`));
     }, opts.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
     child.stdout.on("data", (d) => (out += d.toString()));
     child.stderr.on("data", (d) => (err += d.toString()));
     child.on("error", (error) => {

@@ -501,6 +501,8 @@ export async function runAgentRaw(prompt: string, opts: RunAgentOptions = {}): P
       reject(new Error(`agent timed out after ${opts.timeoutMs ?? DEFAULT_TIMEOUT_MS}ms`));
     }, opts.timeoutMs ?? DEFAULT_TIMEOUT_MS);
 
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
     child.stdout.on("data", (d) => (stdout += d.toString()));
     child.stderr.on("data", (d) => (stderr += d.toString()));
     child.on("error", (err) => {

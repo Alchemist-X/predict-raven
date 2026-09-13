@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { extractToolUrls, parseStreamJson } from "./claude-agent";
+import { extractToolUrls, parseStreamJson, runAgentRaw } from "./claude-agent";
 import { runDeepSeekRaw } from "./deepseek-agent";
 import { callResearchTool, RESEARCH_MCP_PREFIX, RESEARCH_TOOL_NAMES, researchClaudeArgs, researchSourceUrls, researchToolNames, signalDeskEnabled } from "./research-tools";
 
@@ -15,6 +15,18 @@ const use = (name: string, id = "one", input = {}) => ({ type: "assistant", mess
 const result = (data: unknown, id = "one", is_error = false) => ({ type: "user", message: { content: [{ type: "tool_result", tool_use_id: id, is_error, content: [{ type: "text", text: JSON.stringify(data) }] }] } });
 
 describe("personal research boundary", () => {
+  it("preserves Chinese quotes split across subprocess byte chunks", async () => {
+    const dir=mkdtempSync(join(tmpdir(),"research utf8 "));temps.push(dir);
+    const expected="资本开支原文：前后口径一致。";
+    const emitter=(payload:unknown)=>'#!/usr/bin/env node\nprocess.stdin.resume();process.stdin.on("end",()=>{const b=Buffer.from('+JSON.stringify(JSON.stringify(payload))+'+"\\n");let i=0;const t=setInterval(()=>{if(i<b.length){process.stdout.write(b.subarray(i,i+1));i++;}else clearInterval(t)},1)});';
+    const gatewayFile=join(dir,"gateway");writeFileSync(gatewayFile,emitter({text:expected}));chmodSync(gatewayFile,0o700);
+    vi.stubEnv("FORECAST_SIGNAL_DESK_COMMAND",gatewayFile);
+    expect((await callResearchTool("signal_desk_read",{article_id:"x"})).text).toBe(expected);
+    const claudeFile=join(dir,"claude");writeFileSync(claudeFile,emitter({type:"result",result:JSON.stringify({answer:expected})}));chmodSync(claudeFile,0o700);
+    vi.stubEnv("PATH",dir+":"+process.env.PATH);vi.stubEnv("FORECAST_SIGNAL_DESK","0");
+    const out=await runAgentRaw("fixture",{cwd:dir,allowedTools:"",timeoutMs:3000});
+    expect(out.jsonObject).toEqual({answer:expected});
+  });
   it("is opt-in and removes builtin search when the gateway is active", () => {
     vi.stubEnv("FORECAST_SIGNAL_DESK", ""); vi.stubEnv("FORECAST_ALLOWED_TOOLS", undefined);
     expect(signalDeskEnabled()).toBe(false);
