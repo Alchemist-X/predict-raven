@@ -61,7 +61,7 @@ export function validateLibraryUse(coverage: ExpandedLibraryCoverage | null, cla
     if (!claim.articleId) continue;
     const reading = readings.get(claim.articleId);
     if (!reading) continue; // Extra citations get URL-trace checks, not pre-read exact-text verification.
-    if (!claim.quote || !reading.some(r => claim.sourceUrl === r.url && r.text.includes(claim.quote))) throw new Error("Expanded-library citations require an actually-read article, matching URL and exact quote");
+    if (!claim.quote || !reading.some(r => claim.sourceUrl === r.url && r.text.includes(claim.quote))) throw new Error(`Expanded-library citations require an actually-read article, matching URL and exact quote: ${claim.articleId}. Copy a short verbatim substring from the supplied reading, not a paraphrase.`);
     used.add(claim.articleId);
   }
   for (const exclusion of exclusions) {
