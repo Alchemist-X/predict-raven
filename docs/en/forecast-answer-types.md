@@ -46,3 +46,5 @@ Required-but-disabled gateways fail explicitly. Upstream failures preserve attem
 Verify binary regressions, categorical sums, non-normalized rankings, numerical units/negative values/bounds, ties, repair trace retention, deduplication, round replay, mandatory library use/exclusion and real API/MCP/UI/PDF behavior. Separately check source dates, company attribution and settlement definitions for a live forecast. Software tests validate behavior, not future prediction accuracy.
 
 Failed outputs are retained as round attempt files. Resuming a rejected round reuses saved retrieval traces and performs a tool-disabled correction; previous attempts remain archived. A failed explanation can resume without reapplying completed evidence. Stateful UTF-8 stream decoding preserves Chinese characters across process chunks.
+
+Reading another passage of an article after resume does not retroactively reject a previously accepted citation. An old quote only satisfies current coverage if it matches a supplied passage. New citations still require exact read text; validation lists all unaccounted articles in one correction message.

@@ -58,6 +58,21 @@ describe("mandatory expanded library use", () => {
     expect(() => validateLibraryUse(previouslyExcluded, [], [])).not.toThrow();
   });
 
+  it("does not invalidate a previously accepted tool-read quote when a later prefetch reads another passage", () => {
+    const oldClaim = libraryClaim({quote: "Another section discussed Microsoft's fiscal-year budget."});
+    const exclusion = {articleId: "article-1", reason: "This newly read passage is only an unverified author forecast."};
+    expect(() => validateLibraryUse(coverage(), [], [exclusion], [oldClaim])).not.toThrow();
+    expect(() => validateLibraryUse(coverage(), [libraryClaim()], [], [oldClaim])).not.toThrow();
+    expect(() => validateLibraryUse(coverage(), [], [], [oldClaim])).toThrow(/neither used nor explicitly excluded/);
+    expect(() => validateLibraryUse(coverage(), [oldClaim], [exclusion])).toThrow(/exact quote/);
+  });
+
+  it("reports every unused article together so a correction can resolve all omissions", () => {
+    const data = coverage();
+    data.readings.push({...data.readings[0], articleId: "article-2"});
+    expect(() => validateLibraryUse(data, [], [])).toThrow(/article-1, article-2.*neither used nor explicitly excluded/);
+  });
+
   it("keeps an explicit unavailable-source record without pretending content was read", () => {
     const unavailable = coverage();
     unavailable.queries = [{ targetId: "meta", query: "Meta capex", status: "error", total: null, error: "Gateway timeout" }];

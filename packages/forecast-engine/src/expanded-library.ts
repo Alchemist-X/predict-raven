@@ -57,7 +57,13 @@ export function validateLibraryUse(coverage: ExpandedLibraryCoverage | null, cla
   if (!coverage?.required || !coverage.readings.length) return;
   const readings = new Map(coverage.readings.map(r => [r.articleId, coverage.readings.filter(candidate => candidate.articleId === r.articleId)]));
   const used = new Set<string>();
-  for (const claim of [...previousClaims, ...claims]) {
+  // An older tool-read citation can predate this prefetch and quote another
+  // passage of the same article. It only satisfies current coverage when the
+  // quote matches a supplied segment; new segments cannot invalidate history.
+  for (const claim of previousClaims) {
+    if (claim.articleId && claim.quote && readings.get(claim.articleId)?.some(r => claim.sourceUrl === r.url && r.text.includes(claim.quote))) used.add(claim.articleId);
+  }
+  for (const claim of claims) {
     if (!claim.articleId) continue;
     const reading = readings.get(claim.articleId);
     if (!reading) continue; // Extra citations get URL-trace checks, not pre-read exact-text verification.
@@ -68,9 +74,8 @@ export function validateLibraryUse(coverage: ExpandedLibraryCoverage | null, cla
     if (!readings.has(exclusion.articleId) || exclusion.reason.trim().length < 12) throw new Error(`Library exclusions need a real article and concrete reason: ${exclusion.articleId}. Only use these pre-read ids: ${[...readings.keys()].join(", ")}. Discuss other sources in the summary instead.`);
   }
   const excluded = new Set([...coverage.exclusions, ...exclusions].map(e => e.articleId));
-  for (const id of readings.keys()) {
-    if (!used.has(id) && !excluded.has(id)) throw new Error(`Read library article ${id} was neither used nor explicitly excluded`);
-  }
+  const missing = [...readings.keys()].filter(id => !used.has(id) && !excluded.has(id));
+  if (missing.length) throw new Error(`Read library article(s) ${missing.join(", ")} were neither used nor explicitly excluded. Resolve every listed article in this correction pass.`);
 }
 
 export function binaryLibraryUsage(coverage: ExpandedLibraryCoverage | null | undefined, claims: Array<{libraryArticleId?: string; libraryQuote?: string; sources: Array<{url: string}>}>, raw: unknown): {usedArticleIds: string[]; exclusions: Array<{articleId:string;reason:string}>} | null {
