@@ -4,6 +4,7 @@
 // headlines, decision-first hierarchy. Self-contained (no external assets).
 
 import type { ForecastAnswer } from "./answer";
+import { structuredSections } from "./render-structured";
 
 export function escapeHtml(s: string): string {
   return s
@@ -72,6 +73,15 @@ function evidenceCard(e: ForecastAnswer["evidence"][number]): string {
 }
 
 export function renderHtml(a: ForecastAnswer): string {
+  if (a.answer && a.structured) {
+    const sections = structuredSections(a)
+      .map(
+        (section) =>
+          `<section><h2>${escapeHtml(section.title)}</h2>${section.paragraphs.map((paragraph) => `<p style="white-space:pre-wrap;overflow-wrap:anywhere">${escapeHtml(paragraph)}</p>`).join("")}</section>`
+      )
+      .join("");
+    return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${escapeHtml(a.question)}</title><style>${CSS}</style></head><body><header><div class="brand">Raven Forecasting Engine</div><h1>${escapeHtml(a.normalizedQuestion ?? a.question)}</h1></header><p>Status / 状态: ${escapeHtml(a.status)}${a.status === "running" ? " · provisional / 暂定" : ""}</p>${sections}<footer>id: ${escapeHtml(a.id)} · updated / 更新: ${escapeHtml(a.updatedAtUtc ?? "")}</footer></body></html>`;
+  }
   const an = a.analysis;
   const generated = new Date().toISOString();
   const paragraphs = (an?.verdict ?? "")
@@ -109,7 +119,7 @@ ${
   a.probability !== null
     ? `<div class="hero"><div class="prob mono">${escapeHtml(a.probabilityPct ?? "")}</div><div><div class="verdict">${escapeHtml(a.verdict ?? "")}</div><div style="font-size:10px;color:#8a7a63">probability the answer is YES</div></div></div>
 <div class="conf">${a.confidence ? `Confidence: ${escapeHtml(a.confidence)}${an?.confidenceReason ? " — " + escapeHtml(an.confidenceReason) : ""}` : ""}</div>`
-    : `<p>The engine could not produce a probability for this prompt${a.status === "unforecastable" ? " — it is not a clean yes/no event. Refine what counts as YES, by when, per which source, and ask again." : "."}</p>`
+    : `<p>The engine has not produced an answer for this prompt${a.status === "unforecastable" ? " — specify the outcomes or metric, deadline and settlement source, and ask again." : "."}</p>`
 }
 ${an?.whySentence ? `<div class="why">${escapeHtml(an.whySentence)}</div>` : ""}
 ${paragraphs ? `<h2>Analysis</h2>${paragraphs}` : ""}
@@ -128,7 +138,13 @@ ${a.framing.assumptions ? `<p><b>Assumptions:</b> ${escapeHtml(a.framing.assumpt
 <p>Method: iterative research loop — the question is framed into a precise binary event, then researched over multiple rounds; every probability move is attributed to a cited source through a Bayesian update, with unverified citations damped and correlated sources discounted.</p>`
     : ""
 }
-<footer>${[a.provider ? `provider: ${escapeHtml(a.provider)}` : null, `rounds: ${a.rounds}`, a.updatedAtUtc ? `updated: ${escapeHtml(a.updatedAtUtc)}` : null, `id: ${escapeHtml(a.id)}`, `generated: ${generated}`]
+<footer>${[
+    a.provider ? `provider: ${escapeHtml(a.provider)}` : null,
+    `rounds: ${a.rounds}`,
+    a.updatedAtUtc ? `updated: ${escapeHtml(a.updatedAtUtc)}` : null,
+    `id: ${escapeHtml(a.id)}`,
+    `generated: ${generated}`
+  ]
     .filter(Boolean)
     .join(" · ")}<br>Forecasts are research output, not financial or betting advice.</footer>
 </body></html>`;

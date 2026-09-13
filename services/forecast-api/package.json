@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Hosted forecast service: ask any binary event question, get probability + reasoning + evidence as JSON, plain text, or PDF \u2014 over HTTP or MCP.",
+  "description": "Hosted forecast service: ask event, choice, numeric, or ranking questions; get typed answers + reasoning + evidence as JSON, plain text, or PDF — over HTTP or MCP.",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",

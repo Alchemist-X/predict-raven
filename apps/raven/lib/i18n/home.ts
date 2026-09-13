@@ -7,6 +7,10 @@
 import type { Entry } from "./index";
 
 export const HOME = {
+  answerType: { en: "Answer format", zh: "答案形式" },
+  autoType: { en: "Detect from question", zh: "根据问题自动识别" },
+  binaryType: { en: "Yes / no probability", zh: "是非事件概率" },
+  binaryProbability: { en: "YES probability", zh: "事件发生概率" },
   researchPreview: { en: "RESEARCH PREVIEW", zh: "研究预览" },
   mascotAlt: {
     en: "Raven, a hooded crow holding a glowing orb",
@@ -14,8 +18,8 @@ export const HOME = {
   },
   heroTitleAccent: { en: "Forecasting Engine", zh: "预测引擎" },
   heroLede: {
-    en: "Ask a hard yes-or-no question about the future. Raven frames it precisely, researches it in adversarial rounds, and returns a probability — with every source that moved it laid out in reading order.",
-    zh: "提出一个关于未来的是非题。Raven 会精确定题，做对抗式多轮研究，最后给出一个概率——每条影响结论的来源都按阅读顺序列出。"
+    en: "Ask about an event, choose among outcomes, forecast a number, or compare companies. Raven defines the question, researches the evidence, and shows how it reached the answer.",
+    zh: "预测事件、选择选项、估计数值，或比较公司。Raven 会明确问题口径，研究证据，并展示结论的形成过程。"
   },
   askPlaceholder: { en: "Will … happen by …?", zh: "……会在……之前发生吗？" },
   askAriaLabel: { en: "Forecast question", zh: "预测问题" },
@@ -51,7 +55,7 @@ export const HOME = {
   step3Kicker: { en: "03 · VERDICT", zh: "03 · 判决" },
   step3Title: { en: "A number you can audit", zh: "一个可审计的数字" },
   step3Body: {
-    en: "One probability with its confidence band — and every source that moved it, in reading order, line by line.",
-    zh: "一个概率，附置信度——以及每条改变它的来源，按阅读顺序逐条列出。"
+    en: "A probability, choice, numeric estimate, or ranking, with the evidence and assumptions that produced it.",
+    zh: "给出概率、选项、数值估计或排名，并列出形成结论的证据和假设。"
   }
 } satisfies Record<string, Entry>;

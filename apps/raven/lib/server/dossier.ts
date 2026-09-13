@@ -3,6 +3,12 @@
 // bypasses this and ships its hand-authored VM directly.
 
 import type { ForecastState, LedgerEntry, RoundRecord } from "@autopoly/forecast-engine/types";
+import {
+  answerLabel,
+  isStructuredForecast,
+  type AnyForecastState,
+  type StructuredForecastState
+} from "@autopoly/forecast-engine/answer-types";
 import { GTA6_DEMO, GTA6_DEMO_ID } from "../demo/gta6";
 import {
   credWord,
@@ -15,7 +21,7 @@ import {
   verdictFor
 } from "../vm/format";
 import type { DossierMeta, DossierStatus, DossierVM, EvidenceVM, IterationVM, RunListItem, Side } from "../vm/types";
-import { listStates, loadState } from "./repo";
+import { listAnyStates, loadAnyState } from "./repo";
 import type { Job } from "./run-manager";
 
 // The engine may or may not have populated the newer optional fields
@@ -112,7 +118,8 @@ function cleanPct(text: string): string {
   return text.replace(/(\d+)\.0%/g, "$1%");
 }
 
-export function adaptState(state: StateX, job: Job | null): DossierVM {
+export function adaptState(state: AnyForecastState, job: Job | null): DossierVM {
+  if (isStructuredForecast(state)) return adaptStructuredState(state, job);
   const leanYes = state.currentProb >= 0.5;
   const ledger = state.evidenceLedger as LedgerX[];
   const iterations = state.roundHistory.map((r) => toIteration(r, ledger, leanYes));
@@ -222,15 +229,90 @@ export function adaptState(state: StateX, job: Job | null): DossierVM {
   };
 }
 
+function adaptStructuredState(state: StructuredForecastState, job: Job | null): DossierVM {
+  const spec = state.questionSpec;
+  const library = state.expandedLibrary;
+  return {
+    id: state.eventId,
+    status: state.status === "open" ? "running" : state.status === "aborted" ? "failed" : "complete",
+    meta: {
+      question: spec.question,
+      prob: answerLabel(state.answer),
+      verdict: "",
+      quip: "",
+      prior: "",
+      duration: formatDuration(state.createdAtUtc, state.updatedAtUtc),
+      sources: String(new Set(state.evidenceLedger.map((entry) => entry.sourceUrl)).size),
+      nSupport: "0",
+      nCounter: "0",
+      nNeutral: "0",
+      why: state.summary?.verdict ?? "",
+      confWhy: "",
+      openUnc: state.summary?.uncertainties.join("\n") ?? "",
+      resDate: spec.resolutionDate,
+      normQ: spec.question,
+      criteria: spec.resolutionCriteria,
+      priorWhy: spec.priorRationale,
+      assumptions: spec.assumptions.join("\n"),
+      settlement: spec.settlementSource,
+      confidence: state.roundHistory.at(-1)?.confidence ?? "low"
+    },
+    structured: {
+      answer: state.answer,
+      questionSpec: spec,
+      summary: state.summary,
+      evidence: state.evidenceLedger,
+      rounds: state.roundHistory,
+      library: library
+        ? {
+            searched: library.queries.length,
+            read: library.readings.length,
+            used: library.usedArticleIds.length,
+            gaps: library.queries
+              .filter((query) => query.error || query.status !== "ok")
+              .map((query) => `${query.targetId}: ${query.error ?? query.status}`)
+          }
+        : null
+    },
+    iterations: [],
+    core: [],
+    topCounter: null,
+    provider: state.provider ?? job?.provider ?? null,
+    isDemo: false,
+    currentProb: null,
+    priorProb: null,
+    maxRounds: Math.max(job?.maxRounds ?? 3, state.round),
+    startedAtUtc: state.createdAtUtc,
+    summaryParagraphs: state.summary?.verdict.split(/\n\n+/).filter(Boolean) ?? [],
+    researchPlan: null
+  };
+}
+
 export function getDossier(id: string, job: Job | null): DossierVM | null {
   if (id === GTA6_DEMO_ID) return GTA6_DEMO;
-  const state = loadState(id) as StateX | null;
+  const state = loadAnyState(id);
   if (!state) return null;
   return adaptState(state, job);
 }
 
 export function listRuns(): RunListItem[] {
-  const items: RunListItem[] = (listStates() as StateX[]).map((s) => {
+  const items: RunListItem[] = listAnyStates().map((s) => {
+    if (isStructuredForecast(s)) {
+      return {
+        eventId: s.eventId,
+        answerType: s.answer.kind,
+        question: s.questionSpec.question,
+        prob: answerLabel(s.answer),
+        status: s.status === "open" ? "running" : s.status === "aborted" ? "failed" : "complete",
+        sources: new Set(s.evidenceLedger.map((entry) => entry.sourceUrl)).size,
+        updatedAtUtc: s.updatedAtUtc,
+        verdict: "",
+        quip: null,
+        duration: formatDuration(s.createdAtUtc, s.updatedAtUtc),
+        confidence: s.roundHistory.at(-1)?.confidence ?? "low",
+        resDate: s.questionSpec.resolutionDate
+      };
+    }
     const summary = s.summary;
     return {
       eventId: s.eventId,

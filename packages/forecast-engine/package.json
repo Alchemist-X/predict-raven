@@ -2,8 +2,10 @@
   "name": "@autopoly/forecast-engine",
   "version": "0.1.0",
   "private": true,
-  "description": "Iterative binary forecaster: framing -> evidence rounds -> verdict. Source-consumed (tsx/deep imports); no dist build yet \u2014 provider/store injection is the next extraction step (issue #56).",
+  "type": "module",
+  "description": "Iterative forecaster with binary, categorical, numeric, and independent-ranking answers: framing -> evidence rounds -> verdict. Source-consumed (tsx/deep imports); no dist build yet — provider/store injection is the next extraction step (issue #56).",
   "exports": {
+    "./answer-types": "./src/answer-types.ts",
     "./types": "./src/types.ts",
     "./store": "./src/store.ts",
     "./web-search": "./src/web-search.ts",

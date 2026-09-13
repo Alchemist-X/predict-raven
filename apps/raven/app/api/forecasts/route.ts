@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { AnswerRequestSchema } from "../../../lib/server/answer-request";
 import { z } from "zod";
 import { listRuns } from "../../../lib/server/dossier";
 import { authorizeInviteUse, describeInviteState, ensureSeeded, inviteState } from "../../../lib/server/invites";
@@ -19,6 +20,7 @@ export async function GET() {
 }
 
 const CreateSchema = z.object({
+  answerRequest: AnswerRequestSchema.optional(),
   question: z.string().trim().min(8, "question too short").max(400, "question too long"),
   maxRounds: z.number().int().min(1).max(6).optional(),
   fresh: z.boolean().optional(),
@@ -49,6 +51,7 @@ export async function POST(req: Request) {
   ensureSeeded(process.env.FORECAST_INVITE_CODE || "raven-labs");
   try {
     const job = startForecast(parsed.data.question, {
+      answerRequest: parsed.data.answerRequest,
       maxRounds: parsed.data.maxRounds,
       fresh: parsed.data.fresh,
       provider,
@@ -57,7 +60,7 @@ export async function POST(req: Request) {
         service: "raven-web",
         limit: dailyQuotaLimit(),
         authorizeBypass: invite
-          ? () => authorizeInviteUse(invite, "raven-web", makeEventId(parsed.data.question))
+          ? () => authorizeInviteUse(invite, "raven-web", makeEventId(parsed.data.question, parsed.data.answerRequest))
           : undefined
       }
     });

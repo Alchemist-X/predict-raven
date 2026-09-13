@@ -3,7 +3,14 @@
 // internal credibleInterval band is deliberately NEVER exposed (user decision
 // 2026-07-02: no interval claims on user-facing surfaces until calibrated).
 
-import type { ForecastState } from "./repo";
+import type { ForecastState, AnyForecastState } from "./repo";
+import {
+  answerLabel,
+  isStructuredForecast,
+  type AnswerKind,
+  type StructuredAnswer,
+  type StructuredForecastState
+} from "@autopoly/forecast-engine/answer-types";
 import type { Job } from "./run-manager";
 
 export type AnswerStatus = "running" | "done" | "unforecastable" | "error" | "aborted";
@@ -34,6 +41,10 @@ export interface RoundItem {
 }
 
 export interface ForecastAnswer {
+  answerType: AnswerKind | null;
+  answer: StructuredAnswer | null;
+  answerLabel: string | null;
+  structured: StructuredDetails | null;
   id: string;
   status: AnswerStatus;
   question: string;
@@ -68,6 +79,15 @@ export interface ForecastAnswer {
   links: { json: string; text: string; pdf: string };
 }
 
+// Never expose expandedLibrary.readings: those contain private article bodies.
+export interface StructuredDetails {
+  questionSpec: StructuredForecastState["questionSpec"];
+  summary: StructuredForecastState["summary"];
+  evidence: StructuredForecastState["evidenceLedger"];
+  rounds: StructuredForecastState["roundHistory"];
+  library: { required: boolean; queryCount: number; readCount: number; usedCount: number; gaps: string[] } | null;
+}
+
 export function verdictFor(p: number): string {
   if (p < 0.1) return "Very unlikely";
   if (p < 0.25) return "Unlikely";
@@ -85,7 +105,7 @@ export const pct = (p: number): string => `${Math.round(p * 100)}%`;
 // so a newer on-disk state must beat a stale terminal job — and a terminal
 // state must beat a synthetic "reattached" running job (see run-manager).
 export function answerStatus(
-  state: ForecastState | null,
+  state: AnyForecastState | null,
   job: Job | null,
   stateMtime?: number | null
 ): AnswerStatus {
@@ -158,7 +178,7 @@ function evidenceItems(state: ForecastState): EvidenceItem[] {
 
 export function buildAnswer(
   id: string,
-  state: ForecastState | null,
+  state: AnyForecastState | null,
   job: Job | null,
   baseUrl: string,
   stateMtime?: number | null
@@ -166,7 +186,62 @@ export function buildAnswer(
   const status = answerStatus(state, job, stateMtime);
   const lastRound = state?.roundHistory[state.roundHistory.length - 1] ?? null;
   const showJobLog = status === "error" || status === "unforecastable";
+  if (isStructuredForecast(state)) {
+    const library = state.expandedLibrary;
+    return {
+      id,
+      status,
+      question: state.eventText,
+      normalizedQuestion: state.questionSpec.question,
+      answerType: state.answer.kind,
+      answer: state.answer,
+      answerLabel: answerLabel(state.answer),
+      structured: {
+        questionSpec: state.questionSpec,
+        summary: state.summary,
+        evidence: state.evidenceLedger,
+        rounds: state.roundHistory,
+        library: library
+          ? {
+              required: library.required,
+              queryCount: library.queries.length,
+              readCount: library.readings.length,
+              usedCount: library.usedArticleIds.length,
+              gaps: library.queries
+                .filter((query) => query.error || query.status !== "ok")
+                .map((query) => `${query.targetId}: ${query.error ?? query.status}`)
+            }
+          : null
+      },
+      probability: null,
+      probabilityPct: null,
+      verdict: state.summary?.verdict ?? null,
+      confidence: lastRound?.confidence ?? null,
+      analysis: null,
+      framing: {
+        resolutionCriteria: state.questionSpec.resolutionCriteria,
+        resolutionDate: state.questionSpec.resolutionDate,
+        settlementSource: state.questionSpec.settlementSource,
+        assumptions: state.questionSpec.assumptions.join("\n")
+      },
+      evidence: [],
+      provider: state.provider ?? job?.provider ?? null,
+      rounds: state.round,
+      createdAtUtc: state.createdAtUtc,
+      updatedAtUtc: state.updatedAtUtc,
+      jobLogTail: showJobLog && job ? sanitizeLogTail(job.log.slice(-15)) : null,
+      links: {
+        json: `${baseUrl}/v1/forecasts/${id}`,
+        text: `${baseUrl}/v1/forecasts/${id}/text`,
+        pdf: `${baseUrl}/v1/forecasts/${id}/pdf`
+      }
+    };
+  }
   return {
+    answerType: state ? "binary" : null,
+    answer: null,
+    answerLabel: state ? pct(state.currentProb) : null,
+    structured: null,
     id,
     status,
     question: state?.eventText ?? job?.question ?? "",

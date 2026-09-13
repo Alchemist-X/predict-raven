@@ -6,6 +6,7 @@
 // demo snapshot ("gta6-demo") and live engine runs via useForecast polling.
 
 import { useParams } from "next/navigation";
+import { StructuredForecast } from "../../../../components/research/structured-forecast";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { RvShell } from "../../../../components/chrome/rv-shell";
 import { IconDefs } from "../../../../components/icons";
@@ -338,6 +339,9 @@ export default function ResearchPage() {
       );
     }
   }
+
+  if (dossier?.structured)
+    return <StructuredForecast dossier={{ ...dossier, structured: dossier.structured }} mode="research" />;
 
   if (notice) {
     return (

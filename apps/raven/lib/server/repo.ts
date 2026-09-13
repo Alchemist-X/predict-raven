@@ -7,6 +7,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import type { ForecastState } from "@autopoly/forecast-engine/types";
+import { isStructuredForecast, type AnyForecastState } from "@autopoly/forecast-engine/answer-types";
 
 export function repoRoot(): string {
   let dir = process.cwd();
@@ -40,21 +41,30 @@ export function eventDir(eventId: string): string {
 }
 
 export function loadState(eventId: string): ForecastState | null {
+  const state = loadAnyState(eventId);
+  return state && !isStructuredForecast(state) ? state : null;
+}
+
+export function loadAnyState(eventId: string): AnyForecastState | null {
   const file = path.join(eventDir(eventId), "state.json");
   if (!existsSync(file)) return null;
   try {
-    return JSON.parse(readFileSync(file, "utf8")) as ForecastState;
+    return JSON.parse(readFileSync(file, "utf8")) as AnyForecastState;
   } catch {
     return null;
   }
 }
 
 export function listStates(): ForecastState[] {
+  return listAnyStates().filter((state): state is ForecastState => !isStructuredForecast(state));
+}
+
+export function listAnyStates(): AnyForecastState[] {
   const root = forecastsRoot();
   if (!existsSync(root)) return [];
-  const out: ForecastState[] = [];
+  const out: AnyForecastState[] = [];
   for (const id of readdirSync(root)) {
-    const state = loadState(id);
+    const state = loadAnyState(id);
     if (state && state.eventId) out.push(state);
   }
   out.sort((a, b) => String(b.updatedAtUtc ?? "").localeCompare(String(a.updatedAtUtc ?? "")));

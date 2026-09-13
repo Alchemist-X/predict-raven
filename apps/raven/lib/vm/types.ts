@@ -1,6 +1,17 @@
 // View-model types for the three Raven screens. Shape mirrors the design
 // handoff's data module (raven-gta6-data.js) so the archived demo dossier and
 // live engine runs render through one code path.
+import type { StructuredForecastState } from "@autopoly/forecast-engine/answer-types";
+
+// Only selected evidence and aggregate library coverage cross the UI boundary.
+export interface StructuredDossierVM {
+  answer: StructuredForecastState["answer"];
+  questionSpec: StructuredForecastState["questionSpec"];
+  summary: StructuredForecastState["summary"];
+  evidence: StructuredForecastState["evidenceLedger"];
+  rounds: StructuredForecastState["roundHistory"];
+  library: { searched: number; read: number; used: number; gaps: string[] } | null;
+}
 
 export type Side = "support" | "counter" | "neutral";
 export type Tier = "high" | "med" | "low";
@@ -98,6 +109,7 @@ export interface TopCounter {
 export type DossierStatus = "complete" | "running" | "failed" | "unforecastable";
 
 export interface DossierVM {
+  structured?: StructuredDossierVM;
   id: string;
   status: DossierStatus;
   meta: DossierMeta;
@@ -121,6 +133,7 @@ export interface DossierVM {
 }
 
 export interface RunListItem {
+  answerType?: "binary" | "categorical" | "numeric" | "independent_ranking";
   eventId: string;
   question: string;
   prob: string;

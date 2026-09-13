@@ -6,6 +6,8 @@
 // user-facing copy lives in the HOME i18n dictionary (lib/i18n/home.ts).
 
 import Link from "next/link";
+import type { AnswerKind } from "@autopoly/forecast-engine/answer-types";
+import { STRUCTURED } from "../lib/i18n/structured";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { RvShell } from "../components/chrome/rv-shell";
@@ -20,6 +22,7 @@ import "./home.css";
 const DEMO_QUESTION = GTA6_DEMO.meta.question;
 
 interface LatestCard {
+  answerType?: AnswerKind;
   id: string;
   prob: string;
   question: string;
@@ -65,6 +68,7 @@ function verdictLine(verdict: string, quip: string | null): string {
 
 function toCard(run: RunListItem): LatestCard {
   return {
+    answerType: run.answerType,
     id: run.eventId,
     prob: run.prob,
     question: run.question,
@@ -83,6 +87,7 @@ export default function HomePage() {
   const { locale } = useLocale();
   const inputRef = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState("");
+  const [answerType, setAnswerType] = useState<AnswerKind | "auto">("auto");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [latest, setLatest] = useState<LatestCard>(DEMO_CARD);
@@ -144,7 +149,12 @@ export default function HomePage() {
         headers: { "content-type": "application/json" },
         // `language` makes the engine write its reasoning/evidence in the
         // reader's locale; `invite` unlocks a run once free quota is spent.
-        body: JSON.stringify({ question, language: locale, ...(inviteCode ? { invite: inviteCode } : {}) })
+        body: JSON.stringify({
+          question,
+          answerRequest: { answerType },
+          language: locale,
+          ...(inviteCode ? { invite: inviteCode } : {})
+        })
       });
       const body = (await res.json().catch(() => null)) as {
         eventId?: string;
@@ -247,6 +257,38 @@ export default function HomePage() {
           {t(HOME.heroLede)}
         </p>
 
+        <label
+          htmlFor="answer-type"
+          style={{
+            position: "relative",
+            marginTop: 28,
+            display: "flex",
+            gap: 12,
+            alignItems: "center",
+            flexWrap: "wrap",
+            color: "var(--muted)"
+          }}
+        >
+          {t(HOME.answerType)}
+          <select
+            id="answer-type"
+            value={answerType}
+            onChange={(event) => setAnswerType(event.target.value as AnswerKind | "auto")}
+            style={{
+              padding: "9px 12px",
+              background: "var(--bg2)",
+              color: "var(--ink)",
+              border: "1px solid var(--line2)",
+              borderRadius: 8
+            }}
+          >
+            <option value="auto">{t(HOME.autoType)}</option>
+            <option value="binary">{t(HOME.binaryType)}</option>
+            <option value="categorical">{t(STRUCTURED.categorical)}</option>
+            <option value="numeric">{t(STRUCTURED.numeric)}</option>
+            <option value="independent_ranking">{t(STRUCTURED.independent_ranking)}</option>
+          </select>
+        </label>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -466,13 +508,15 @@ export default function HomePage() {
               flexWrap: "wrap"
             }}
           >
-            <div style={{ textAlign: "center", minWidth: 74 }}>
+            <div style={{ textAlign: "center", minWidth: 74, maxWidth: "100%" }}>
               <div
                 style={{
                   fontFamily: "var(--fd)",
                   fontWeight: 600,
-                  fontSize: 46,
-                  lineHeight: 0.9,
+                  fontSize: latest.answerType && latest.answerType !== "binary" ? 26 : 46,
+                  maxWidth: "100%",
+                  overflowWrap: "anywhere",
+                  lineHeight: 1.2,
                   color: "var(--accent)",
                   fontVariantNumeric: "tabular-nums"
                 }}
@@ -489,10 +533,14 @@ export default function HomePage() {
                   marginTop: 6
                 }}
               >
-                YES probability
+                {t(
+                  latest.answerType && latest.answerType !== "binary"
+                    ? STRUCTURED[latest.answerType]
+                    : HOME.binaryProbability
+                )}
               </div>
             </div>
-            <div style={{ flex: 1, minWidth: 260, borderLeft: "1px solid var(--line)", paddingLeft: 22 }}>
+            <div style={{ flex: "1 1 220px", minWidth: 0, borderLeft: "1px solid var(--line)", paddingLeft: 22 }}>
               <div style={{ fontFamily: "var(--fd)", fontWeight: 600, fontSize: 17, lineHeight: 1.32 }}>
                 {latest.question}
               </div>

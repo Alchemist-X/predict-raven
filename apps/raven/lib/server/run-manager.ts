@@ -5,9 +5,10 @@
 // the engine's own state.json (written after every round) is the durable feed.
 
 import { spawn } from "node:child_process";
+import type { AnswerRequest } from "@autopoly/forecast-engine/answer-types";
 import path from "node:path";
 import { QuotaExceededError, tryConsumeQuota } from "./quota";
-import { loadState, makeEventId, readEnvFile, repoRoot } from "./repo";
+import { loadAnyState, makeEventId, readEnvFile, repoRoot } from "./repo";
 
 export type JobStatus = "running" | "done" | "error" | "unforecastable";
 
@@ -68,6 +69,7 @@ export function providerKeyAvailable(provider: string): boolean {
 }
 
 export interface StartOptions {
+  answerRequest?: AnswerRequest;
   maxRounds?: number;
   fresh?: boolean;
   provider?: string;
@@ -86,16 +88,12 @@ export interface StartOptions {
 const ORPHAN_RUN_FRESH_MS = 10 * 60_000;
 
 export function startForecast(question: string, opts: StartOptions = {}): Job {
-  const eventId = makeEventId(question);
+  const eventId = makeEventId(question, opts.answerRequest);
   const existing = jobs.get(eventId);
   if (existing && existing.status === "running") return existing;
 
-  const onDisk = loadState(eventId);
-  if (
-    !opts.fresh &&
-    onDisk?.status === "open" &&
-    Date.now() - Date.parse(onDisk.updatedAtUtc) < ORPHAN_RUN_FRESH_MS
-  ) {
+  const onDisk = loadAnyState(eventId);
+  if (!opts.fresh && onDisk?.status === "open" && Date.now() - Date.parse(onDisk.updatedAtUtc) < ORPHAN_RUN_FRESH_MS) {
     return {
       eventId,
       question,
@@ -120,6 +118,7 @@ export function startForecast(question: string, opts: StartOptions = {}): Job {
   const root = repoRoot();
   const args = [path.join(root, "scripts/forecast/cli.ts"), question, "--max-rounds", String(maxRounds)];
   if (opts.fresh) args.push("--fresh");
+  if (opts.answerRequest) args.push("--answer-request", JSON.stringify(opts.answerRequest));
 
   const job: Job = {
     eventId,

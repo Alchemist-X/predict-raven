@@ -15,7 +15,8 @@
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { z } from "zod";
-import { buildAnswer, verdictFor, pct } from "./answer";
+import { buildAnswer } from "./answer";
+import { AnswerRequestSchema } from "./answer-request";
 import { isAuthorized } from "./auth";
 import type { ServiceConfig } from "./config";
 import { getDeltaPmAudit, getDeltaPmReflection } from "./delta-pm-audit";
@@ -27,12 +28,13 @@ import { ensurePdf } from "./pdf";
 import { QuotaExceededError } from "./quota";
 import { renderHtml } from "./render-html";
 import { renderText } from "./render-text";
-import { isSafeEventId, listStates, loadState, makeEventId, stateMtimeMs } from "./repo";
+import { isSafeEventId, listAnyStates, loadAnyState, makeEventId, stateMtimeMs } from "./repo";
 import { getJob, RunLimitError, startForecast } from "./run-manager";
 
 const MAX_BODY_BYTES = 64 * 1024;
 
 const StartBody = z.object({
+  answerRequest: AnswerRequestSchema.optional(),
   question: z.string().trim().min(8).max(400),
   maxRounds: z.number().int().min(1).max(6).optional(),
   fresh: z.boolean().optional(),
@@ -75,7 +77,7 @@ async function waitForCompletion(eventId: string, timeoutMs: number): Promise<vo
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     const job = getJob(eventId);
-    const state = loadState(eventId);
+    const state = loadAnyState(eventId);
     const running = job?.status === "running" || (!job && state?.status === "open");
     if (!running && (state || job)) return;
     await sleep(2000);
@@ -90,7 +92,10 @@ function baseUrlFor(req: IncomingMessage, config: ServiceConfig): string {
 
 function applyCors(res: ServerResponse): void {
   res.setHeader("access-control-allow-origin", "*");
-  res.setHeader("access-control-allow-headers", "authorization, x-api-key, content-type, mcp-session-id, mcp-protocol-version");
+  res.setHeader(
+    "access-control-allow-headers",
+    "authorization, x-api-key, content-type, mcp-session-id, mcp-protocol-version"
+  );
   res.setHeader("access-control-allow-methods", "GET, POST, OPTIONS");
 }
 
@@ -105,11 +110,16 @@ async function handleStart(
     sendJson(res, 400, {
       error: "invalid request",
       detail: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`),
-      expected: { question: "string (8-400 chars)", maxRounds: "1-6 optional", fresh: "boolean optional", wait: "boolean optional" }
+      expected: {
+        question: "string (8-400 chars)",
+        maxRounds: "1-6 optional",
+        fresh: "boolean optional",
+        wait: "boolean optional"
+      }
     });
     return;
   }
-  const { question, maxRounds, fresh, provider, wait, invite } = parsed.data;
+  const { question, maxRounds, fresh, provider, wait, invite, answerRequest } = parsed.data;
   const headerInvite = req.headers["x-invite-code"];
   // Prefer a non-empty body field, else the header — an empty body value must
   // not mask a valid header.
@@ -117,6 +127,7 @@ async function handleStart(
   let job;
   try {
     job = startForecast(question, {
+      answerRequest,
       maxRounds,
       fresh,
       provider,
@@ -125,7 +136,7 @@ async function handleStart(
         service: "forecast-api",
         limit: config.dailyQuota,
         authorizeBypass: presentedInvite
-          ? () => authorizeInviteUse(presentedInvite, "forecast-api", makeEventId(question))
+          ? () => authorizeInviteUse(presentedInvite, "forecast-api", makeEventId(question, answerRequest))
           : undefined
       }
     });
@@ -144,7 +155,7 @@ async function handleStart(
     throw error;
   }
   if (wait) await waitForCompletion(job.eventId, config.waitTimeoutMs);
-  const state = loadState(job.eventId);
+  const state = loadAnyState(job.eventId);
   const answer = buildAnswer(
     job.eventId,
     state,
@@ -157,18 +168,24 @@ async function handleStart(
 
 function handleList(req: IncomingMessage, res: ServerResponse, config: ServiceConfig): void {
   const base = baseUrlFor(req, config);
-  const all = listStates();
-  const runs = all.slice(0, 100).map((s) => ({
-    id: s.eventId,
-    question: s.framing?.normalizedQuestion ?? s.eventText,
-    status: s.status === "open" ? "running" : "done",
-    probability: s.currentProb,
-    probabilityPct: pct(s.currentProb),
-    verdict: verdictFor(s.currentProb),
-    rounds: s.round,
-    updatedAtUtc: s.updatedAtUtc,
-    links: { json: `${base}/v1/forecasts/${s.eventId}` }
-  }));
+  const all = listAnyStates();
+  const runs = all.slice(0, 100).map((state) => {
+    const answer = buildAnswer(state.eventId, state, getJob(state.eventId), base, stateMtimeMs(state.eventId));
+    return {
+      id: answer.id,
+      question: answer.normalizedQuestion ?? answer.question,
+      status: answer.status,
+      answerType: answer.answerType,
+      answer: answer.answer,
+      answerLabel: answer.answerLabel,
+      probability: answer.probability,
+      probabilityPct: answer.probabilityPct,
+      verdict: answer.verdict,
+      rounds: answer.rounds,
+      updatedAtUtc: answer.updatedAtUtc,
+      links: { json: answer.links.json }
+    };
+  });
   sendJson(res, 200, { runs, total: all.length });
 }
 
@@ -183,7 +200,7 @@ async function handleGet(
     sendJson(res, 400, { error: "invalid forecast id" });
     return;
   }
-  const state = loadState(id);
+  const state = loadAnyState(id);
   const job = getJob(id);
   if (!state && !job) {
     sendJson(res, 404, { error: `no forecast found for id ${id}` });
@@ -265,7 +282,9 @@ async function route(req: IncomingMessage, res: ServerResponse, config: ServiceC
   // accepted as a lighter credential so the web app needs no extra secret.
   if (url.pathname === "/paper/snapshot" && method === "GET") {
     if (!isAuthorized(req, url, config.token) && !isAuthorized(req, url, config.inviteCode)) {
-      sendJson(res, 401, { error: "unauthorized — provide the access token or invite code (Authorization: Bearer, x-api-key, or ?token=)" });
+      sendJson(res, 401, {
+        error: "unauthorized — provide the access token or invite code (Authorization: Bearer, x-api-key, or ?token=)"
+      });
       return;
     }
     const snapshot = getPaperSnapshot();
@@ -285,14 +304,19 @@ async function route(req: IncomingMessage, res: ServerResponse, config: ServiceC
   // execution). Simulation data only; same credential rules as /paper/snapshot.
   if (url.pathname === "/delta-pm/audit" && method === "GET") {
     if (!isAuthorized(req, url, config.token) && !isAuthorized(req, url, config.inviteCode)) {
-      sendJson(res, 401, { error: "unauthorized — provide the access token or invite code (Authorization: Bearer, x-api-key, or ?token=)" });
+      sendJson(res, 401, {
+        error: "unauthorized — provide the access token or invite code (Authorization: Bearer, x-api-key, or ?token=)"
+      });
       return;
     }
     const requestedLimit = Number(url.searchParams.get("limit") ?? "30");
-    const limit = Number.isInteger(requestedLimit) && requestedLimit >= 1 && requestedLimit <= 100 ? requestedLimit : 30;
+    const limit =
+      Number.isInteger(requestedLimit) && requestedLimit >= 1 && requestedLimit <= 100 ? requestedLimit : 30;
     const audit = getDeltaPmAudit(limit);
     if (!audit) {
-      sendJson(res, 503, { error: "delta-pm book not found on this host — check ARTIFACT_STORAGE_ROOT / volume mounts" });
+      sendJson(res, 503, {
+        error: "delta-pm book not found on this host — check ARTIFACT_STORAGE_ROOT / volume mounts"
+      });
       return;
     }
     sendJson(res, 200, audit);
@@ -302,7 +326,9 @@ async function route(req: IncomingMessage, res: ServerResponse, config: ServiceC
   // Latest Delta PM daily calibration report — same credentials as the audit.
   if (url.pathname === "/delta-pm/reflection" && method === "GET") {
     if (!isAuthorized(req, url, config.token) && !isAuthorized(req, url, config.inviteCode)) {
-      sendJson(res, 401, { error: "unauthorized — provide the access token or invite code (Authorization: Bearer, x-api-key, or ?token=)" });
+      sendJson(res, 401, {
+        error: "unauthorized — provide the access token or invite code (Authorization: Bearer, x-api-key, or ?token=)"
+      });
       return;
     }
     const reflection = getDeltaPmReflection();
@@ -319,7 +345,9 @@ async function route(req: IncomingMessage, res: ServerResponse, config: ServiceC
   // snapshot (simulation data only), same 503 when the book is missing.
   if (url.pathname === "/paper/cases" && method === "GET") {
     if (!isAuthorized(req, url, config.token) && !isAuthorized(req, url, config.inviteCode)) {
-      sendJson(res, 401, { error: "unauthorized — provide the access token or invite code (Authorization: Bearer, x-api-key, or ?token=)" });
+      sendJson(res, 401, {
+        error: "unauthorized — provide the access token or invite code (Authorization: Bearer, x-api-key, or ?token=)"
+      });
       return;
     }
     const requested = Number(url.searchParams.get("perBucket") ?? "2");
@@ -334,7 +362,9 @@ async function route(req: IncomingMessage, res: ServerResponse, config: ServiceC
   }
 
   if (!isAuthorized(req, url, config.token)) {
-    sendJson(res, 401, { error: "unauthorized — provide the access token (Authorization: Bearer, x-api-key, or ?token=)" });
+    sendJson(res, 401, {
+      error: "unauthorized — provide the access token (Authorization: Bearer, x-api-key, or ?token=)"
+    });
     return;
   }
 

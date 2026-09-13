@@ -10,8 +10,8 @@ export const CHROME = {
   navResearch: { en: "02 · Research", zh: "02 · 研究" },
   navVerdict: { en: "03 · Verdict", zh: "03 · 判决" },
   footerInstrument: {
-    en: "Raven is a research instrument — probabilities with sources, not advice.",
-    zh: "Raven 是研究工具——给出带来源的概率，不构成建议。"
+    en: "Raven provides research forecasts with cited sources.",
+    zh: "Raven 提供带有来源引用的研究预测。"
   },
   footerMarketBlind: {
     en: "No prediction-market or betting data is used as evidence.",

@@ -10,10 +10,11 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
 import { buildAnswer } from "./answer";
+import { AnswerRequestSchema } from "./answer-request";
 import type { ServiceConfig } from "./config";
 import { authorizeInviteUse, describeInviteState, inviteState } from "./invites";
 import { QuotaExceededError } from "./quota";
-import { isSafeEventId, loadState, makeEventId, stateMtimeMs } from "./repo";
+import { isSafeEventId, loadAnyState, makeEventId, stateMtimeMs } from "./repo";
 import { getJob, RunLimitError, startForecast } from "./run-manager";
 import { renderText } from "./render-text";
 
@@ -36,7 +37,7 @@ export function buildMcpServer(config: ServiceConfig, baseUrl: string): McpServe
     { name: "raven-forecast", version: "0.1.0" },
     {
       instructions:
-        "Forecasting service for binary future events. forecast_start(question) kicks off an iterative research run; forecast_status(forecast_id) tracks it; forecast_result(forecast_id) returns the probability with full reasoning and cited evidence (plain text or JSON). " +
+        "Forecasting service for binary, categorical, numeric, and independent ranking questions. forecast_start(question) kicks off an iterative research run; forecast_status(forecast_id) tracks it; forecast_result(forecast_id) returns the typed answer with full reasoning and cited evidence (plain text or JSON). " +
         START_NOTE
     }
   );
@@ -46,20 +47,38 @@ export function buildMcpServer(config: ServiceConfig, baseUrl: string): McpServe
     {
       title: "Start a forecast",
       description:
-        "Start (or resume) a probability forecast for any future yes/no event, e.g. \"Will the Fed cut rates before September 2026?\". Returns a forecast_id to poll. " +
+        'Start (or resume) a forecast for a future event, choice, number, or independent event ranking, e.g. "Will the Fed cut rates before September 2026?". Returns a forecast_id to poll. ' +
         START_NOTE,
       inputSchema: {
-        question: z.string().trim().min(8).max(400).describe("The event question, ideally with a deadline and a clear yes/no bar"),
-        max_rounds: z.number().int().min(1).max(6).optional().describe("Research rounds (default 3; more = deeper + slower)"),
+        answerRequest: AnswerRequestSchema.optional().describe(
+          "Optional answer type, option ids/labels, numeric unit/bounds and resolution. Ranking probabilities are independent, not normalized."
+        ),
+        question: z
+          .string()
+          .trim()
+          .min(8)
+          .max(400)
+          .describe("The event question, ideally with a deadline and clear resolution criteria"),
+        max_rounds: z
+          .number()
+          .int()
+          .min(1)
+          .max(6)
+          .optional()
+          .describe("Research rounds (default 3; more = deeper + slower)"),
         fresh: z.boolean().optional().describe("Discard any earlier run of the same question and start over"),
-        invite_code: z.string().optional().describe("Invite code — required only after the service's daily free quota is used up")
+        invite_code: z
+          .string()
+          .optional()
+          .describe("Invite code — required only after the service's daily free quota is used up")
       }
     },
-    async ({ question, max_rounds, fresh, invite_code }) => {
+    async ({ question, max_rounds, fresh, invite_code, answerRequest }) => {
       const presented = invite_code?.trim() ?? "";
       let job;
       try {
         job = startForecast(question, {
+          answerRequest,
           maxRounds: max_rounds,
           fresh,
           maxConcurrent: config.maxConcurrentRuns,
@@ -67,7 +86,7 @@ export function buildMcpServer(config: ServiceConfig, baseUrl: string): McpServe
             service: "forecast-api",
             limit: config.dailyQuota,
             authorizeBypass: presented
-              ? () => authorizeInviteUse(presented, "forecast-api-mcp", makeEventId(question))
+              ? () => authorizeInviteUse(presented, "forecast-api-mcp", makeEventId(question, answerRequest))
               : undefined
           }
         });
@@ -96,14 +115,14 @@ export function buildMcpServer(config: ServiceConfig, baseUrl: string): McpServe
     "forecast_status",
     {
       title: "Check a forecast",
-      description: "Check progress of a running forecast: status, rounds completed, current working probability.",
+      description: "Check progress of a running forecast: status, rounds completed, current working answer.",
       inputSchema: {
         forecast_id: z.string().describe("The id returned by forecast_start")
       }
     },
     async ({ forecast_id }) => {
       if (!isSafeEventId(forecast_id)) return errorContent("invalid forecast_id");
-      const state = loadState(forecast_id);
+      const state = loadAnyState(forecast_id);
       const job = getJob(forecast_id);
       if (!state && !job) return errorContent(`no forecast found for id ${forecast_id}`);
       const answer = buildAnswer(forecast_id, state, job, baseUrl, stateMtimeMs(forecast_id));
@@ -111,6 +130,9 @@ export function buildMcpServer(config: ServiceConfig, baseUrl: string): McpServe
         forecast_id,
         status: answer.status,
         rounds_completed: answer.rounds,
+        answer_type: answer.answerType,
+        answer: answer.answer,
+        answer_label: answer.answerLabel,
         current_probability: answer.probability,
         question: answer.normalizedQuestion ?? answer.question,
         last_log: job?.status === "running" ? job.log.slice(-3) : undefined
@@ -123,7 +145,7 @@ export function buildMcpServer(config: ServiceConfig, baseUrl: string): McpServe
     {
       title: "Get a forecast's answer",
       description:
-        "Fetch the answer for a forecast: probability of the event, the analysis behind it, and the cited evidence. format='text' (default) returns a readable report; 'json' returns the structured payload. The result also links a downloadable PDF dossier.",
+        "Fetch the typed answer for a forecast: probability, choice, numeric estimate, or ranking, with analysis and cited evidence. format='text' (default) returns a readable report; 'json' returns the structured payload. The result also links a downloadable PDF dossier.",
       inputSchema: {
         forecast_id: z.string().describe("The id returned by forecast_start"),
         format: z.enum(["text", "json"]).optional().describe("Answer format (default text)")
@@ -131,7 +153,7 @@ export function buildMcpServer(config: ServiceConfig, baseUrl: string): McpServe
     },
     async ({ forecast_id, format }) => {
       if (!isSafeEventId(forecast_id)) return errorContent("invalid forecast_id");
-      const state = loadState(forecast_id);
+      const state = loadAnyState(forecast_id);
       const job = getJob(forecast_id);
       if (!state && !job) return errorContent(`no forecast found for id ${forecast_id}`);
       const answer = buildAnswer(forecast_id, state, job, baseUrl, stateMtimeMs(forecast_id));

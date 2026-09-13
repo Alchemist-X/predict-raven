@@ -1,0 +1,106 @@
+.rv-structured {
+  width: min(880px, 100%);
+  margin: 0 auto;
+  padding: 42px 24px 72px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.rv-structured h1 {
+  font-size: clamp(26px, 4vw, 40px);
+  line-height: 1.25;
+  margin: 18px 0;
+  text-wrap: balance;
+}
+.rv-structured h2 {
+  font-size: 20px;
+  margin: 0 0 16px;
+}
+.rv-structured h3 {
+  font-size: 17px;
+  line-height: 1.5;
+}
+.rv-structured p,
+.rv-structured li {
+  line-height: 1.75;
+  font-size: 16px;
+}
+.rv-structured section {
+  border-top: 1px solid var(--line2);
+  padding-top: 28px;
+  margin-top: 32px;
+}
+.rv-structured .rv-structured-eyebrow {
+  font-size: 12px;
+  color: var(--muted);
+}
+.rv-structured .rv-structured-answer {
+  font-size: clamp(25px, 5vw, 42px);
+  line-height: 1.3;
+  color: var(--accent);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.rv-structured nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+}
+.rv-structured a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+.rv-structured a:focus-visible,
+.rv-structured summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.rv-structured-table {
+  overflow-x: auto;
+}
+.rv-structured table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.rv-structured th,
+.rv-structured td {
+  padding: 14px 10px;
+  border-bottom: 1px solid var(--line2);
+}
+.rv-structured-number {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.rv-structured-evidence {
+  padding: 8px 0 20px;
+  scroll-margin-top: 90px;
+}
+.rv-structured blockquote {
+  margin: 16px 0;
+  padding: 4px 0 4px 20px;
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+  white-space: pre-wrap;
+  line-height: 1.75;
+}
+.rv-structured details {
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+}
+.rv-structured summary {
+  cursor: pointer;
+  line-height: 1.6;
+}
+@media (max-width: 600px) {
+  .rv-structured {
+    padding: 28px 16px 48px;
+  }
+  .rv-structured th,
+  .rv-structured td {
+    padding: 12px 6px;
+    font-size: 14px;
+  }
+}

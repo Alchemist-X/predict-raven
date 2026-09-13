@@ -7,6 +7,7 @@
 // archived demo dossier and live runs through one DossierVM code path.
 
 import Link from "next/link";
+import { StructuredForecast } from "../../../components/research/structured-forecast";
 import { useParams } from "next/navigation";
 import type { CSSProperties, ReactNode } from "react";
 import { RvShell } from "../../../components/chrome/rv-shell";
@@ -158,6 +159,8 @@ export default function ReportPage() {
     );
   }
 
+  if (dossier.structured)
+    return <StructuredForecast dossier={{ ...dossier, structured: dossier.structured }} mode="verdict" />;
   return <Report id={id} dossier={dossier} />;
 }
 

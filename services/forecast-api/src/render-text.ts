@@ -3,6 +3,7 @@
 // reasoning next, evidence book last. No interval claims (see answer.ts).
 
 import type { ForecastAnswer } from "./answer";
+import { structuredSections } from "./render-structured";
 
 const HR = "─".repeat(62);
 
@@ -27,6 +28,18 @@ function section(title: string, body: string): string[] {
 }
 
 export function renderText(a: ForecastAnswer): string {
+  if (a.answer && a.structured) {
+    return [
+      "RAVEN FORECASTING ENGINE — FORECAST",
+      HR,
+      a.normalizedQuestion ?? a.question,
+      `Status / 状态: ${a.status}${a.status === "running" ? " · provisional / 暂定" : ""}`,
+      ...structuredSections(a).flatMap((section) => ["", section.title, HR, section.paragraphs.join("\n\n")]),
+      "",
+      `id: ${a.id} · updated / 更新: ${a.updatedAtUtc ?? ""}`,
+      ""
+    ].join("\n");
+  }
   const out: string[] = [];
   out.push("RAVEN FORECASTING ENGINE — FORECAST");
   out.push(HR);
@@ -49,7 +62,11 @@ export function renderText(a: ForecastAnswer): string {
   }
   if (a.status === "unforecastable") {
     out.push("");
-    out.push(wrap("This prompt could not be framed as a clean yes/no event. Refine the question (what exactly counts as YES, by when, per which source) and ask again."));
+    out.push(
+      wrap(
+        "This prompt could not be given clear resolution criteria. Specify the outcomes or metric, deadline and settlement source, and ask again."
+      )
+    );
   }
   if (a.jobLogTail?.length) {
     out.push(...section("ENGINE LOG (tail)", a.jobLogTail.map((l) => "  " + l).join("\n")));
@@ -81,7 +98,9 @@ export function renderText(a: ForecastAnswer): string {
     for (const r of an.rounds) {
       const arrow = `${Math.round(r.fromProb * 100)}% → ${Math.round(r.toProb * 100)}%`;
       const driver = r.dominantDriver ? ` — biggest mover: ${r.dominantDriver}` : "";
-      trail.push(`  Round ${r.round}   ${arrow} (${r.netPp >= 0 ? "+" : ""}${r.netPp}pp, ${r.newSources} new source(s))${driver}`);
+      trail.push(
+        `  Round ${r.round}   ${arrow} (${r.netPp >= 0 ? "+" : ""}${r.netPp}pp, ${r.newSources} new source(s))${driver}`
+      );
     }
     if (trail.length) out.push(...section("HOW THE NUMBER MOVED", trail.map((t) => wrap(t, 90, "")).join("\n")));
   }

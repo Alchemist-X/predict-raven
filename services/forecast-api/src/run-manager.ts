@@ -4,10 +4,11 @@
 // round) is the durable feed, so a service restart only loses log tails.
 
 import { spawn } from "node:child_process";
+import type { AnswerRequest } from "@autopoly/forecast-engine/answer-types";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { QuotaExceededError, tryConsumeQuota } from "./quota";
-import { eventDir, loadState, makeEventId, readEnvFile, repoRoot } from "./repo";
+import { eventDir, loadAnyState, makeEventId, readEnvFile, repoRoot } from "./repo";
 
 export type JobStatus = "running" | "done" | "error" | "unforecastable";
 
@@ -70,6 +71,7 @@ export function pickProvider(requested?: string): string {
 }
 
 export interface StartOptions {
+  answerRequest?: AnswerRequest;
   maxRounds?: number;
   fresh?: boolean;
   provider?: string;
@@ -120,14 +122,17 @@ function reattachedJob(eventId: string, question: string, startedAtUtc: string, 
 }
 
 export function startForecast(question: string, opts: StartOptions = {}): Job {
-  const eventId = makeEventId(question);
+  const eventId = makeEventId(question, opts.answerRequest);
   const existing = jobs.get(eventId);
   if (existing && existing.status === "running") return existing;
 
   if (!opts.fresh) {
-    const onDisk = loadState(eventId);
+    const onDisk = loadAnyState(eventId);
     if (onDisk?.status === "open" && Date.now() - Date.parse(onDisk.updatedAtUtc) < ORPHAN_RUN_FRESH_MS) {
-      return { ...reattachedJob(eventId, question, onDisk.createdAtUtc, opts), provider: onDisk.provider ?? pickProvider(opts.provider) };
+      return {
+        ...reattachedJob(eventId, question, onDisk.createdAtUtc, opts),
+        provider: onDisk.provider ?? pickProvider(opts.provider)
+      };
     }
     const lockStarted = lockFreshAt(eventId);
     if (lockStarted) return reattachedJob(eventId, question, lockStarted, opts);
@@ -149,6 +154,7 @@ export function startForecast(question: string, opts: StartOptions = {}): Job {
   const root = repoRoot();
   const args = [path.join(root, "scripts/forecast/cli.ts"), question, "--max-rounds", String(maxRounds)];
   if (opts.fresh) args.push("--fresh");
+  if (opts.answerRequest) args.push("--answer-request", JSON.stringify(opts.answerRequest));
 
   const job: Job = {
     eventId,

@@ -4,12 +4,12 @@
 // with cwd = repo root, so both sides must resolve the same directories.
 // (Same proven pattern as apps/raven/lib/server/repo.ts.)
 
-import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import type { ForecastState } from "@autopoly/forecast-engine/types";
+import { isStructuredForecast, type AnyForecastState } from "@autopoly/forecast-engine/answer-types";
 
-export type { ForecastState };
+export type { ForecastState, AnyForecastState };
 
 export function repoRoot(): string {
   let dir = process.cwd();
@@ -31,18 +31,7 @@ export function forecastsRoot(): string {
 // Must stay byte-identical to scripts/forecast/store.ts makeEventId — the API
 // computes the id before spawning the CLI, which recomputes it from the same
 // question string.
-export function makeEventId(question: string): string {
-  const slug = question
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, "")
-    .trim()
-    .split(/\s+/)
-    .slice(0, 6)
-    .join("-")
-    .slice(0, 48);
-  const hash = createHash("sha1").update(question).digest("hex").slice(0, 8);
-  return `${slug || "event"}-${hash}`;
-}
+export { makeEventId } from "@autopoly/forecast-engine/store";
 
 export function isSafeEventId(id: string): boolean {
   return /^[a-z0-9][a-z0-9-]{0,80}$/.test(id);
@@ -57,10 +46,15 @@ export function statePath(eventId: string): string {
 }
 
 export function loadState(eventId: string): ForecastState | null {
+  const state = loadAnyState(eventId);
+  return state && !isStructuredForecast(state) ? state : null;
+}
+
+export function loadAnyState(eventId: string): AnyForecastState | null {
   const file = statePath(eventId);
   if (!existsSync(file)) return null;
   try {
-    return JSON.parse(readFileSync(file, "utf8")) as ForecastState;
+    return JSON.parse(readFileSync(file, "utf8")) as AnyForecastState;
   } catch {
     return null;
   }
@@ -76,11 +70,15 @@ export function stateMtimeMs(eventId: string): number | null {
 }
 
 export function listStates(): ForecastState[] {
+  return listAnyStates().filter((state): state is ForecastState => !isStructuredForecast(state));
+}
+
+export function listAnyStates(): AnyForecastState[] {
   const root = forecastsRoot();
   if (!existsSync(root)) return [];
-  const out: ForecastState[] = [];
+  const out: AnyForecastState[] = [];
   for (const id of readdirSync(root)) {
-    const state = loadState(id);
+    const state = loadAnyState(id);
     if (state && state.eventId) out.push(state);
   }
   out.sort((a, b) => String(b.updatedAtUtc ?? "").localeCompare(String(a.updatedAtUtc ?? "")));
