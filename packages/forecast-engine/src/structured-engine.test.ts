@@ -289,3 +289,70 @@ describe("native typed research loop", () => {
     expect(s.status).toBe("aborted");
   });
 });
+
+describe("question-led research loop", () => {
+  const gap = {id:"funding",targetIds:["meta"],question:"Can committed financing fund the budget?",whyMaterial:"Cash pressure may not imply a cut",query:"Meta financing capital budget",keywords:["Meta","financing"],priority:"high"};
+  const initial = () => [claim("base-meta","meta",0),claim("base-google","google",0)];
+  function retrieve() {
+    return vi.fn(async (s: import("./research-review").ResearchReviewState, round: number) => {
+      const g=s.researchGaps![0];
+      g.attempts.push({round,query:g.query,status:"ok",sourceUrls:["https://example.org/funding"],errors:[],publicReadings:[{url:"https://example.org/funding",title:"Financing terms",text:"A committed credit facility is available.",offset:0,sha256:"hash"}]});
+      g.status="searched";
+    });
+  }
+  it("collects first, retrieves doubts before reasoning, and waits for evidence review to stop", async () => {
+    const s=state(), first=initial(), order:string[]=[];
+    const collectLibraryFn=vi.fn(async()=>{order.push("broad");return null;});
+    const retrieveGapsFn=retrieve();
+    const runAgentFn=vi.fn().mockImplementationOnce(async(prompt:string)=>{
+      order.push("reason"); expect(prompt).not.toContain('"prior":'); expect(prompt).not.toContain("CURRENT ANSWER");
+      return result({...proposal(first),research_gaps:[gap]},first);
+    }).mockImplementationOnce(async(prompt:string)=>{
+      expect(retrieveGapsFn).toHaveBeenCalledTimes(1); expect(prompt).toContain("A committed credit facility");
+      return result(proposal([]));
+    }).mockResolvedValueOnce(result({...proposal([claim("funding","meta",-0.01)]),gap_resolutions:[{id:"funding",reason:"Reviewed facility terms; funding is available, still not a spending commitment.",sourceUrls:["https://example.org/funding"]}]}))
+      .mockResolvedValueOnce(result(summary));
+    await runStructuredForecast(s,{maxRounds:4,runAgentFn,collectLibraryFn,retrieveGapsFn});
+    expect(order.slice(0,2)).toEqual(["broad","reason"]);
+    expect(s.round).toBe(3); expect(s.status).toBe("converged");
+    expect(s.researchGaps![0].status).toBe("resolved");
+    expect(s.evidenceLedger.at(-1)?.verifiedInSearchTrace).toBe(true);
+    expect(s.evidenceLedger.at(-1)?.effectiveWeight).toBeGreaterThan(0);
+  });
+  it("leaves exhausted questions visible without claiming convergence", async()=>{
+    const s=state(), first=initial();
+    const runAgentFn=vi.fn().mockResolvedValueOnce(result({...proposal(first),research_gaps:[gap]},first))
+      .mockResolvedValueOnce(result(proposal([]))).mockResolvedValueOnce(result(summary));
+    await runStructuredForecast(s,{maxRounds:2,runAgentFn,collectLibraryFn:vi.fn().mockResolvedValue(null),retrieveGapsFn:retrieve()});
+    expect(s.status).toBe("max_rounds"); expect(s.summary?.uncertainties.join(" ")).toContain(gap.question);
+  });
+  it("reopens collection when synthesis discovers a material doubt, within the original budget", async()=>{
+    const s=state(), first=initial(), retrieveGapsFn=retrieve();
+    const runAgentFn=vi.fn().mockResolvedValueOnce(result(proposal(first),first))
+      .mockResolvedValueOnce(result(proposal([])))
+      .mockResolvedValueOnce(result({...summary,research_gaps:[gap]}))
+      .mockResolvedValueOnce(result({...proposal([]),gap_resolutions:[{id:"funding",reason:"The actual facility terms resolve the cash funding question.",sourceUrls:["https://example.org/funding"]}]}))
+      .mockResolvedValueOnce(result(summary));
+    await runStructuredForecast(s,{maxRounds:3,runAgentFn,collectLibraryFn:vi.fn().mockResolvedValue(null),retrieveGapsFn});
+    expect(retrieveGapsFn).toHaveBeenCalledTimes(1); expect(s.round).toBe(3);
+    expect(s.researchGaps![0].raisedRound).toBe(2); expect(s.researchGaps![0].status).toBe("resolved");
+    expect(runAgentFn).toHaveBeenCalledTimes(5);
+  });
+});
+
+
+describe("actual read provenance for closing questions",()=>{
+  const q={id:"own_read",targetIds:["meta"],question:"Is the budget adjustable?",whyMaterial:"Adjustment rights can affect cuts",query:"Meta budget adjustment rights",keywords:["Meta","budget"],priority:"high"};
+  const close={id:"own_read",reason:"Reviewed the actual financing footnote.",sourceUrls:["https://example.org/new-footnote"]};
+  function prepared(){const s=state();const base=[claim("base-meta","meta",0),claim("base-google","google",0)];applyStructuredRound(s,validateStructuredRound({...proposal(base),research_gaps:[q]},s.questionSpec),result({},base));return s;}
+  it("accepts a new source actually read in the current model round",async()=>{
+    const s=prepared(), runAgentFn=vi.fn().mockResolvedValueOnce(result({...proposal([]),gap_resolutions:[close]},[],{readSourceUrls:close.sourceUrls})).mockResolvedValueOnce(result(summary));
+    await runStructuredForecast(s,{maxRounds:2,runAgentFn,collectLibraryFn:vi.fn().mockResolvedValue(null),retrieveGapsFn:vi.fn()});
+    expect(s.researchGaps![0].status).toBe("resolved");expect(s.readSourceUrls).toEqual(close.sourceUrls);
+  });
+  it("rejects a search hit without actual body-reading provenance",async()=>{
+    const s=prepared(), runAgentFn=vi.fn().mockResolvedValue(result({...proposal([]),gap_resolutions:[close]},[],{searchResultUrls:new Set(close.sourceUrls)}));
+    await expect(runStructuredForecast(s,{maxRounds:2,runAgentFn,collectLibraryFn:vi.fn().mockResolvedValue(null),retrieveGapsFn:vi.fn()})).rejects.toThrow(/absent from actual retrieval/);
+    expect(s.researchGaps![0].status).toBe("open");expect(s.status).toBe("aborted");
+  });
+});

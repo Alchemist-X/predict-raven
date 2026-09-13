@@ -250,6 +250,7 @@ export type ForecastStatus =
 // engine's final probability (the balance of evidence, key drivers, open
 // uncertainties) — it does NOT re-decide the number (engine still owns it).
 export interface ForecastSummary {
+  researchFollowup?: import("./research-review").ResearchReviewOutput;
   verdict: string; // 1-2 paragraphs: the overall read on why P(YES) landed here
   keyFactorsYes: string[]; // strongest factors pushing toward YES
   keyFactorsNo: string[]; // strongest factors pushing toward NO
@@ -266,6 +267,8 @@ export interface ForecastSummary {
 }
 
 export interface ForecastState {
+  readSourceUrls?: string[];
+  researchGaps?: import("./research-review").ResearchGap[];
   expandedLibrary?: import("./answer-types").ExpandedLibraryCoverage | null;
   eventId: string;
   eventText: string; // the original user prompt, verbatim

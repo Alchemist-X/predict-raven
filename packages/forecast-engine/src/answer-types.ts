@@ -103,6 +103,8 @@ export interface StructuredRound {
   costUsd: number | null;
 }
 export interface StructuredForecastState {
+  readSourceUrls?: string[];
+  researchGaps?: import("./research-review").ResearchGap[];
   schemaVersion: 2;
   eventId: string;
   eventText: string;

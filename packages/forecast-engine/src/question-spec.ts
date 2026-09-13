@@ -64,7 +64,7 @@ export async function validatedCall<T>(prompt: string, validate: (raw: unknown) 
       const value = validate(result.jsonObject);
       const usages = attempts.flatMap(r => r.usage ? [r.usage] : []);
       const usage = usages.length ? Object.fromEntries(Object.keys(usages[0]).map(key => [key, usages.reduce((sum, u) => sum + u[key as keyof AgentUsage], 0)])) as unknown as AgentUsage : undefined;
-      return {value, result: {...result, searchQueries: [...new Set(attempts.flatMap(r => r.searchQueries))], searchResultUrls: new Set(attempts.flatMap(r => [...r.searchResultUrls])),
+      return {value, result: {...result, searchQueries: [...new Set(attempts.flatMap(r => r.searchQueries))], searchResultUrls: new Set(attempts.flatMap(r => [...r.searchResultUrls])), readSourceUrls:[...new Set(attempts.flatMap(r => r.readSourceUrls ?? []))], researchReadings:attempts.flatMap(r => r.researchReadings ?? []),
         costUsd: attempts.some(r => r.costUsd !== null) ? attempts.reduce((sum, r) => sum + (r.costUsd ?? 0), 0) : null,
         costCoverage: attempts.some(r => r.costUsd === null || r.costCoverage === "partial") ? "partial" : result.costCoverage,
         usage, numTurns: attempts.some(r => r.numTurns !== null) ? attempts.reduce((sum, r) => sum + (r.numTurns ?? 0), 0) : null}};

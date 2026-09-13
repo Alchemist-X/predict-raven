@@ -1,6 +1,6 @@
 # Agent Handoff — Current State and Next Actions
 
-> Current addition: native categorical, numerical and per-entity rankings span engine/API/MCP/Raven; personal research requires the expanded resource library. See [answer types](forecast-answer-types.md). Version 2 states must not enter binary trading consumers. 277 engine/API tests, three typechecks, and typed API/MCP/browser acceptance passed. M7 live validation and private evidence remain in the personal workspace.
+> Current addition: typed answers and the personal expanded library are connected. Initial collection diversifies companies/authors and actually reads PDFs. Material questions from research or synthesis trigger retrieval and block numerical convergence while respecting the total round budget. See [answer types](forecast-answer-types.md). M7 evidence and private source text remain in the personal workspace; 331 engine/API tests, three typechecks and 47 private gateway tests pass. Real broad/focused retrieval acceptance remains in the personal workspace.
 
 
 > 2026-09-12: Signal Desk research was ported onto current main, preserving planning and claim cross-checking. `FORECAST_SIGNAL_DESK=1` enables combined public/subscription search and Markdown/PDF reading for Claude/DeepSeek. Tool-disabled stages load no MCP servers; Codex mode is explicitly unsupported. The private service/content stays local; this repository contains the adapter. See [integration](signal-desk-research.md).

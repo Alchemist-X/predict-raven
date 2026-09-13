@@ -11,6 +11,7 @@
 import { providerHasWebSearch, runAgent } from "./agent";
 import { expandedLibraryRequired, collectExpandedLibrary, libraryPrompt, binaryLibraryUsage } from "./expanded-library";
 import { validatedCall, object, text } from "./question-spec";
+import { recordModelReads, parseResearchReview, applyResearchReview, retrieveResearchGaps, researchReviewPrompt, materialResearchGaps, researchGapSources } from "./research-review";
 import { canonicalClaimKey, claimQualityScore, crossCheckWeight, rankClaimSources } from "./claims";
 import { languageDirective } from "./language";
 import {
@@ -31,7 +32,7 @@ import { defaultResearchPlan } from "./research-plan";
 import { validateRoundOutput } from "./claude-agent";
 import type { AgentRunResult, AgentUsage, RunAgentOptions } from "./claude-agent";
 import { loadAnalyst, saveAnalyst, saveState, writeDiagnostic, writeReport } from "./store";
-import { summarizeForecast } from "./summary";
+import { InvalidResearchSummary, summarizeForecast } from "./summary";
 import { canonicalizeUrl } from "./url";
 import type {
   AgentRoundOutput,
@@ -220,6 +221,7 @@ OUTPUT FORMAT: Respond with ONLY a single JSON object — no prose before or aft
 }
 If you genuinely found no new relevant information this round, return an empty new_claims array, an empty reflection array, and set found_new_information to false.
 ${libraryPrompt(state.expandedLibrary)}
+${researchReviewPrompt(state)}
 When using a pre-read library source in new_claims, include library_article_id and library_quote (an exact short original quote) and its URL in sources. Add a top-level library_exclusions:[{articleId,reason}] for each read article not relevant enough to use. Previous usage/exclusions remain valid.
 ${marketBlindDirective()}${languageDirective()}`;
 }
@@ -281,6 +283,8 @@ function mergeAttempts(first: AgentRunResult, retry: AgentRunResult): AgentRunRe
     ...retry,
     searchQueries: [...new Set([...first.searchQueries, ...retry.searchQueries])],
     searchResultUrls: new Set([...first.searchResultUrls, ...retry.searchResultUrls]),
+    readSourceUrls:[...new Set([...(first.readSourceUrls ?? []), ...(retry.readSourceUrls ?? [])])],
+    researchReadings:[...(first.researchReadings ?? []), ...(retry.researchReadings ?? [])],
     costUsd: first.costUsd === null || retry.costUsd === null ? null : first.costUsd + retry.costUsd,
     usage,
     numTurns: first.numTurns === null || retry.numTurns === null ? null : first.numTurns + retry.numTurns
@@ -318,8 +322,11 @@ async function runOneRound(
   let lastValidationError = "";
   const validate = (r: AgentRunResult): AgentRoundOutput | null => {
     try {
+      recordModelReads(state, r);
       const out = validateRoundOutput(r.jsonObject);
       binaryLibraryUsage(state.expandedLibrary, out.newClaims, r.jsonObject);
+      applyResearchReview({researchGaps:state.researchGaps}, parseResearchReview(r.jsonObject, ["question"]), roundNo,
+        [...(state.readSourceUrls ?? []), ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(read => read.url) ?? [])]);
       return out;
     } catch (error) {
       lastValidationError = validationError(r, error);
@@ -361,6 +368,10 @@ async function runOneRound(
   const traceCanonical = new Set<string>();
   for (const u of result.searchResultUrls) traceCanonical.add(canonicalizeUrl(u));
   for (const reading of state.expandedLibrary?.readings ?? []) traceCanonical.add(canonicalizeUrl(reading.url));
+  for (const source of researchGapSources(state)) traceCanonical.add(canonicalizeUrl(source));
+  const review = parseResearchReview(result.jsonObject, ["question"]);
+  if (state.researchGaps || review.researchGaps.length || review.gapResolutions.length) applyResearchReview(state, review, roundNo,
+    [...(state.readSourceUrls ?? []), ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(read => read.url) ?? [])]);
   const libraryUsage = binaryLibraryUsage(state.expandedLibrary, out.newClaims, result.jsonObject);
   if (state.expandedLibrary && libraryUsage) Object.assign(state.expandedLibrary, libraryUsage);
 
@@ -747,6 +758,7 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
   const startRound = state.round + 1;
   let roundsRan = 0;
   for (let roundNo = startRound; roundNo <= maxRounds; roundNo++) {
+    if (materialResearchGaps(state).length) { await retrieveResearchGaps(state, roundNo, log); saveState(state); }
     log(`\n▶ Round ${roundNo}/${maxRounds} — prior P(YES) = ${(state.currentProb * 100).toFixed(1)}%`);
     let record: RoundRecord;
     try {
@@ -781,7 +793,9 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
         `  ⚠ search breadth ${record.searchQueries.length}/${plannedMinimum}; another round should cover unresolved Focus Center items.`
       );
     }
-    if ((record.newClaimCount ?? record.newSourceCount) === 0 && record.reflectionCount === 0) {
+    const unresolved = materialResearchGaps(state);
+    if (unresolved.length) log(`  ↻ ${unresolved.length} material research questions remain; small probability movement is insufficient to stop.`);
+    if (!unresolved.length && (record.newClaimCount ?? record.newSourceCount) === 0 && record.reflectionCount === 0) {
       if (roundNo < minRounds && roundNo < maxRounds) {
         log(`  ↻ no accepted claim yet, but the minimum research depth is ${minRounds} rounds — continuing.`);
         continue;
@@ -790,7 +804,7 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
       log(`  ■ no new evidence — stopping.`);
       break;
     }
-    if (Math.abs(record.postProb - record.priorProb) < epsilon && roundNo >= minRounds && searchBreadthMet) {
+    if (!unresolved.length && Math.abs(record.postProb - record.priorProb) < epsilon && roundNo >= minRounds && searchBreadthMet) {
       // A pinned posterior trivially passes the epsilon test — that is
       // saturation (the number is the engine's expressible bound), not
       // convergence. Stop either way: burning more rounds at the bound is pure
@@ -826,12 +840,28 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
   if (state.roundHistory.length > 0 && state.status !== "aborted" && (roundsRan > 0 || !state.summary)) {
     log(`\n▶ Writing final summary…`);
     try {
-      state.summary = await summarizeForecast(state, { model: opts.model, runAgentFn: opts.runAgentFn });
+      const proposed = await summarizeForecast(state, { model: opts.model, runAgentFn: opts.runAgentFn });
+      if (proposed.researchFollowup) applyResearchReview(state, proposed.researchFollowup, state.round,
+        [...(state.readSourceUrls ?? []), ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(r => r.url) ?? [])]);
+      state.summary = proposed;
+      const gaps = materialResearchGaps(state);
+      if (gaps.length) state.summary.mainUncertainties += "\n" + gaps.map(g => `尚未解决：${g.question}；${g.whyMaterial}；已执行 ${g.attempts.length} 次定向补搜。`).join("\n");
     } catch (err) {
+      if (err instanceof InvalidResearchSummary) {
+        state.status = "aborted"; state.updatedAtUtc = nowUtc(); saveState(state); writeReport(state); throw err;
+      }
       log(`  ⚠ summary generation failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
+  if (materialResearchGaps(state).length && state.status !== "aborted") {
+    state.status = state.round < maxRounds ? "open" : "max_rounds";
+    if (state.round < maxRounds) {
+      saveState(state); writeReport(state);
+      log("Synthesis left material questions; reopening research within the round budget.");
+      return runForecast(state, opts);
+    }
+  }
   state.updatedAtUtc = nowUtc();
   saveState(state);
   writeReport(state);

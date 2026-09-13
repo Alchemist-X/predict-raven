@@ -9,6 +9,7 @@
 import { runAgent } from "./agent";
 import { extractJsonObject } from "./claude-agent";
 import { languageDirective } from "./language";
+import { applyResearchReview, parseResearchReview, researchReviewPrompt, researchGapSources } from "./research-review";
 import type { AgentRunResult, RunAgentOptions } from "./claude-agent";
 import type { ForecastState, ForecastSummary } from "./types";
 
@@ -72,6 +73,8 @@ OUTPUT only a single JSON object — no prose, no code fence:
   "information_gaps": [{"gap":"missing evidence","importance":"why it matters","retrieval_path":"how to obtain it"}],
   "glossary": [{"term":"an abbreviation or specialist term that had to be used","definition":"full plain-language meaning"}]
 }
+${researchReviewPrompt(state)}
+If synthesis exposes a material unresolved question, request another research pass in research_gaps. Do not add unresearched assertions to the verdict. Use targetIds=["question"] for this binary event.
 ${languageDirective()}`;
 }
 
@@ -88,11 +91,18 @@ function objectArray(v: unknown): Array<Record<string, unknown>> {
   return Array.isArray(v) ? v.filter((x): x is Record<string, unknown> => Boolean(x) && typeof x === "object") : [];
 }
 
+export class InvalidResearchSummary extends Error {}
+function summaryReview(o: Record<string, unknown>) {
+  try { return parseResearchReview(o, ["question"]); }
+  catch (error) { throw new InvalidResearchSummary(error instanceof Error ? error.message : "Invalid summary research review"); }
+}
+
 export function validateSummary(raw: unknown): ForecastSummary {
   if (!raw || typeof raw !== "object") throw new Error("summary output is not an object");
   const o = raw as Record<string, unknown>;
   if (typeof o.verdict !== "string" || !o.verdict.trim()) throw new Error("summary.verdict missing");
   return {
+    ...(o.research_gaps !== undefined || o.gap_resolutions !== undefined ? {researchFollowup:summaryReview(o)} : {}),
     verdict: o.verdict.trim(),
     keyFactorsYes: strArray(o.key_factors_yes),
     keyFactorsNo: strArray(o.key_factors_no),
@@ -139,12 +149,22 @@ export async function summarizeForecast(
 ): Promise<ForecastSummary> {
   const prompt = buildSummaryPrompt(state);
   const callAgent = opts.runAgentFn ?? runAgent;
-  // No tools: pure synthesis over the gathered evidence (no new, un-scored evidence).
+  const validate = (raw: unknown) => {
+    const summary = validateSummary(raw);
+    if (summary.researchFollowup) {
+      try {
+        applyResearchReview({researchGaps:state.researchGaps}, summary.researchFollowup, state.round,
+          [...(state.readSourceUrls ?? []), ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(r => r.url) ?? [])]);
+      } catch (error) { throw new InvalidResearchSummary(error instanceof Error ? error.message : "Invalid summary research review"); }
+    }
+    return summary;
+  };
+  // Synthesis can request another evidence pass, but cannot invent evidence itself.
   let res = await callAgent(prompt, { model: opts.model, allowedTools: "" });
   try {
-    return validateSummary(res.jsonObject ?? extractJsonObject(res.rawFinalText));
+    return validate(res.jsonObject ?? extractJsonObject(res.rawFinalText));
   } catch {
     res = await callAgent(prompt, { model: opts.model, allowedTools: "" });
-    return validateSummary(res.jsonObject ?? extractJsonObject(res.rawFinalText));
+    return validate(res.jsonObject ?? extractJsonObject(res.rawFinalText));
   }
 }

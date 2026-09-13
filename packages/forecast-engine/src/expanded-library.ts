@@ -47,6 +47,7 @@ function queryPlan(queries: SearchQuery[], mode: "broad" | "focused"): PlannedQu
   ].filter((q) => q.keywords.length > 0);
   if (mode === "focused" || !originals.length) return originals.slice(0, 3);
   const first = originals[0];
+  if (!first) return [];
   const planned: PlannedQuery[] = originals.slice(0, 2);
   // A distinct financial driver is useful for capex questions, not arbitrary topics.
   if (planned.length < 2 && first.keywords.some((k) => /^capex$/i.test(k))) {
