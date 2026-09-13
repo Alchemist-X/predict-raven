@@ -36,15 +36,35 @@ export type StructuredAnswer =
 export interface ExpandedLibraryReading {
   articleId: string; targetId: string; title: string; url: string; text: string;
   offset: number; sha256: string; contentKind: string; apiDate: string;
+  publisher?: string;
+  format?: "markdown" | "pdf";
+  access?: string;
+  readArguments?: Record<string, unknown>;
+  endOffset?: number;
+  nextOffset?: number | null;
+  totalChars?: number;
+  truncated?: boolean;
+  startPage?: number;
+  nextPage?: number | null;
+  totalPages?: number;
+  pages?: Array<{ page: number; textChars: number; truncated: boolean }>;
+  extractionWarning?: string;
 }
 export interface ExpandedLibraryCoverage {
   required: boolean;
   searchedAtUtc: string;
-  queries: Array<{ targetId: string; query: string; status: string; total: number | null; error?: string; coverage?: unknown }>;
+  queries: Array<{ targetId: string; query: string; status: string; total: number | null; error?: string; coverage?: unknown;
+    arguments?: Record<string, unknown>; returnedCount?: number; nextOffset?: number | null; exhausted?: boolean }>;
   readings: ExpandedLibraryReading[];
   usedArticleIds: string[];
   exclusions: Array<{ articleId: string; reason: string }>;
-  readingErrors?: Array<{ articleId: string; targetId: string; error: string }>;
+  readingErrors?: Array<{ articleId: string; targetId: string; error: string; tool?: string; url?: string; arguments?: Record<string, unknown> }>;
+  candidates?: Array<{ articleId: string; targetId: string; title: string; url: string; publisher: string;
+    bodyIndexed: boolean; contentKind: string; selected: boolean; selectionReason: string; query: string }>;
+  collectionAudit?: Array<{ mode: "broad" | "focused"; startedAtUtc: string; completedAtUtc: string;
+    budgets: { maxQueriesPerTarget: number; maxPagesPerQuery: number; candidatesPerPage: number; maxArticlesPerTarget: number; maxPdfArticles: number; maxPdfArticlesPerTarget: number; maxCharsPerRead: number };
+    targets: Array<{ targetId: string; queryCount: number; candidateCount: number; readArticleCount: number; pdfAttemptCount: number; pdfReadCount: number;
+      coverageExhausted: boolean; limitations: string[] }>; pdfAttemptCount: number; pdfReadCount: number }>;
 }
 export interface StructuredClaim {
   id: string;

@@ -32,7 +32,7 @@ describe("mandatory expanded library use", () => {
     expect(libraryKeywords(["Google Cloud", "revenue", "TPU"])).toEqual(["Google Cloud", "revenue", "TPU"]);
     gateway.callResearchTool.mockResolvedValue({status:"ok",total:0,results:[]});
     await collectExpandedLibrary({searchQueries:[{targetId:"amazon",query:"Amazon capital investments guidance",keywords:["Amazon","capital investments guidance"]}]});
-    expect(gateway.callResearchTool).toHaveBeenCalledWith("signal_desk_search",{keywords:["Amazon","capex"],match:"all",limit:4});
+    expect(gateway.callResearchTool).toHaveBeenCalledWith("signal_desk_search",{keywords:["Amazon","capex"],match:"all",limit:12,scope:"all",offset:0});
   });
   it("requires exact quotes and the actually read source URL, while retaining author-opinion status", () => {
     expect(() => validateLibraryUse(coverage(), [libraryClaim()], [])).not.toThrow();
@@ -105,7 +105,7 @@ describe("expanded library retrieval", () => {
     gateway.callResearchTool.mockImplementation(async (name: string, args: Record<string, any>) => name === "signal_desk_search"
       ? {status:"ok",total:1,results:[{id:"shared",title:"Comparison",url:"https://example.org/shared",evidence:[{source:"body",read_offset:args.keywords[0] === "Meta" ? 200 : 6000}]}]}
       : {status:"ok",title:"Comparison",url:"https://example.org/shared",text:args.offset === 0 ? "Meta plans less spending." : "Google plans more spending.",sha256:"digest",content_kind:"article",date:"2026-09-12"});
-    const found = await collectExpandedLibrary({searchQueries:[query,{targetId:"google",query:"Google capex",keywords:["Google","capex"]}]});
+    const found = await collectExpandedLibrary({searchQueries:[query,{targetId:"google",query:"Google capex",keywords:["Google","capex"]}]}, undefined, {mode:"focused"});
     expect(gateway.callResearchTool.mock.calls.filter(call => call[0] === "signal_desk_read").map(call => call[1].offset)).toEqual([0,5800]);
     expect(() => validateLibraryUse(found,[libraryClaim({articleId:"shared",sourceUrl:"https://example.org/shared",quote:"Meta plans less spending."})],[])).not.toThrow();
     expect(binaryLibraryUsage(found,[{libraryArticleId:"shared",libraryQuote:"Google plans more spending.",sources:[{url:"https://example.org/shared"}]}],{})).toEqual({usedArticleIds:["shared"],exclusions:[]});
@@ -116,13 +116,13 @@ describe("expanded library retrieval", () => {
       .mockResolvedValueOnce({ status: "ok", total: 3, coverage: { partial: true }, results: [{ id: "article-1", title: "Article", url: "https://example.org/research/1",
         evidence: [{ source: "body", read_offset: 900 }] }] })
       .mockResolvedValueOnce({ status: "ok", title: "Article", url: "https://example.org/research/1", text: "Capital expenditure context.", sha256: "content-digest", content_kind: "markdown", date: "2026-09-12" });
-    const found = await collectExpandedLibrary({ searchQueries: [query] });
+    const found = await collectExpandedLibrary({ searchQueries: [query] }, undefined, {mode:"focused"});
     expect(gateway.callResearchTool.mock.calls).toEqual([
-      ["signal_desk_search", { keywords: ["Meta", "capex"], match: "all", limit: 4 }],
-      ["signal_desk_read", { article_id: "article-1", offset: 700, max_chars: 2400 }],
+      ["signal_desk_search", { keywords: ["Meta", "capex"], match: "all", limit: 6, scope: "all", offset: 0 }],
+      ["signal_desk_read", { article_id: "article-1", offset: 0, max_chars: 8000 }],
     ]);
     expect(found?.queries[0]).toMatchObject({ targetId: "meta", status: "ok", total: 3, coverage: { partial: true } });
-    expect(found?.readings[0]).toMatchObject({ articleId: "article-1", targetId: "meta", text: "Capital expenditure context.", offset: 700, sha256: "content-digest", apiDate: "2026-09-12" });
+    expect(found?.readings[0]).toMatchObject({ articleId: "article-1", targetId: "meta", text: "Capital expenditure context.", offset: 0, sha256: "content-digest", apiDate: "2026-09-12" });
     expect(found?.usedArticleIds).toEqual([]);
   });
 
@@ -130,7 +130,7 @@ describe("expanded library retrieval", () => {
     const search = { status: "ok", total: 1, results: [{ id: "shared", title: "Comparison", url: "https://example.org/shared" }] };
     gateway.callResearchTool.mockImplementation(async (name: string) => name === "signal_desk_search" ? search :
       { status: "ok", title: "Comparison", url: "https://example.org/shared", text: "Meta and Google spending.", sha256: "digest", content_kind: "markdown", date: "2026-09-12" });
-    const found = await collectExpandedLibrary({ searchQueries: [query, { targetId: "google", query: "Google capex", keywords: ["Google", "capex"] }] });
+    const found = await collectExpandedLibrary({ searchQueries: [query, { targetId: "google", query: "Google capex", keywords: ["Google", "capex"] }] }, undefined, {mode:"focused"});
     expect(gateway.callResearchTool.mock.calls.filter(call => call[0] === "signal_desk_search")).toHaveLength(2);
     expect(gateway.callResearchTool.mock.calls.filter(call => call[0] === "signal_desk_read")).toHaveLength(1);
     expect(found?.readings.map(row => row.targetId)).toEqual(["meta", "google"]);
@@ -138,14 +138,15 @@ describe("expanded library retrieval", () => {
 
   it("fails before model work if the mandatory gateway is disabled", async () => {
     gateway.signalDeskEnabled.mockReturnValue(false);
-    await expect(collectExpandedLibrary({ searchQueries: [query] })).rejects.toThrow(/required.*disabled/);
+    await expect(collectExpandedLibrary({ searchQueries: [query] }, undefined, {mode:"focused"})).rejects.toThrow(/required.*disabled/);
     expect(gateway.callResearchTool).not.toHaveBeenCalled();
   });
 
   it("retains a failed search as an error instead of a successful zero-hit search", async () => {
     gateway.callResearchTool.mockRejectedValue(new Error("Service unavailable"));
-    const found = await collectExpandedLibrary({ searchQueries: [query] });
-    expect(found?.queries).toEqual([{ targetId: "meta", query: query.query, status: "error", total: null, error: "Service unavailable" }]);
+    const found = await collectExpandedLibrary({ searchQueries: [query] }, undefined, {mode:"focused"});
+    expect(found?.queries).toHaveLength(1);
+    expect(found?.queries[0]).toMatchObject({ targetId: "meta", query: query.query, status: "error", total: null, error: "Service unavailable" });
     expect(found?.readings).toEqual([]);
   });
 
@@ -153,17 +154,18 @@ describe("expanded library retrieval", () => {
     gateway.callResearchTool.mockResolvedValueOnce({ status: "ok", total: 1, results: [{ id: "article-1", title: "Article", url: "https://example.org/article-1" }] });
     if (failureKind === "throw") gateway.callResearchTool.mockRejectedValueOnce(new Error("Read timeout"));
     else gateway.callResearchTool.mockResolvedValueOnce({ status: "error", error: "Read timeout" });
-    const found = await collectExpandedLibrary({ searchQueries: [query] });
+    const found = await collectExpandedLibrary({ searchQueries: [query] }, undefined, {mode:"focused"});
     expect(found?.queries).toHaveLength(1);
     expect(found?.queries[0]).toMatchObject({ targetId: "meta", status: "ok", total: 1 });
     expect(found?.readings).toEqual([]);
-    expect(found?.readingErrors).toEqual([{ articleId: "article-1", targetId: "meta", error: "Read timeout" }]);
+    expect(found?.readingErrors).toHaveLength(1);
+    expect(found?.readingErrors?.[0]).toMatchObject({ articleId: "article-1", targetId: "meta", error: "Read timeout", tool: "signal_desk_read" });
   });
 
   it("allows an optional disabled library without issuing tool calls", async () => {
     vi.stubEnv("FORECAST_REQUIRE_EXPANDED_LIBRARY", "0");
     gateway.signalDeskEnabled.mockReturnValue(false);
-    expect(await collectExpandedLibrary({ searchQueries: [query] })).toBeNull();
+    expect(await collectExpandedLibrary({ searchQueries: [query] }, undefined, {mode:"focused"})).toBeNull();
     expect(gateway.callResearchTool).not.toHaveBeenCalled();
   });
 });
