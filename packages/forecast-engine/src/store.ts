@@ -7,6 +7,7 @@
 // We persist after every round so a crash mid-loop resumes from the last
 // committed state (persist after each transition).
 
+import type { AnswerRequest } from "./answer-types";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, renameSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
@@ -22,7 +23,7 @@ export function forecastsRoot(): string {
   return root;
 }
 
-export function makeEventId(question: string): string {
+export function makeEventId(question: string, request?: AnswerRequest): string {
   const slug = question
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, "")
@@ -31,7 +32,10 @@ export function makeEventId(question: string): string {
     .slice(0, 6)
     .join("-")
     .slice(0, 48);
-  const hash = createHash("sha1").update(question).digest("hex").slice(0, 8);
+  const entries = Object.entries(request ?? {}).filter(([key, value]) => value !== undefined && !(key === "answerType" && value === "auto"));
+  const canonical = Object.fromEntries(entries.sort(([a], [b]) => a.localeCompare(b)));
+  const identity = entries.length ? question + "\n" + JSON.stringify(canonical, (_key, value) => value && typeof value === "object" && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b))) : value) : question;
+  const hash = createHash("sha1").update(identity).digest("hex").slice(0, 8);
   return `${slug || "event"}-${hash}`;
 }
 
@@ -43,7 +47,10 @@ export function loadState(eventId: string): ForecastState | null {
   const file = path.join(eventDir(eventId), "state.json");
   if (!existsSync(file)) return null;
   try {
-    return JSON.parse(readFileSync(file, "utf8")) as ForecastState;
+    const raw = JSON.parse(readFileSync(file, "utf8"));
+    // Binary-only callers (including trading consumers) must never read a
+    // categorical/numeric/ranking result as an implied probability.
+    return raw?.schemaVersion === 2 ? null : raw as ForecastState;
   } catch {
     return null;
   }

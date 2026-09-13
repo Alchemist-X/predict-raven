@@ -154,3 +154,10 @@ For any user-visible change, close out with: **screenshot → read the image →
 - Keep the handoff doc tight (target roughly 150 lines or fewer): actionable, not a running log; details belong in git history, PRs, or `docs/internal/review/`.
 
 > **Current P0 / P1 / P2 TODOs all live in [`docs/en/agent-handoff.md`](agent-handoff.md)** — this section no longer maintains its own task list to avoid two-source drift.
+
+
+### Research answers and the expanded resource library (2026-09-13)
+
+- Preserve the requested answer space: binary probability, exclusive option distribution, numerical value/score, or per-entity event ranking. Do not normalize events that may co-occur, rewrite “most likely” as “first,” or disguise scores as probabilities. See [answer types](forecast-answer-types.md).
+- Research calls Geoscope / Signal Desk the “expanded resource library”; technical tool identifiers remain compatible. Personal research must actually search and read it, cover every compared entity, and use relevant quotations as evidence or counterevidence. Explain specific exclusions and record failed attempts/coverage gaps without inventing usage.
+- The personal workflow enables `FORECAST_REQUIRE_EXPANDED_LIBRARY=1` with the gateway. Never copy personal subscription bodies, keys or caches into shared repositories/servers. Distinguish official facts, author opinion, sell-side forecasts and model estimates; preserve short quotes, attribution, dates and sources. A summary is not a PDF.

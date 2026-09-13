@@ -271,6 +271,7 @@ function adaptStructuredState(state: StructuredForecastState, job: Job | null): 
             gaps: library.queries
               .filter((query) => query.error || query.status !== "ok")
               .map((query) => `${query.targetId}: ${query.error ?? query.status}`)
+              .concat((library.readingErrors ?? []).map(read => `${read.targetId}: ${read.articleId}: ${read.error}`))
           }
         : null
     },

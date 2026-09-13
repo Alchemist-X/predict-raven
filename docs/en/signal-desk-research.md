@@ -62,3 +62,7 @@ Research cost coverage is marked `partial` when external search costs are not in
 When rerunning an existing question, pass its original `--resolution`. The engine preserves those supplied criteria after both framing and audit; caveats may identify ambiguities but cannot rewrite the pinned rules.
 
 When model output fails validation, the engine records the specific error and provides it with the previous output for one correction attempt. Rejected output never changes the probability. Retries retain actual retrieved sources and deduplicated queries, and aggregate known model cost and usage. Unsupported statements cannot pass merely by relabeling a source.
+
+## Required use and answer types
+
+The personal launcher also sets `FORECAST_REQUIRE_EXPANDED_LIBRARY=1`: binary and typed research pre-search/read the library and require an exact quotation or specific exclusion. Comparisons cover each entity. User-facing text calls this the “expanded resource library.” See [answer types](forecast-answer-types.md).

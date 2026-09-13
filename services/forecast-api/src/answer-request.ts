@@ -5,9 +5,9 @@ export const AnswerRequestSchema = z
   .object({
     answerType: z.enum(["auto", "binary", "categorical", "numeric", "independent_ranking"]).optional(),
     options: z
-      .array(z.object({ id: z.string().trim().min(1).max(100), label: z.string().trim().min(1).max(200) }).strict())
+      .array(z.object({ id: z.string().trim().regex(/^[a-zA-Z0-9_-]{1,40}$/), label: z.string().trim().min(1).max(200) }).strict())
       .min(2)
-      .max(50)
+      .max(20)
       .optional(),
     unit: z.string().trim().min(1).max(100).optional(),
     minimum: z.number().finite().optional(),
@@ -23,11 +23,11 @@ export const AnswerRequestSchema = z
         message: "maximum must exceed minimum / 上限必须大于下限"
       });
     }
-    if (request.options && new Set(request.options.map((option) => option.id)).size !== request.options.length) {
+    if (request.options && (new Set(request.options.map((option) => option.id.toLowerCase())).size !== request.options.length || new Set(request.options.map((option) => option.label.toLowerCase())).size !== request.options.length)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["options"],
-        message: "option ids must be unique / 选项标识不能重复"
+        message: "option ids and labels must be unique / 选项标识与名称不能重复"
       });
     }
     if ((request.answerType === "binary" || request.answerType === "numeric") && request.options) {

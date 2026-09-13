@@ -147,6 +147,13 @@
 | 实盘运行总结归档 | `runtime-artifacts/pulse-live/<ts>-<runId>/run-summary.md` |
 | Forecasting AI 推理报告 | `runtime-artifacts/reports/pulse/YYYY/MM/DD/pulse-*.md` |
 
+
+### 投研答案与扩展资源库（2026-09-13）
+
+- 保留用户要求的答案形式：二元概率、互斥选项分布、数值/量表、逐实体事件排名。公司可能同时发生的事件不归一化，不改成“谁最先发生”；数值分数不伪装为概率。见 [答案形式](docs/forecast-answer-types.md)。
+- Geoscope / Signal Desk 在投研说明中统一称“扩展资源库”；底层工具标识保留。个人投研入口必须真实搜索并读取，比较题覆盖所有候选，把相关原文用于证据或反证。已读候选不采用时说明具体原因；上游失败或无相关材料需留实际尝试与缺口，不编造使用。
+- `FORECAST_REQUIRE_EXPANDED_LIBRARY=1` 是个人工作流的强制开关，与网关一起启用。不得复制个人订阅正文、API Key 或缓存到共享仓库/服务器。官方事实、作者主观判断、卖方预测、模型估计分别标注；保留短引句、原作者、日期及来源，摘要不等于 PDF。
+
 ### Wrap-up 时必做
 
 - 原地更新 [`docs/agent-handoff.md`](docs/agent-handoff.md) 的当前状态与 P0/P1/P2；删除已完成项，不要追加按日期排列的会话日记

@@ -9,6 +9,8 @@
 // computed, not guessed -> persist -> check stop conditions.
 
 import { providerHasWebSearch, runAgent } from "./agent";
+import { expandedLibraryRequired, collectExpandedLibrary, libraryPrompt, binaryLibraryUsage } from "./expanded-library";
+import { validatedCall, object, text } from "./question-spec";
 import { canonicalClaimKey, claimQualityScore, crossCheckWeight, rankClaimSources } from "./claims";
 import { languageDirective } from "./language";
 import {
@@ -217,6 +219,8 @@ OUTPUT FORMAT: Respond with ONLY a single JSON object — no prose before or aft
   "notes": "caveats, resolution assumptions, what to check next round"
 }
 If you genuinely found no new relevant information this round, return an empty new_claims array, an empty reflection array, and set found_new_information to false.
+${libraryPrompt(state.expandedLibrary)}
+When using a pre-read library source in new_claims, include library_article_id and library_quote (an exact short original quote) and its URL in sources. Add a top-level library_exclusions:[{articleId,reason}] for each read article not relevant enough to use. Previous usage/exclusions remain valid.
 ${marketBlindDirective()}${languageDirective()}`;
 }
 
@@ -314,7 +318,9 @@ async function runOneRound(
   let lastValidationError = "";
   const validate = (r: AgentRunResult): AgentRoundOutput | null => {
     try {
-      return validateRoundOutput(r.jsonObject);
+      const out = validateRoundOutput(r.jsonObject);
+      binaryLibraryUsage(state.expandedLibrary, out.newClaims, r.jsonObject);
+      return out;
     } catch (error) {
       lastValidationError = validationError(r, error);
       return null;
@@ -354,6 +360,9 @@ async function runOneRound(
   // fabricated-citation guard).
   const traceCanonical = new Set<string>();
   for (const u of result.searchResultUrls) traceCanonical.add(canonicalizeUrl(u));
+  for (const reading of state.expandedLibrary?.readings ?? []) traceCanonical.add(canonicalizeUrl(reading.url));
+  const libraryUsage = binaryLibraryUsage(state.expandedLibrary, out.newClaims, result.jsonObject);
+  if (state.expandedLibrary && libraryUsage) Object.assign(state.expandedLibrary, libraryUsage);
 
   // The probability unit is an atomic CLAIM. A page may support several
   // distinct claims, while several pages may support one claim; neither case
@@ -591,6 +600,8 @@ async function runOneRound(
       urlCanonical: canon,
       title: ev.source_title,
       claim: ev.claim,
+      libraryArticleId: ev.libraryArticleId,
+      libraryQuote: ev.libraryQuote,
       stance: ev.stance,
       strength: ev.strength,
       kind: "evidence",
@@ -724,6 +735,15 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
   const minRounds = opts.minRounds ?? (Number(process.env.FORECAST_MIN_ROUNDS) || Math.min(2, maxRounds));
   const log = opts.onLog ?? (() => {});
 
+  if (expandedLibraryRequired() && state.round < maxRounds && !state.expandedLibrary) {
+    const queries = await validatedCall(`Return concise keyword searches for the expanded resource library for this binary investment question: ${state.eventText}. Each query uses a company and metric, not a full sentence. JSON only: {"queries":[{"query":"public query","keywords":["company","metric"]}]}`, raw => {
+      const rows = object(raw).queries;
+      if (!Array.isArray(rows) || !rows.length || rows.length > 4) throw new Error("Provide 1–4 research queries");
+      return rows.map(row => {const q=object(row); if (!Array.isArray(q.keywords) || !q.keywords.length || q.keywords.length>6) throw new Error("Use short keywords"); return {targetId:"question",query:text(q.query,"query"),keywords:q.keywords.map(k=>text(k,"keyword"))};});
+    }, {model:opts.model,runAgentFn:opts.runAgentFn,allowedTools:""});
+    state.expandedLibrary = await collectExpandedLibrary({searchQueries:queries.value}, log);
+    saveState(state);
+  }
   const startRound = state.round + 1;
   let roundsRan = 0;
   for (let roundNo = startRound; roundNo <= maxRounds; roundNo++) {

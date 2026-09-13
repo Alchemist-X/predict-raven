@@ -1,4 +1,4 @@
-// CLI entry for the iterative binary forecaster.
+// CLI entry: preserve binary, categorical, numeric and independent-ranking answers.
 //
 // Usage:
 //   ANTHROPIC_BASE_URL=... ANTHROPIC_API_KEY=... \
@@ -18,7 +18,12 @@ import { marketBlind } from "./market-blind";
 import { createResearchPlan } from "./research-plan";
 import { eventDir, loadState, makeEventId, saveState } from "./store";
 import type { ForecastState } from "./types";
+import type { AnswerRequest } from "./answer-types";
+import { answerLabel } from "./answer-types";
+import { classifyQuestion, frameStructuredQuestion, validateAnswerRequest } from "./question-spec";
+import { loadStructuredState, newStructuredState, runStructuredForecast, saveStructuredState } from "./structured-engine";
 import { researchCommand, researchTools, signalDeskEnabled } from "./research-tools";
+import { expandedLibraryRequired } from "./expanded-library";
 
 interface CliArgs {
   question: string;
@@ -26,6 +31,7 @@ interface CliArgs {
   maxRounds: number | undefined;
   model: string | undefined;
   fresh: boolean;
+  answerRequest: AnswerRequest;
 }
 
 function parseArgs(argv: string[]): CliArgs {
@@ -34,6 +40,7 @@ function parseArgs(argv: string[]): CliArgs {
   let maxRounds: number | undefined;
   let model: string | undefined;
   let fresh = false;
+  let answerRequest: Record<string, unknown> = {};
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -42,11 +49,23 @@ function parseArgs(argv: string[]): CliArgs {
     else if (a === "--model") model = argv[++i];
     else if (a === "--question") positional.push(argv[++i] ?? "");
     else if (a === "--fresh") fresh = true;
+    else if (a === "--answer-request") answerRequest = JSON.parse(argv[++i] ?? "null");
+    else if (a === "--answer-type") answerRequest.answerType = argv[++i];
+    else if (a === "--options") {
+      const values = JSON.parse(argv[++i] ?? "null");
+      answerRequest.options = Array.isArray(values) ? values.map((value, index) => typeof value === "string" ? {id: `option_${index + 1}`, label:value} : value) : values;
+    }
+    else if (a === "--unit") answerRequest.unit = argv[++i];
+    else if (a === "--minimum") answerRequest.minimum = Number(argv[++i]);
+    else if (a === "--maximum") answerRequest.maximum = Number(argv[++i]);
     else if (a.startsWith("--")) {
       /* ignore unknown flags */
     } else positional.push(a);
   }
-  return { question: positional.join(" ").trim(), resolution, maxRounds, model, fresh };
+  if (resolution && answerRequest.resolution && resolution !== answerRequest.resolution) throw new Error("Conflicting resolution arguments");
+  if (resolution) answerRequest.resolution = resolution;
+  if (maxRounds !== undefined && (!Number.isInteger(maxRounds) || maxRounds < 1 || maxRounds > 20)) throw new Error("max-rounds must be an integer from 1 to 20");
+  return { question: positional.join(" ").trim(), resolution: resolution ?? (answerRequest.resolution as string | null) ?? null, maxRounds, model, fresh, answerRequest: validateAnswerRequest(answerRequest) };
 }
 
 const pct = (p: number): string => `${(p * 100).toFixed(1)}%`;
@@ -65,11 +84,12 @@ async function main(): Promise<void> {
   // token from `claude setup-token`, the headless-server path), or the CLI's
   // stored interactive login (assumed when neither var is set).
   const provider = providerName();
+  if (expandedLibraryRequired() && !signalDeskEnabled()) throw new Error("Expanded resource library is required but its gateway is disabled");
   if (signalDeskEnabled()) {
-    if (provider === "codex") throw new Error("Signal Desk research currently supports the Claude and DeepSeek providers; choose one explicitly.");
+    if (provider === "codex") throw new Error("Expanded resource library research currently supports the Claude and DeepSeek providers; choose one explicitly.");
     const registry = await researchTools();
-    console.log(`execution mode: research-only · decision source: user-enabled Signal Desk gateway`);
-    console.log(`research sources: public web + personal Signal Desk · tools: ${registry.length}`);
+    console.log(`execution mode: research-only · decision source: user-enabled expanded resource library`);
+    console.log(`research sources: public web + personal expanded resource library · tools: ${registry.length}`);
     console.log(`research gateway: ${researchCommand()} · trace: ${process.env.RAVEN_RESEARCH_TRACE ?? "private service default"}`);
   }
   if (provider === "deepseek" && !process.env.DEEPSEEK_API_KEY) {
@@ -83,7 +103,23 @@ async function main(): Promise<void> {
       : "cli-login";
   console.log(`provider: ${provider}${provider === "claude" ? ` (auth: ${claudeAuth})` : ""}`);
 
-  const eventId = makeEventId(args.question);
+  const eventId = makeEventId(args.question, args.answerRequest);
+  const structured = args.fresh ? null : loadStructuredState(eventId);
+  const existingBinary = args.fresh ? null : loadState(eventId);
+  const kind = structured?.questionSpec.kind ?? (existingBinary ? "binary" : await classifyQuestion(args.question, args.answerRequest, {model: args.model}));
+  if (kind !== "binary") {
+    console.log(`execution mode: research-only · answer type: ${kind} · event: ${eventId}`);
+    const state = structured ?? newStructuredState(eventId, args.question, args.answerRequest,
+      await frameStructuredQuestion(args.question, kind, args.answerRequest, {model: args.model}));
+    saveStructuredState(state);
+    const result = await runStructuredForecast(state, {maxRounds: args.maxRounds, model: args.model, onLog: console.log});
+    console.log(`FINAL ANSWER: ${answerLabel(result.answer)}`);
+    console.log(JSON.stringify(result.answer));
+    console.log(`Status: ${result.status} · Rounds: ${result.round} · Claims: ${result.evidenceLedger.length}`);
+    console.log(`Report: ${eventDir(eventId)}/report.md`);
+    console.log(`State: ${eventDir(eventId)}/state.json`);
+    return;
+  }
   let state: ForecastState | null = args.fresh ? null : loadState(eventId);
 
   if (state) {

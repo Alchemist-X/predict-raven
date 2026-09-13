@@ -414,6 +414,8 @@ export function validateRoundOutput(raw: unknown): AgentRoundOutput {
       claim_id: cleanId(ev.claim_id, ""),
       focus_id: cleanId(ev.focus_id, "unassigned"),
       claim: ev.claim.trim(),
+      libraryArticleId: typeof ev.library_article_id === "string" ? ev.library_article_id : undefined,
+      libraryQuote: typeof ev.library_quote === "string" ? ev.library_quote : undefined,
       source_url: best.url,
       source_title: best.title,
       stance: ev.stance as AgentRoundOutput["newClaims"][number]["stance"],

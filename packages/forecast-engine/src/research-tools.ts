@@ -8,7 +8,7 @@ import { createHash } from "node:crypto";
 
 export const RESEARCH_TOOL_NAMES = ["web_search", "fetch_page", "signal_desk_search", "signal_desk_read", "signal_desk_pdf"];
 export const RESEARCH_MCP_PREFIX = "mcp__raven_research__";
-export const RESEARCH_POLICY = `Research tools search both the public web and the personal Signal Desk subscription index.
+export const RESEARCH_POLICY = `Research tools search both the public web and the personal expanded resource library (扩展资源库; Geoscope / Signal Desk). Use "扩展资源库" in Chinese reports while attributing original authors and publications by name.
 Use web_search for every general search; supply concise research_keywords and dates when relevant.
 Use signal_desk_search for targeted publisher, keyword and date filtering, then signal_desk_read or signal_desk_pdf for evidence.
 Search hits are discovery candidates, not proof that a full document was read. Preserve access, content_kind, source_provider,

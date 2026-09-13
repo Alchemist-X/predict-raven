@@ -102,6 +102,8 @@ export interface EventFraming {
   framingConfidence: "high" | "medium" | "low";
 }
 export interface AgentClaim {
+  libraryArticleId?: string;
+  libraryQuote?: string;
   claim_id: string; // stable, short semantic key; reused when the same factual claim returns
   focus_id: string; // ResearchFocus.id this claim helps answer
   claim: string; // one atomic, checkable factual statement
@@ -148,6 +150,8 @@ export interface AgentRoundOutput {
 
 // One source, after the engine has applied it to the running probability.
 export interface LedgerEntry {
+  libraryArticleId?: string;
+  libraryQuote?: string;
   id: string;
   url: string;
   urlCanonical: string; // dedupe key
@@ -262,6 +266,7 @@ export interface ForecastSummary {
 }
 
 export interface ForecastState {
+  expandedLibrary?: import("./answer-types").ExpandedLibraryCoverage | null;
   eventId: string;
   eventText: string; // the original user prompt, verbatim
   framing: EventFraming; // Round-0 frame: the normalized question actually forecast

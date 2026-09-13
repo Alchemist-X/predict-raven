@@ -22,6 +22,6 @@ WRITING STANDARD:
 `;
   if (lang !== "zh") return style;
   return `${style}
-LANGUAGE: Write every free-text field of your output in Simplified Chinese (简体中文) — claims, rationales, summaries, criteria, assumptions, caveats, verdict prose, notes, quips. Keep JSON keys, enum values, URLs, dates and numbers exactly as specified above, in English/ASCII. Prefer ordinary Chinese wording. When an English abbreviation is necessary, write its full Chinese or English meaning before the abbreviation at first use.
+LANGUAGE: Write analytical prose in Simplified Chinese (简体中文) — claims, rationales, summaries, criteria, assumptions, caveats, verdict prose, notes, quips. Exact source quotations must remain in their original language, without translation or paraphrase. Keep JSON keys, enum values, URLs, dates and numbers exactly as specified above, in English/ASCII. Prefer ordinary Chinese wording. When an English abbreviation is necessary, write its full Chinese or English meaning before the abbreviation at first use.
 `;
 }
