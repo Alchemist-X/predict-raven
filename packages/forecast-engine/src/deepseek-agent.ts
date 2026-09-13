@@ -19,7 +19,17 @@
 import { extractJsonObject } from "./claude-agent";
 import type { AgentRunResult, RunAgentOptions } from "./claude-agent";
 import { fetchPageText, webSearch } from "./web-search";
-import { callResearchTool, RESEARCH_POLICY, researchSourceUrls, researchTools, signalDeskEnabled, type ResearchToolSchema } from "./research-tools";
+import {
+  callResearchTool,
+  RESEARCH_POLICY,
+  researchSourceUrls,
+  researchReadSourceUrls,
+  researchToolReading,
+  type ResearchToolReading,
+  researchTools,
+  signalDeskEnabled,
+  type ResearchToolSchema
+} from "./research-tools";
 
 export function webSearchEnabled(): boolean {
   const v = (process.env.FORECAST_WEB_SEARCH ?? "").trim().toLowerCase();
@@ -185,7 +195,17 @@ export async function runDeepSeekRaw(
   const timeoutMs = opts.timeoutMs ?? (Number(process.env.FORECAST_AGENT_TIMEOUT_MS) || 360_000);
 
   if (webSearchEnabled() && opts.allowedTools !== "") {
-    return runWithTools(prompt, { baseUrl, apiKey, model, fetchFn, timeoutMs, researchCall: deps.researchCall ?? callResearchTool, researchSchemas: signalDeskEnabled() ? (deps.researchSchemas ?? await researchTools(opts.allowedTools)) : undefined });
+    return runWithTools(prompt, {
+      baseUrl,
+      apiKey,
+      model,
+      fetchFn,
+      timeoutMs,
+      researchCall: deps.researchCall ?? callResearchTool,
+      researchSchemas: signalDeskEnabled()
+        ? (deps.researchSchemas ?? (await researchTools(opts.allowedTools)))
+        : undefined
+    });
   }
 
   // The timeout must cover the BODY read too, not just the response headers — a
@@ -245,6 +265,8 @@ export async function runDeepSeekRaw(
     jsonError,
     searchQueries: [], // provider has no search
     searchResultUrls,
+    readSourceUrls: [],
+    researchReadings: [],
     costUsd,
     numTurns: 1,
     exitCode: 0,
@@ -308,9 +330,13 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
     }
   };
 
-  const messages: ChatMessage[] = [{ role: "user", content: ctx.researchSchemas ? `${RESEARCH_POLICY}\n\n${prompt}` : prompt }];
+  const messages: ChatMessage[] = [
+    { role: "user", content: ctx.researchSchemas ? `${RESEARCH_POLICY}\n\n${prompt}` : prompt }
+  ];
   const searchQueries: string[] = [];
   const traceUrls = new Set<string>();
+  const readUrls = new Set<string>();
+  const readings = new Map<string, ResearchToolReading>();
   let toolCalls = 0;
   let finalText = "";
 
@@ -323,14 +349,22 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
         toolCalls += 1;
         let resultText: string;
         try {
-          const args = JSON.parse(tc.function.arguments || "{}") as { query?: string; url?: string } & Record<string, unknown>;
+          const args = JSON.parse(tc.function.arguments || "{}") as { query?: string; url?: string } & Record<
+            string,
+            unknown
+          >;
           if (ctx.researchSchemas) {
-            if (!ctx.researchSchemas.some(t => t.function.name === tc.function.name)) throw new Error("tool is not enabled");
-            if (["web_search", "signal_desk_search"].includes(tc.function.name)) searchQueries.push(String(args.query ?? args.keywords ?? ""));
+            if (!ctx.researchSchemas.some((t) => t.function.name === tc.function.name))
+              throw new Error("tool is not enabled");
+            if (["web_search", "signal_desk_search"].includes(tc.function.name))
+              searchQueries.push(String(args.query ?? args.keywords ?? ""));
             const remaining = deadline - Date.now();
             if (remaining <= 1000) throw new Error("research tool budget exhausted");
             const result = await ctx.researchCall(tc.function.name, args, Math.min(90_000, remaining));
             for (const url of researchSourceUrls(result)) traceUrls.add(url);
+            for (const url of researchReadSourceUrls(tc.function.name, result)) readUrls.add(url);
+            const reading = researchToolReading(tc.function.name, result);
+            if (reading) readings.set(JSON.stringify(reading), reading);
             resultText = JSON.stringify(result);
           } else if (tc.function.name === "web_search" && args.query) {
             searchQueries.push(args.query);
@@ -346,7 +380,11 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
         } catch (error) {
           resultText = `[tool failed: ${error instanceof Error ? error.message : String(error)}]`;
         }
-        messages.push({ role: "tool", content: ctx.researchSchemas ? resultText : resultText.slice(0, 8000), tool_call_id: tc.id });
+        messages.push({
+          role: "tool",
+          content: ctx.researchSchemas ? resultText : resultText.slice(0, 8000),
+          tool_call_id: tc.id
+        });
       }
       continue;
     }
@@ -370,9 +408,10 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
 
   // Verified set: the REAL tool trace when the model researched; liveness
   // fallback (weaker) only when it never touched the tools.
-  const searchResultUrls = ctx.researchSchemas || traceUrls.size
-    ? traceUrls
-    : await verifyCitedUrls(collectCitedUrls(jsonObject), ctx.fetchFn);
+  const searchResultUrls =
+    ctx.researchSchemas || traceUrls.size
+      ? traceUrls
+      : await verifyCitedUrls(collectCitedUrls(jsonObject), ctx.fetchFn);
 
   const priceIn = Number(process.env.DEEPSEEK_PRICE_IN_PER_MTOK);
   const priceOut = Number(process.env.DEEPSEEK_PRICE_OUT_PER_MTOK);
@@ -387,6 +426,8 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
     jsonError,
     searchQueries,
     searchResultUrls,
+    readSourceUrls: [...readUrls],
+    researchReadings: [...readings.values()],
     costUsd,
     costCoverage: costUsd == null ? "unavailable" : ctx.researchSchemas ? "partial" : "complete",
     numTurns: Math.min(MAX_MODEL_TURNS, toolCalls + 1),

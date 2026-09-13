@@ -12,7 +12,17 @@
 // no secret is committed here.
 
 import { spawn } from "node:child_process";
-import { RESEARCH_MCP_PREFIX, RESEARCH_POLICY, researchClaudeArgs, researchSourceUrls, researchToolNames, signalDeskEnabled } from "./research-tools";
+import {
+  RESEARCH_MCP_PREFIX,
+  RESEARCH_POLICY,
+  researchClaudeArgs,
+  researchSourceUrls,
+  researchReadSourceUrls,
+  researchToolReading,
+  type ResearchToolReading,
+  researchToolNames,
+  signalDeskEnabled
+} from "./research-tools";
 import { rankClaimSources } from "./claims";
 import type {
   AgentRoundOutput,
@@ -40,6 +50,8 @@ export interface AgentRunResult {
   jsonError: string | null; // set when no JSON object could be extracted
   searchQueries: string[];
   searchResultUrls: Set<string>; // every URL the agent's searches actually returned
+  readSourceUrls?: string[]; // successful correlated read results only; JSON-safe
+  researchReadings?: ResearchToolReading[]; // private source excerpts, never generic public output
   costUsd: number | null;
   // The provider/runtime reports these after the call. They are deliberately
   // separate from the requested model archived before the call: aliases and
@@ -77,8 +89,11 @@ function collectToolUrlsDeep(node: unknown, urls: Set<string>, researchIds: Set<
     const blocks = Array.isArray(rec.content) ? rec.content : [{ text: rec.content }];
     for (const block of blocks) {
       if (!block || typeof block !== "object" || typeof block.text !== "string") continue;
-      try { for (const url of researchSourceUrls(JSON.parse(block.text))) urls.add(url); }
-      catch { /* A malformed result provides no source verification. */ }
+      try {
+        for (const url of researchSourceUrls(JSON.parse(block.text))) urls.add(url);
+      } catch {
+        /* A malformed result provides no source verification. */
+      }
     }
     for (const url of researchSourceUrls(rec.structuredContent)) urls.add(url);
     return;
@@ -91,6 +106,48 @@ function collectToolUrlsDeep(node: unknown, urls: Set<string>, researchIds: Set<
     urls.add(rec.url);
   }
   for (const v of Object.values(rec)) collectToolUrlsDeep(v, urls, researchIds);
+}
+
+// Correlate actual MCP tool results without traversing source content as protocol events.
+function collectToolReads(
+  node: unknown,
+  calls: Map<string, string>,
+  urls: Set<string>,
+  readings: Map<string, ResearchToolReading>
+): void {
+  if (!node || typeof node !== "object") return;
+  if (Array.isArray(node)) {
+    for (const item of node) collectToolReads(item, calls, urls, readings);
+    return;
+  }
+  const rec = node as Record<string, unknown>;
+  if (rec.type === "tool_use") {
+    if (typeof rec.id === "string" && typeof rec.name === "string" && rec.name.startsWith(RESEARCH_MCP_PREFIX)) {
+      calls.set(rec.id, rec.name.slice(RESEARCH_MCP_PREFIX.length));
+    }
+    return;
+  }
+  if (rec.type === "tool_result") {
+    const name = typeof rec.tool_use_id === "string" ? calls.get(rec.tool_use_id) : undefined;
+    if (!name || rec.is_error) return;
+    const accept = (data: unknown) => {
+      for (const url of researchReadSourceUrls(name, data)) urls.add(url);
+      const reading = researchToolReading(name, data);
+      if (reading) readings.set(JSON.stringify(reading), reading);
+    };
+    const blocks = Array.isArray(rec.content) ? rec.content : [{ text: rec.content }];
+    for (const block of blocks) {
+      if (!block || typeof block !== "object" || typeof block.text !== "string") continue;
+      try {
+        accept(JSON.parse(block.text));
+      } catch {
+        /* Malformed content does not establish a read. */
+      }
+    }
+    accept(rec.structuredContent);
+    return;
+  }
+  for (const value of Object.values(rec)) collectToolReads(value, calls, urls, readings);
 }
 
 // Exported for testing: pull the tool-interaction URL set out of a raw
@@ -114,6 +171,8 @@ interface ParsedStreamJson {
   finalText: string;
   searchQueries: string[];
   searchResultUrls: Set<string>;
+  readSourceUrls: string[];
+  researchReadings: ResearchToolReading[];
   costUsd: number | null;
   numTurns: number | null;
   resolvedModel: string | null;
@@ -178,6 +237,9 @@ export function parseStreamJson(stdout: string): ParsedStreamJson {
   const queries: string[] = [];
   const urls = new Set<string>();
   const researchIds = new Set<string>();
+  const readCalls = new Map<string, string>();
+  const readUrls = new Set<string>();
+  const readings = new Map<string, ResearchToolReading>();
   let finalText = "";
   let costUsd: number | null = null;
   let numTurns: number | null = null;
@@ -203,6 +265,7 @@ export function parseStreamJson(stdout: string): ParsedStreamJson {
     }
     const type = obj.type;
     collectToolUrlsDeep(obj, urls, researchIds); // tool_use.input.url (WebFetch) + {title,url} (WebSearch)
+    collectToolReads(obj, readCalls, readUrls, readings);
     if (type === "system" && obj.subtype === "init") {
       if (typeof obj.model === "string" && obj.model) systemModel = obj.model;
       if (typeof obj.claude_code_version === "string") agentRuntimeVersion = obj.claude_code_version;
@@ -217,11 +280,21 @@ export function parseStreamJson(stdout: string): ParsedStreamJson {
       const content = (msg?.content as unknown[]) ?? [];
       for (const block of content) {
         const b = block as Record<string, unknown>;
-        if (b.type === "tool_use" && (b.name === "WebSearch" || b.name === RESEARCH_MCP_PREFIX + "web_search" || b.name === RESEARCH_MCP_PREFIX + "signal_desk_search")) {
+        if (
+          b.type === "tool_use" &&
+          (b.name === "WebSearch" ||
+            b.name === RESEARCH_MCP_PREFIX + "web_search" ||
+            b.name === RESEARCH_MCP_PREFIX + "signal_desk_search")
+        ) {
           const input = b.input as { query?: unknown } | undefined;
           if (typeof input?.query === "string") queries.push(input.query);
         }
-        if (b.type === "tool_use" && (b.name === "WebFetch" || ["fetch_page", "signal_desk_read", "signal_desk_pdf"].some(name => b.name === RESEARCH_MCP_PREFIX + name))) observedWebFetchCalls += 1;
+        if (
+          b.type === "tool_use" &&
+          (b.name === "WebFetch" ||
+            ["fetch_page", "signal_desk_read", "signal_desk_pdf"].some((name) => b.name === RESEARCH_MCP_PREFIX + name))
+        )
+          observedWebFetchCalls += 1;
         if (b.type === "text" && typeof b.text === "string") {
           lastAssistantTexts.push(b.text);
         }
@@ -261,6 +334,8 @@ export function parseStreamJson(stdout: string): ParsedStreamJson {
     finalText,
     searchQueries: queries,
     searchResultUrls: urls,
+    readSourceUrls: [...readUrls],
+    researchReadings: [...readings.values()],
     costUsd,
     numTurns,
     resolvedModel: assistantModel ?? modelUsageModel ?? systemModel,
@@ -482,8 +557,13 @@ export async function runAgentRaw(prompt: string, opts: RunAgentOptions = {}): P
   const model = opts.model ?? process.env.FORECAST_MODEL ?? "";
   const research = signalDeskEnabled();
   const researchActive = research && researchToolNames(opts.allowedTools).length > 0;
-  const args = ["--print", "--output-format", "stream-json", "--verbose",
-    ...(research ? researchClaudeArgs(opts.allowedTools) : ["--allowedTools", allowedTools])];
+  const args = [
+    "--print",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    ...(research ? researchClaudeArgs(opts.allowedTools) : ["--allowedTools", allowedTools])
+  ];
   if (model) args.push("--model", model);
 
   return await new Promise<AgentRunResult>((resolve, reject) => {
@@ -520,6 +600,8 @@ export async function runAgentRaw(prompt: string, opts: RunAgentOptions = {}): P
         jsonError,
         searchQueries: parsedStream.searchQueries,
         searchResultUrls: parsedStream.searchResultUrls,
+        readSourceUrls: parsedStream.readSourceUrls,
+        researchReadings: parsedStream.researchReadings,
         costUsd: parsedStream.costUsd,
         resolvedModel: parsedStream.resolvedModel,
         usage: parsedStream.usage ?? undefined,
