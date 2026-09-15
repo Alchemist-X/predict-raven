@@ -3,7 +3,8 @@ import { readAnalystFile, updateAnalystFile } from "./analyst-feedback";
 //
 // Each forecast lives in runtime-artifacts/forecasts/<eventId>/:
 //   state.json  — the machine state (resumable; the loop persists after every round)
-//   report.md   — the audit log a human reads: per round, per source, prob from->to
+//   report.md   — current assessment for readers
+//   audit.md    — internal per-round history, evidence ledger and transitions
 //
 // We persist after every round so a crash mid-loop resumes from the last
 // committed state (persist after each transition).

@@ -6,7 +6,7 @@
 > 2026-09-12：Signal Desk 研究网关已迁入最新 main，保留现有研究规划／证据交叉核验。`FORECAST_SIGNAL_DESK=1` 为 Claude/DeepSeek 启用公开＋订阅搜索和 Markdown/PDF 读取；禁用工具的阶段不加载 MCP，Codex 模式暂报不支持。私有服务和材料留在个人工作区，公开仓库仅有适配器。见 [接入说明](signal-desk-research.md)。
 
 
-> 最后更新：2026-09-06 by Codex。
+> 最后更新：2026-09-15 by Codex。
 >
 > **新 agent 的启动约定：只读这份文件了解项目当前状态。** 不要在启动时读取旧 handoff 或按日期回放历史；需要背景时再查 git log、PR、[`docs/internal/review/`](internal/review/) 或 [`docs/agent-onboarding.md`](agent-onboarding.md)。
 >
@@ -34,10 +34,14 @@
 | Delta PM | `services/delta-pm`、`apps/delta-pm-console`、`/live-delta-pm` | 新闻→重要性→priced-in→纸面决策审计链 |
 | Raven Delta | `apps/raven-delta`、`/delta` | 美股新闻影响分析、邮件 / WebSocket 推送 |
 | World Cup blind forecast | `scripts/world-cup`、`apps/web/app/world-cup` | 预测生成严禁读取市场价格；事后评分可使用市场基准 |
-| AI 投研系统案例 | `apps/web/app/[locale]/investment-analysis`、`/investment-analysis` | 三份公开案例：腾讯混元 × WorkBuddy、Hassabis × Alphabet、[Meta 半年资本开支](https://forecasting-agent.com/investment-analysis/meta-capex-6m)（v5，截点 2026-09-06） |
+| AI 投研系统案例 | `apps/web/app/[locale]/investment-analysis`、`/investment-analysis` | 四份公开案例：腾讯、Hassabis、Meta 与 [GPT-6 Sol 命名](https://forecasting-agent.com/investment-analysis/openai-gpt6-sol)；报告页提供私有反馈入口 |
 | Polymarket live pipeline | `services/orchestrator`、`services/executor` | 真钱路径；任何 live 命令、风控调整或订单测试都需要用户明确确认 |
 
-后续投资资料统一去除客户品牌标签。Meta v5 增加“我们判断”的立场，以多个内部业务需求、资源重配、融资缓冲解释预算支撑，单列六类产出与预算申请证据，并解释交付/付款跨年。恢复首次次年预算与上年最终指引或实际值分别比较的原规则，主概率由 32% 调至 34%（范围仍 20–45%）；约 2 个百分点为新增事件差集的主观估计，不是新证据权重。公开摘要与审计附件，完整字幕留在本地。本站报告 iframe 统一不设置 `sandbox`，脚本与附件下载保持可用。
+投资报告只呈现当前结论、依据、情景和信息缺口；版本号、逐轮概率与反馈处置留在内部审计。Sol 条件命名约 70%，严格 6.0 半年事件约 50%，研究截点 2026-09-15；历史命名与正反理由保留。报告 iframe 不设 `sandbox`，脚本与下载继续可用。
+
+原生引擎已修复四种答案形式的反馈继续研究，公开 `report.md` 只展示当前状态，完整轨迹写入 `audit.md`。使用方法见[反馈说明](report-feedback.md)。
+
+网站反馈 POST `/api/investment-analysis/feedback` 存入私有 Vercel Blob；GET 导出需 `REPORT_FEEDBACK_ADMIN_TOKEN`，返回带稳定 ID 的 `notes`。匿名反馈仅保存待核查线索，不启动付费研究。生产 `web` 项目使用 `BLOB_READ_WRITE_TOKEN`；令牌不得提交。个人 `scripts/report_feedback.py` 可导出，`scripts/research.py forecast --resume-run … --feedback-file … --additional-rounds …` 复用原生状态。综合报告文件名不能当作原生运行 ID。本次用户明确跳过 UI 检查，验收以构建、功能测试和线上 API 保存/取回为准。
 
 ## 3. 当前最主要的技术 WIP：GPT Pro v2 harness
 
