@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { answerLabel } from "@autopoly/forecast-engine/answer-types";
 import { RvShell } from "../chrome/rv-shell";
 import { useT } from "../../lib/i18n";
+import { RP } from "../../lib/i18n/research-parts";
 import { STRUCTURED as S } from "../../lib/i18n/structured";
 import type { DossierVM, StructuredDossierVM } from "../../lib/vm/types";
 import "./structured-forecast.css";
@@ -24,10 +25,13 @@ function CitationText({ text, count }: { text: string; count: number }): ReactNo
 
 export function StructuredForecast({
   dossier,
-  mode
+  mode, feedback, onDoubt, doubtMarks
 }: {
   dossier: DossierVM & { structured: StructuredDossierVM };
   mode: "research" | "verdict";
+  feedback?: ReactNode;
+  onDoubt?: (id:string) => void;
+  doubtMarks?: Record<string,"keep"|"doubt">;
 }) {
   const t = useT();
   const detail = dossier.structured;
@@ -125,7 +129,7 @@ export function StructuredForecast({
         ) : (
           <p role="status">{t(S.awaiting)}</p>
         )}
-        <section>
+        {mode === "research" ? <section>
           <h2>{t(S.rounds)}</h2>
           {detail.rounds.map((round) => (
             <details key={round.round} open={mode === "research"}>
@@ -138,7 +142,8 @@ export function StructuredForecast({
               <p>{text(round.reasoning)}</p>
             </details>
           ))}
-        </section>
+        </section> : null}
+        {feedback ? <section>{feedback}</section> : null}
         <section>
           <h2>{t(S.evidence)}</h2>
           {detail.evidence.map((entry, index) => (
@@ -161,6 +166,7 @@ export function StructuredForecast({
               </p>
               {entry.quote ? <blockquote>{entry.quote}</blockquote> : null}
               <p>{entry.rationale}</p>
+              {onDoubt ? <button type="button" aria-pressed={doubtMarks?.[entry.id] === "doubt"} onClick={() => onDoubt(entry.id)}>{t(doubtMarks?.[entry.id] === "doubt" ? RP.annoDoubted : RP.annoDoubt)}</button> : null}
               <p className="rv-structured-eyebrow">
                 {entry.targetIds.map((id) => spec.options.find((option) => option.id === id)?.label ?? id).join(" · ")}{" "}
                 · {t(entry.verifiedInSearchTrace ? S.verified : S.unverified)}

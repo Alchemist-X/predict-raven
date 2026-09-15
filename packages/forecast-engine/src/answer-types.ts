@@ -1,3 +1,4 @@
+import type { FeedbackReceipt } from "./analyst-feedback";
 // Native non-binary forecasts. Never synthesize a legacy currentProb for these.
 import type { Confidence, ForecastState, ForecastStatus, SourceType } from "./types";
 
@@ -91,7 +92,7 @@ export interface StructuredLedgerEntry extends StructuredClaim {
   before: StructuredAnswer;
   after: StructuredAnswer;
 }
-export interface StructuredRound {
+export interface StructuredRound extends FeedbackReceipt {
   retrievalAttempts?: import("./research-progress").RetrievalAttempt[];
   round: number;
   ts: string;

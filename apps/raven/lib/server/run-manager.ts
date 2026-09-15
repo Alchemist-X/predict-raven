@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+import { acquireRunLock } from "@autopoly/forecast-engine/run-lock";
+import { isSafeEventId } from "./ids";
 // Spawns and tracks forecast engine runs (tsx scripts/forecast/cli.ts) as
 // child processes (spawn engine CLI + poll state.json; the standalone viewer
 // prototype that pioneered this pattern was removed 2026-07-03)
@@ -8,7 +11,7 @@ import { spawn } from "node:child_process";
 import type { AnswerRequest } from "@autopoly/forecast-engine/answer-types";
 import path from "node:path";
 import { QuotaExceededError, tryConsumeQuota } from "./quota";
-import { loadAnyState, makeEventId, readEnvFile, repoRoot } from "./repo";
+import { eventDir, loadAnyState, makeEventId, readEnvFile, repoRoot } from "./repo";
 
 import { finishedJobStatus, type IncompleteStatus } from "../vm/forecast-status";
 import { MaxRoundsSchema } from "./answer-request";
@@ -72,6 +75,8 @@ export function providerKeyAvailable(provider: string): boolean {
 }
 
 export interface StartOptions {
+  resumeEventId?: string;
+  additionalRounds?: number;
   answerRequest?: AnswerRequest;
   maxRounds?: number;
   fresh?: boolean;
@@ -92,11 +97,19 @@ const ORPHAN_RUN_FRESH_MS = 10 * 60_000;
 
 export function startForecast(question: string, opts: StartOptions = {}): Job {
   MaxRoundsSchema.parse(opts.maxRounds);
-  const eventId = makeEventId(question, opts.answerRequest);
+  const eventId = opts.resumeEventId ?? makeEventId(question, opts.answerRequest);
+  if (!isSafeEventId(eventId)) throw new Error("Invalid event id");
   const existing = jobs.get(eventId);
   if (existing && existing.status === "running") return existing;
 
   const onDisk = loadAnyState(eventId);
+  if (opts.resumeEventId && (!onDisk || onDisk.eventId !== eventId)) throw new Error("No saved forecast to continue");
+  if (opts.resumeEventId && (!Number.isSafeInteger(opts.additionalRounds) || opts.additionalRounds! <= 0)) throw new Error("Additional rounds must be a positive integer");
+  const maxRounds = opts.resumeEventId ? onDisk!.round + opts.additionalRounds! : MaxRoundsSchema.parse(opts.maxRounds);
+  const launchLock = path.join(eventDir(eventId), "launch.lock");
+  if (existsSync(launchLock) || existsSync(path.join(eventDir(eventId), "engine.lock"))) {
+    return {eventId,question,status:"running",code:null,log:["This forecast already has an active or unreleased process lock."],startedAtUtc:onDisk?.createdAtUtc ?? new Date().toISOString(),maxRounds,provider:onDisk?.provider ?? pickProvider(opts.provider)};
+  }
   if (!opts.fresh && onDisk?.status === "open" && Date.now() - Date.parse(onDisk.updatedAtUtc) < ORPHAN_RUN_FRESH_MS) {
     return {
       eventId,
@@ -110,6 +123,8 @@ export function startForecast(question: string, opts: StartOptions = {}): Job {
     };
   }
 
+  const releaseLock = acquireRunLock(launchLock);
+  try {
   // Last gate before money is spent — after every no-spawn shortcut above.
   if (opts.quota && !tryConsumeQuota(opts.quota.service, opts.quota.limit)) {
     if (!(opts.quota.authorizeBypass?.() ?? false)) {
@@ -118,9 +133,10 @@ export function startForecast(question: string, opts: StartOptions = {}): Job {
   }
 
   const provider = pickProvider(opts.provider);
-  const maxRounds = MaxRoundsSchema.parse(opts.maxRounds);
   const root = repoRoot();
-  const args = [path.join(root, "scripts/forecast/cli.ts"), question, "--max-rounds", String(maxRounds)];
+  const args = opts.resumeEventId
+    ? [path.join(root, "scripts/forecast/cli.ts"), "--resume-event", eventId, "--additional-rounds", String(opts.additionalRounds)]
+    : [path.join(root, "scripts/forecast/cli.ts"), question, "--max-rounds", String(maxRounds)];
   if (opts.fresh) args.push("--fresh");
   if (opts.answerRequest) args.push("--answer-request", JSON.stringify(opts.answerRequest));
 
@@ -154,6 +170,7 @@ export function startForecast(question: string, opts: StartOptions = {}): Job {
   child.on("error", (err) => {
     job.log.push("spawn error: " + err.message);
     job.status = "error";
+    releaseLock();
   });
   child.on("close", (code) => {
     job.code = code;
@@ -161,6 +178,14 @@ export function startForecast(question: string, opts: StartOptions = {}): Job {
     const currentStatus =
       saved && Date.parse(saved.updatedAtUtc) >= Date.parse(job.startedAtUtc) ? saved.status : undefined;
     job.status = finishedJobStatus(currentStatus, code);
+    releaseLock();
   });
   return job;
+  } catch (error) { releaseLock(); throw error; }
+}
+
+export function continueForecast(eventId: string, opts: Omit<StartOptions, "fresh" | "answerRequest" | "maxRounds" | "resumeEventId"> & {additionalRounds:number}): Job {
+  const state = loadAnyState(eventId);
+  if (!state) throw new Error("No saved forecast to continue");
+  return startForecast(state.eventText, {...opts, resumeEventId:eventId});
 }

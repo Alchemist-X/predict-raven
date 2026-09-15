@@ -1,6 +1,11 @@
 import type { Locale } from "../world-cup/i18n";
 
-export const INVESTMENT_CASE_SLUGS = ["tencent-hunyuan-workbuddy", "google-hassabis", "meta-capex-6m"] as const;
+export const INVESTMENT_CASE_SLUGS = [
+  "tencent-hunyuan-workbuddy",
+  "google-hassabis",
+  "meta-capex-6m",
+  "openai-gpt6-sol"
+] as const;
 
 export type InvestmentCaseSlug = (typeof INVESTMENT_CASE_SLUGS)[number];
 

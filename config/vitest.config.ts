@@ -26,6 +26,7 @@ export default defineConfig({
       // Pure-logic web tests only (.ts, never .tsx) so React components are not
       // pulled into the node test environment.
       "apps/web/**/*.test.ts",
+      "apps/raven/lib/**/*.test.ts",
       "apps/raven-delta/lib/**/*.test.ts"
     ]
   }

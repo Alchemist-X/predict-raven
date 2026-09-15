@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import styles from "../../../../components/investment-analysis/investment-analysis.module.css";
+import { ReportFeedback, type FeedbackMessages } from "../../../../components/investment-analysis/report-feedback";
 import {
   INVESTMENT_CASE_SLUGS,
   investmentHref,
@@ -32,6 +33,12 @@ const REPORTS: Record<
     descriptionKey: "iaMetaCapexMetaDescription",
     iframeTitleKey: "iaMetaCapexFrameTitle",
     src: "/investment-analysis/reports/meta-capex-6m.html"
+  },
+  "openai-gpt6-sol": {
+    titleKey: "iaOpenaiMetaTitle",
+    descriptionKey: "iaOpenaiMetaDescription",
+    iframeTitleKey: "iaOpenaiFrameTitle",
+    src: "/investment-analysis/reports/openai-gpt6-sol.html"
   }
 };
 
@@ -79,24 +86,32 @@ export async function generateMetadata({
   };
 }
 
-export default async function InvestmentReportPage({
-  params
-}: {
-  params: Promise<{ locale: string; slug: string }>;
-}) {
+export default async function InvestmentReportPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   const { locale: localeParam, slug } = await params;
   if (!isInvestmentCaseSlug(slug)) notFound();
 
   const locale: Locale = localeOf(localeParam);
   const report = REPORTS[slug];
 
+  const messages: FeedbackMessages = {
+    iaFeedbackOpen: t(locale, "iaFeedbackOpen"),
+    iaFeedbackTitle: t(locale, "iaFeedbackTitle"),
+    iaFeedbackDescription: t(locale, "iaFeedbackDescription"),
+    iaFeedbackLabel: t(locale, "iaFeedbackLabel"),
+    iaFeedbackPlaceholder: t(locale, "iaFeedbackPlaceholder"),
+    iaFeedbackSubmit: t(locale, "iaFeedbackSubmit"),
+    iaFeedbackSubmitting: t(locale, "iaFeedbackSubmitting"),
+    iaFeedbackSuccess: t(locale, "iaFeedbackSuccess"),
+    iaFeedbackError: t(locale, "iaFeedbackError"),
+    iaFeedbackRateLimited: t(locale, "iaFeedbackRateLimited"),
+    iaFeedbackClose: t(locale, "iaFeedbackClose"),
+    iaFeedbackWebsite: t(locale, "iaFeedbackWebsite")
+  };
+
   return (
     <main className={styles.reportMain}>
-      <iframe
-        className={styles.reportFrame}
-        src={report.src}
-        title={t(locale, report.iframeTitleKey)}
-      />
+      <iframe className={styles.reportFrame} src={report.src} title={t(locale, report.iframeTitleKey)} />
+      <ReportFeedback reportSlug={slug} locale={locale} messages={messages} />
     </main>
   );
 }

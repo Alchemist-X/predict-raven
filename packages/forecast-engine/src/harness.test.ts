@@ -297,9 +297,11 @@ describe("buildPrompt (provider- and analyst-aware)", () => {
     };
     const p = buildPrompt(state, 2, 3, { hasWebSearch: true, analyst });
     expect(p).toContain("ANALYST INPUT");
-    expect(p).toContain("[PUSHES NO] (re: https://src.com/a) check the supplier filing");
+    expect(p).toContain('"stance":"no"');
+    expect(p).toContain("check the supplier filing");
     expect(p).toContain("The analyst DOUBTS these prior sources");
-    expect(p).toContain("- https://src.com/a — prior claim");
+    expect(p).toContain('"url":"https://src.com/a"');
+    expect(p).toContain('"claim":"prior claim"');
     expect(p).not.toContain("already used lead"); // consumed notes are not re-injected
   });
 
@@ -517,11 +519,45 @@ describe("runForecast loop (injected agent, tmp artifact root)", () => {
 
     const final = await runForecast(state, { maxRounds: 1, runAgentFn: fakeAgent });
     expect(prompts[0]).toContain("ANALYST INPUT");
-    expect(prompts[0]).toContain("[OPEN QUESTION] look into the union vote");
+    expect(prompts[0]).toContain('"stance":"question"');
+    expect(prompts[0]).toContain("look into the union vote");
 
     const after = loadAnalyst("evt-analyst");
     expect(after.notes[0].consumedRound).toBe(1);
     expect(final.roundHistory[0].analystConsumedIds).toContain("note-1");
+  });
+
+  it("runs new research for feedback on a completed binary forecast without reframing", async () => {
+    const state = newForecastState({eventId:"evt-completed-feedback",eventText:"Original question",framing:framing(0.5)});
+    await runForecast(state,{maxRounds:1,runAgentFn:async()=>agentResult(roundOut([evidence("https://d.com/original",0.5)]),["https://d.com/original"])});
+    state.status="converged";
+    const frozen=structuredClone(state.framing);
+    saveAnalyst(state.eventId,{notes:[{id:"after-report",text:"Check the strongest naming counterexample",stance:"question",targetId:null,createdAtUtc:new Date().toISOString(),consumedRound:null}],marks:{}});
+    let researchCalls=0;
+    await runForecast(state,{maxRounds:2,runAgentFn:async prompt=>{
+      if (prompt.includes("compiling a decision-first forecasting report")) return agentResult(summaryOut);
+      researchCalls++;
+      expect(prompt).toContain("strongest naming counterexample");
+      return agentResult(roundOut([evidence("https://d.com/second",0)]),["https://d.com/second"]);
+    }});
+    expect(researchCalls).toBe(1);
+    expect(state.round).toBe(2);
+    expect(state.framing).toEqual(frozen);
+    expect(loadAnalyst(state.eventId).notes[0].consumedRound).toBe(2);
+  });
+
+  it("keeps binary feedback pending after failure and preserves notes arriving during research", async () => {
+    const state = newForecastState({eventId:"evt-feedback-retry",eventText:"t",framing:framing(0.5)});
+    const note = {id:"first",text:"Check the source",stance:"question" as const,targetId:null,createdAtUtc:new Date().toISOString(),consumedRound:null};
+    saveAnalyst(state.eventId,{notes:[note],marks:{}});
+    await expect(runForecast(state,{maxRounds:1,runAgentFn:async()=>{throw new Error("provider failed");}})).rejects.toThrow("provider failed");
+    expect(loadAnalyst(state.eventId).notes[0].consumedRound).toBeNull();
+    await runForecast(state,{maxRounds:1,runAgentFn:async prompt=>{
+      if (prompt.includes("compiling a decision-first forecasting report")) return agentResult(summaryOut);
+      saveAnalyst(state.eventId,{notes:[note,{...note,id:"later",text:"A later source"}],marks:{}});
+      return agentResult(roundOut([evidence("https://d.com/feedback",0.5)]),["https://d.com/feedback"]);
+    }});
+    expect(loadAnalyst(state.eventId).notes.map(n=>n.consumedRound)).toEqual([1,null]);
   });
 
   it("doubt marks inject once: stamped in doubtsHandled, absent from later prompts", async () => {

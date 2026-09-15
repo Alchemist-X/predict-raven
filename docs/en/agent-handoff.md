@@ -6,7 +6,7 @@
 > 2026-09-12: Signal Desk research was ported onto current main, preserving planning and claim cross-checking. `FORECAST_SIGNAL_DESK=1` enables combined public/subscription search and Markdown/PDF reading for Claude/DeepSeek. Tool-disabled stages load no MCP servers; Codex mode is explicitly unsupported. The private service/content stays local; this repository contains the adapter. See [integration](signal-desk-research.md).
 
 
-> Last updated: 2026-09-06 by Codex.
+> Last updated: 2026-09-15 by Codex.
 >
 > **Startup contract for a new agent: read only this file for current project state.** Do not replay dated handoffs or historical notes at startup. Consult git history, merged PRs, [`docs/internal/review/`](../internal/review/), or [`docs/agent-onboarding.md`](../agent-onboarding.md) only when background is needed.
 >
@@ -34,10 +34,14 @@
 | Delta PM | `services/delta-pm`, `apps/delta-pm-console`, `/live-delta-pm` | News → importance → priced-in → paper-decision audit chain |
 | Raven Delta | `apps/raven-delta`, `/delta` | US-equity news-impact analysis with email / WebSocket delivery |
 | World Cup blind forecast | `scripts/world-cup`, `apps/web/app/world-cup` | Generation may not read prices; post-hoc scoring may use a market benchmark |
-| AI investment research cases | `apps/web/app/[locale]/investment-analysis`, `/investment-analysis` | Three public cases: Tencent Hunyuan × WorkBuddy, Hassabis × Alphabet, and [Meta six-month capex](https://forecasting-agent.com/investment-analysis/meta-capex-6m) (v5, as of 2026-09-06) |
+| AI investment research cases | `apps/web/app/[locale]/investment-analysis`, `/investment-analysis` | Four public cases: Tencent, Hassabis, Meta and [GPT-6 Sol naming](https://forecasting-agent.com/investment-analysis/openai-gpt6-sol), with private report feedback |
 | Polymarket live pipeline | `services/orchestrator`, `services/executor` | Real-money path; live runs, risk changes, and order probes require explicit user approval |
 
-Investment reports omit customer branding. Meta v5 adds an explicit stance and explains budget support through business demand, resource reallocation and financing. It presents six business-output/budget-stage rows and distinguishes year-end delivery from cash payment shifts. The original cross-year rule is restored: compare the first next-year guide with either prior final guidance or actuals. YES changes from 32% to 34% (range remains 20–45%); roughly two points are a subjective event-set correction, not new evidence weight. Reviewed summaries and audits are public; full transcripts remain local. First-party report iframes omit `sandbox`, preserving scripts and downloads.
+Investment reports show current conclusions, reasons, scenarios and gaps. Revision numbers, probability trajectories and feedback receipts remain internal. Sol naming is estimated at 70% conditionally and 50% for the strict 6.0 six-month event, as of September 15. Naming history and arguments remain. Report iframes omit `sandbox`, preserving scripts and downloads.
+
+Native feedback continuation supports all four answer types. Public `report.md` shows current state; `audit.md` preserves internal history. See [feedback usage](report-feedback.md).
+
+POST `/api/investment-analysis/feedback` persists submissions to private Vercel Blob. Authenticated GET using `REPORT_FEEDBACK_ADMIN_TOKEN` exports stable-ID `notes`. Anonymous submissions save unverified leads and do not start paid research. The production `web` project uses `BLOB_READ_WRITE_TOKEN`; never commit secrets. Personal `scripts/report_feedback.py` exports notes, and `scripts/research.py forecast --resume-run … --feedback-file … --additional-rounds …` reuses native state. Synthesized report filenames are not native run IDs. The user expressly skipped UI checks; validation uses builds, functional tests and live API persistence/retrieval.
 
 ## 3. Primary technical WIP: GPT Pro v2 harness
 

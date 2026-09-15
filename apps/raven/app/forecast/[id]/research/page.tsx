@@ -78,6 +78,9 @@ export default function ResearchPage() {
   const ann = useAnnotations(id, data?.analyst, refresh);
 
   // Composer state (shared draft for the evidence note input, per the design).
+  const [feedbackBusy, setFeedbackBusy] = useState(false);
+  const [feedbackInvite, setFeedbackInvite] = useState("");
+  useEffect(() => { setFeedbackInvite(window.localStorage.getItem("raven-invite") ?? ""); }, []);
   const [composerText, setComposerText] = useState("");
   const [stance, setStance] = useState<AnalystStance>("no");
   const [noteFor, setNoteFor] = useState<string | null>(null);
@@ -85,7 +88,7 @@ export default function ResearchPage() {
 
   const dossier = isDemo ? GTA6_DEMO : (data?.dossier ?? null);
   const job = (data?.job ?? null) as JobX | null;
-  const running = isDemo ? true : dossier ? dossier.status === "running" : job?.status === "running";
+  const running = isDemo || job?.status === "running" || dossier?.status === "running";
   const framing = !isDemo && running && dossier === null;
 
   const now = useNowTick(running);
@@ -309,15 +312,31 @@ export default function ResearchPage() {
     setNoteFor((cur) => (cur === evidenceId ? null : evidenceId));
     setNoteDraft("");
   };
-  const onNoteSubmit = (evidenceId: string) => {
-    if (ann.addNote({ text: noteDraft, stance, targetId: evidenceId })) {
+  const onNoteSubmit = async (evidenceId: string) => {
+    if (await ann.addNote({ text: noteDraft, stance, targetId: evidenceId })) {
       setNoteDraft("");
       setNoteFor(null);
     }
   };
-  const onDeskSubmit = () => {
-    if (ann.addNote({ text: composerText, stance, targetId: null })) setComposerText("");
+  const onDeskSubmit = async (continueResearch = !running) => {
+    if (feedbackBusy) return;
+    setFeedbackBusy(true);
+    try {
+      if (await ann.addNote({text:composerText,stance,targetId:null,continueResearch,invite:feedbackInvite,language:locale})) setComposerText("");
+    } finally { setFeedbackBusy(false); }
   };
+  const pendingNote = ann.notes.find(note => note.consumedRound == null);
+  const onContinue = async () => {
+    if (!pendingNote || feedbackBusy) return;
+    setFeedbackBusy(true);
+    try { await ann.addNote({...pendingNote,continueResearch:true,invite:feedbackInvite,language:locale}); }
+    finally { setFeedbackBusy(false); }
+  };
+  const feedbackDesk = <AnalystDesk markSummary={markSummary} nextRound={nextRound} complete={complete}
+    stopped={incomplete || aborted} composerText={composerText} onComposerText={setComposerText}
+    stance={stance} onStance={setStance} onSubmit={() => void onDeskSubmit()} onSave={() => void onDeskSubmit(false)}
+    onContinue={pendingNote ? () => void onContinue() : undefined} busy={feedbackBusy}
+    invite={feedbackInvite} onInvite={setFeedbackInvite} queued={queued} onRemove={ann.removeNote} />;
 
   const { toast, clearToast } = ann;
   useEffect(() => {
@@ -371,7 +390,7 @@ export default function ResearchPage() {
   }
 
   if (dossier?.structured)
-    return <StructuredForecast dossier={{ ...dossier, structured: dossier.structured }} mode="research" />;
+    return <StructuredForecast dossier={{ ...dossier, structured: dossier.structured }} mode="research" feedback={<>{feedbackDesk}{toast ? <p role="status">{toast}</p> : null}</>} onDoubt={targetId => ann.toggleMark(targetId,"doubt")} doubtMarks={ann.marks} />;
 
   if (notice) {
     return (
@@ -448,19 +467,7 @@ export default function ResearchPage() {
             )}
             {complete && dossier && <VerdictDigest id={id} dossier={dossier} />}
           </div>
-          <AnalystDesk
-            markSummary={markSummary}
-            nextRound={nextRound}
-            complete={complete}
-            stopped={incomplete || aborted}
-            composerText={composerText}
-            onComposerText={setComposerText}
-            stance={stance}
-            onStance={setStance}
-            onSubmit={onDeskSubmit}
-            queued={queued}
-            onRemove={ann.removeNote}
-          />
+          {feedbackDesk}
         </div>
       </div>
       <ProgressDock

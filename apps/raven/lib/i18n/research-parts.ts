@@ -28,21 +28,34 @@ export const RP = {
   focusRejectWhen: { en: "Reject when", zh: "淘汰条件" },
 
   // --- analyst desk ---
-  deskTitle: { en: "Analyst desk", zh: "分析师工作台" },
+  deskTitle: { en: "Your feedback", zh: "你的反馈" },
+  feedbackAuth: {en:"Feedback saved. Enter a valid invite code to continue research.",zh:"反馈已保存。输入有效邀请码后可继续研究。"},
+  feedbackQuota: {en:"Feedback saved. The research quota has been reached.",zh:"反馈已保存，研究额度已用完。"},
+  feedbackStopped: {en:"Feedback saved. Research could not start; try again later.",zh:"反馈已保存，研究暂未启动，请稍后重试。"},
+  feedbackStarted: {en:"Feedback saved. Research is continuing.",zh:"反馈已保存，正在继续研究。"},
+  feedbackQueued: {en:"Feedback saved for the active research.",zh:"反馈已保存，将用于当前研究。"},
+  feedbackSaved: {en:"Feedback saved.",zh:"反馈已保存。"},
+  feedbackSaveFailed: {en:"Feedback could not be saved. Your draft is still here.",zh:"反馈保存失败，草稿已保留。"},
+  feedbackMarkFailed: {en:"The mark could not be saved. Please try again.",zh:"标记保存失败，请重试。"},
+  feedbackRemoveFailed: {en:"The note could not be removed. Please try again.",zh:"笔记移除失败，请重试。"},
+  feedbackInvite: {en:"Invite code (required to continue on the hosted service)",zh:"邀请码（在线服务继续研究时需要）"},
+  feedbackContinue: {en:"Continue with saved feedback",zh:"使用已保存反馈继续研究"},
+  feedbackSaveOnly: {en:"Save feedback only",zh:"仅保存反馈"},
+  feedbackSaving: {en:"Saving…",zh:"正在保存…"},
   // Helper copy is split around the inline <b> segment: pre + bold + post.
   deskHelpRunPre: {
     en: "Queue a hypothesis or a lead. Raven treats each one as a claim to test in ",
     zh: "排入一个假设或线索。Raven 会把每一条当作待检验的论断，在"
   },
-  deskHelpRunBold: { en: "iteration {n}", zh: "第 {n} 轮" },
+  deskHelpRunBold: { en: "the active research", zh: "当前研究中" },
   deskHelpRunPost: { en: ".", zh: "验证。" },
-  deskHelpStopped: { en: "Research has stopped without a completed forecast. Notes are saved with the dossier for a future resumed run.", zh: "研究已停止，预测尚未完成。笔记会随档案保存，供后续恢复研究时使用。" },
+  deskHelpStopped: { en: "Add a question or source to investigate. Save it and continue research when ready.", zh: "补充需要核查的问题或来源，保存后可继续研究。" },
   deskSavedEmpty: { en: "No notes saved yet.", zh: "暂无已保存笔记。" },
   deskHelpDonePre: {
-    en: "Queue a hypothesis or a lead. The run is complete, so notes are ",
-    zh: "排入一个假设或线索。本次运行已完成，笔记将"
+    en: "Add a question or source. Raven will ",
+    zh: "补充问题或来源，Raven 会"
   },
-  deskHelpDoneBold: { en: "saved with the dossier", zh: "随档案保存" },
+  deskHelpDoneBold: { en: "check it against the evidence", zh: "结合证据核查" },
   deskHelpDonePost: { en: ".", zh: "。" },
   deskPlaceholder: {
     en: "e.g. Check retailer supply-chain listings — physical stock timelines would confirm the date better than press.",
@@ -50,11 +63,11 @@ export const RP = {
   },
   deskComposerAria: { en: "Queue a hypothesis or a lead", zh: "排入假设或线索" },
   deskStanceAria: { en: "How this note pushes the forecast", zh: "这条笔记对预测的推动方向" },
-  stanceYes: { en: "PUSHES YES", zh: "推向 YES" },
-  stanceNo: { en: "PUSHES NO", zh: "推向 NO" },
+  stanceYes: { en: "SUPPORTS", zh: "支持" },
+  stanceNo: { en: "CHALLENGES", zh: "质疑" },
   stanceQuestion: { en: "QUESTION", zh: "疑问" },
-  deskSubmitQueue: { en: "Queue for iteration {n}", zh: "排入第 {n} 轮" },
-  deskSubmitSave: { en: "Save note for the dossier", zh: "保存笔记到档案" },
+  deskSubmitQueue: { en: "Save feedback", zh: "保存反馈" },
+  deskSubmitSave: { en: "Save and continue research", zh: "保存并继续研究" },
   deskQueuedHeading: { en: "Queued · {nn}", zh: "已排入 · {nn}" },
   deskQueuedEmpty: {
     en: "Nothing queued yet. Your circles, strikes and notes land here — and in Raven's next research round.",

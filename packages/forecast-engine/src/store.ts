@@ -1,8 +1,10 @@
+import { readAnalystFile, updateAnalystFile } from "./analyst-feedback";
 // Per-event state persistence + a human-readable, fully-traceable report.
 //
 // Each forecast lives in runtime-artifacts/forecasts/<eventId>/:
 //   state.json  — the machine state (resumable; the loop persists after every round)
-//   report.md   — the audit log a human reads: per round, per source, prob from->to
+//   report.md   — current assessment for readers
+//   audit.md    — internal per-round history, evidence ledger and transitions
 //
 // We persist after every round so a crash mid-loop resumes from the last
 // committed state (persist after each transition).
@@ -78,60 +80,11 @@ export function analystPath(eventId: string): string {
   return path.join(eventDir(eventId), "analyst.json");
 }
 
-const ANALYST_STANCES = new Set(["yes", "no", "question"]);
-const ANALYST_MARKS = new Set(["keep", "doubt"]);
-
-// The analyst file is an external input, so it is normalized defensively:
-// missing/corrupt file => empty state; malformed notes and unknown marks are
-// dropped rather than crashing a round.
 export function loadAnalyst(eventId: string): AnalystState {
-  const empty: AnalystState = { notes: [], marks: {} };
-  const file = analystPath(eventId);
-  if (!existsSync(file)) return empty;
-  let raw: unknown;
-  try {
-    raw = JSON.parse(readFileSync(file, "utf8"));
-  } catch {
-    return empty;
-  }
-  if (!raw || typeof raw !== "object") return empty;
-  const o = raw as Record<string, unknown>;
-  const notes: AnalystNote[] = (Array.isArray(o.notes) ? o.notes : [])
-    .map((n) => n as Record<string, unknown>)
-    .filter(
-      (n) =>
-        typeof n.id === "string" &&
-        n.id.trim() &&
-        typeof n.text === "string" &&
-        n.text.trim() &&
-        ANALYST_STANCES.has(n.stance as string)
-    )
-    .map((n) => ({
-      id: n.id as string,
-      text: n.text as string,
-      stance: n.stance as AnalystNote["stance"],
-      targetId: typeof n.targetId === "string" && n.targetId ? n.targetId : null,
-      createdAtUtc: typeof n.createdAtUtc === "string" ? n.createdAtUtc : "",
-      consumedRound: typeof n.consumedRound === "number" && Number.isFinite(n.consumedRound) ? n.consumedRound : null
-    }));
-  const marks: AnalystState["marks"] = {};
-  if (o.marks && typeof o.marks === "object" && !Array.isArray(o.marks)) {
-    for (const [k, v] of Object.entries(o.marks as Record<string, unknown>)) {
-      if (ANALYST_MARKS.has(v as string)) marks[k] = v as AnalystState["marks"][string];
-    }
-  }
-  const doubtsHandled: Record<string, number> = {};
-  if (o.doubtsHandled && typeof o.doubtsHandled === "object" && !Array.isArray(o.doubtsHandled)) {
-    for (const [k, v] of Object.entries(o.doubtsHandled as Record<string, unknown>)) {
-      if (typeof v === "number" && Number.isFinite(v)) doubtsHandled[k] = v;
-    }
-  }
-  return { notes, marks, doubtsHandled };
+  return readAnalystFile(analystPath(eventId));
 }
-
-export function saveAnalyst(eventId: string, a: AnalystState): void {
-  mkdirSync(eventDir(eventId), { recursive: true });
-  writeFileAtomic(analystPath(eventId), JSON.stringify(a, null, 2));
+export function saveAnalyst(eventId: string, state: AnalystState): void {
+  updateAnalystFile(analystPath(eventId), current => { Object.assign(current, state); });
 }
 
 // Diagnostic artifacts (e.g. an agent's invalid round output) — persisted next
@@ -682,7 +635,7 @@ function renderReaderSections(state: ForecastState, cite: (text: string) => stri
     `| ${zh ? "单一概率来源" : "Single probability authority"} | ${zh ? "通过" : "Pass"} | ${zh ? "研究代理没有第二套概率输出" : "The research agent has no second-probability output"} |`,
     `| ${zh ? "证据单位" : "Evidence unit"} | ${zh ? "通过" : "Pass"} | ${zh ? "每个断言只更新一次，多来源只用于核验" : "Each claim updates once; additional sources only verify it"} |`,
     `| ${zh ? "直接网页链接" : "Direct web links"} | ${directLinks ? (zh ? "通过" : "Pass") : zh ? "需复核" : "Review"} | ${zh ? "来源指向原网页" : "Sources point to the original web page"} |`,
-    `| ${zh ? "反证覆盖" : "Counterevidence coverage"} | ${oneSided ? (zh ? "已预警" : "Flagged") : zh ? "通过" : "Pass"} | ${zh ? "单边轮次会在审计附录中显示" : "One-sided rounds remain visible in the audit appendix"} |`,
+    `| ${zh ? "反证覆盖" : "Counterevidence coverage"} | ${oneSided ? (zh ? "已预警" : "Flagged") : zh ? "通过" : "Pass"} | ${zh ? "检查证据是否充分覆盖相反观点" : "Checks whether evidence adequately covers the opposing case"} |`,
     `| ${zh ? "语言要求" : "Language standard"} | ${zh ? "已应用" : "Applied"} | ${zh ? "优先使用完整名称；必要缩写首次出现时给出释义" : "Full names are preferred; necessary abbreviations are defined on first use"} |`,
     ""
   );
@@ -735,7 +688,7 @@ function renderAppendix(state: ForecastState, d: ReportDict): string[] {
   ];
 }
 
-export function renderReport(state: ForecastState): string {
+export function renderAuditReport(state: ForecastState): string {
   const d = REPORT_DICTS[forecastLanguage()];
   const cite = (text: string): string => linkCitations(text, state.evidenceLedger.length);
   return [
@@ -755,10 +708,28 @@ export function renderReport(state: ForecastState): string {
   ].join("\n");
 }
 
+// Readers get the current assessment. Detailed transitions remain in audit.md.
+export function renderReport(state: ForecastState): string {
+  const zh = forecastLanguage() === "zh";
+  const d: ReportDict = {...REPORT_DICTS[forecastLanguage()],
+    stillResearching: () => zh ? "研究进行中" : "Research in progress",
+    metaLine: (date,status,_rounds,sources) => zh ? `结算日期：${date} · 状态：${status} · 来源：${sources}` : `Resolution: ${date} · Status: ${status} · Sources: ${sources}`};
+  const cite = (text: string) => linkCitations(text, state.evidenceLedger.length);
+  const incomplete = ["research_failed","insufficient_evidence","max_rounds","aborted"].includes(state.status);
+  return [
+    ...(incomplete ? [zh ? `> **研究未完成。** ${state.researchBlocker ?? state.status}。下列数值仅为暂存估计。` : `> **Research incomplete.** ${state.researchBlocker ?? state.status}. Values below are provisional.`, ""] : []),
+    ...renderVerdictBlock(state,d,cite), ...renderReaderSections(state,cite), ...renderSourceList(state),
+    zh ? "## 证据引用" : "## Evidence references", "",
+    ...state.evidenceLedger.map((entry,index) => `<a id="${srcAnchor(index+1)}"></a>${index+1}. ${sourceLabel(entry.title,entry.url)} — ${entry.claim}${entry.excluded ? (zh ? "（已排除）" : " (excluded)") : ""}`),
+    "", ...renderAppendix(state,d), d.footer
+  ].join("\n");
+}
+
 export function writeReport(state: ForecastState): string {
   const dir = eventDir(state.eventId);
   mkdirSync(dir, { recursive: true });
   const file = path.join(dir, "report.md");
-  writeFileSync(file, renderReport(state), "utf8");
+  writeFileAtomic(file, renderReport(state));
+  writeFileAtomic(path.join(dir, "audit.md"), renderAuditReport(state));
   return file;
 }

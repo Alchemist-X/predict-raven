@@ -33,6 +33,7 @@ export function useForecast(id: string) {
   const [error, setError] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const alive = useRef(true);
+  const [pollEpoch, setPollEpoch] = useState(0);
 
   const fetchOnce = useCallback(async (): Promise<ForecastPayload | null> => {
     try {
@@ -68,9 +69,14 @@ export function useForecast(id: string) {
       alive.current = false;
       if (timer.current) clearTimeout(timer.current);
     };
-  }, [fetchOnce]);
+  }, [fetchOnce, pollEpoch]);
 
-  return { data, error, refresh: fetchOnce };
+  const refresh = useCallback(async () => {
+    const payload = await fetchOnce();
+    setPollEpoch(value => value + 1);
+    return payload;
+  }, [fetchOnce]);
+  return { data, error, refresh };
 }
 
 export async function apiSetMark(id: string, targetId: string, mark: "keep" | "doubt" | null): Promise<void> {
@@ -84,14 +90,15 @@ export async function apiSetMark(id: string, targetId: string, mark: "keep" | "d
 
 export async function apiAddNote(
   id: string,
-  input: { text: string; stance: "yes" | "no" | "question"; targetId: string | null }
-): Promise<void> {
+  input: { id?:string; text: string; stance: "yes" | "no" | "question"; targetId: string | null; continueResearch?:boolean; invite?:string; language?:"en"|"zh" }
+): Promise<{continuation?:{status:string}}> {
   const res = await fetch(withBasePath(`/api/forecasts/${encodeURIComponent(id)}/notes`), {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(input)
   });
   if (!res.ok) throw new Error(`saving note failed (${res.status})`);
+  return res.json();
 }
 
 export async function apiRemoveNote(id: string, noteId: string): Promise<void> {
