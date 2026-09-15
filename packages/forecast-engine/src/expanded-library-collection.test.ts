@@ -39,7 +39,7 @@ function pdfResult(args: Record<string, any>) {
     access: "body_verified",
     sha256: "pdf-hash",
     start_page: 1,
-    next_page: 4,
+    next_page: null,
     total_pages: 12,
     pages: [{ page: 1, text_chars: 50, truncated: true }],
     path: "/private/subscription/report.pdf",
@@ -125,22 +125,28 @@ describe("broad expanded-library collection", () => {
     expect(result?.exclusions).toEqual([]);
   });
 
-  it("uses bounded pagination and explicitly records unresolved discovery and reading coverage", async () => {
+  it("follows all upstream pages and records only explicitly limited reading coverage", async () => {
     gateway.callResearchTool.mockImplementation(async (name: string, args: Record<string, any>) =>
       name === "signal_desk_search"
         ? {
             status: "ok",
             total: 200,
-            next_offset: args.offset + 12,
-            results: Array.from({ length: 12 }, (_, i) => article(`${args.scope}-${args.offset + i}`))
+            next_offset: args.offset + 12 < 200 ? args.offset + 12 : null,
+            results: Array.from({ length: Math.min(12, 200 - args.offset) }, (_, i) =>
+              article(`${args.scope}-${args.offset + i}`)
+            )
           }
         : readResult(args)
     );
     const result = await collectExpandedLibrary({ searchQueries: [query] }, undefined, { maxArticlesPerTarget: 2 });
     const searches = gateway.callResearchTool.mock.calls.filter((c) => c[0] === "signal_desk_search");
-    expect(searches).toHaveLength(6);
-    expect(searches.map((c) => c[1].offset)).toEqual([0, 12, 0, 12, 0, 12]);
-    expect(result?.queries.every((q) => q.arguments?.match === "all" && q.arguments.limit === 12)).toBe(true);
+    expect(searches).toHaveLength(51);
+    expect(searches.map((c) => c[1].offset)).toEqual(
+      Array(3)
+        .fill(Array.from({ length: 17 }, (_, i) => i * 12))
+        .flat()
+    );
+    expect(result?.queries.every((q) => q.arguments?.match === "all" && q.arguments.limit === null)).toBe(true);
     expect(result?.queries[1]).toMatchObject({ returnedCount: 12, nextOffset: 24, exhausted: false });
     expect(result?.collectionAudit?.[0].targets[0]).toMatchObject({ coverageExhausted: false, readArticleCount: 2 });
     expect(result?.collectionAudit?.[0].targets[0].limitations.join(" ")).toMatch(/budget/);
@@ -152,23 +158,22 @@ describe("broad expanded-library collection", () => {
       searchQueries: [{ targetId: "cloud", query: "Google TPU revenue", keywords: ["Google", "TPU", "revenue"] }]
     });
     const calls = gateway.callResearchTool.mock.calls.map((c) => c[1]);
-    expect(calls).toHaveLength(2);
-    expect(calls.every((args) => args.keywords.join(" ") === "Google TPU revenue")).toBe(true);
+    expect(calls).toHaveLength(5);
+    expect(calls.map(args => args.keywords)).toEqual([["Google","TPU","revenue"],["Google","TPU","revenue"],["Google"],["TPU"],["revenue"]]);
+    expect(calls.every(args => args.limit === null && !args.publisher)).toBe(true);
   });
 
-  it("reads an introduction and a distant matched passage without letting references be the only context", async () => {
+  it("requests complete article text rather than bounded introductory and matched windows", async () => {
     mockRows([article("deep", "TMT Breakout", { evidence: [{ source: "body", read_offset: 15000 }] })]);
     const result = await collectExpandedLibrary({ searchQueries: [query] });
     expect(gateway.callResearchTool.mock.calls.filter((c) => c[0] === "signal_desk_read").map((c) => c[1])).toEqual([
-      { article_id: "deep", offset: 0, max_chars: 2000 },
-      { article_id: "deep", offset: 14800, max_chars: 6000 }
+      { article_id: "deep", offset: 0, max_chars: 0 }
     ]);
-    expect(result?.readings.map((r) => r.offset)).toEqual([0, 14800]);
-    expect(result?.readings[1]).toMatchObject({
+    expect(result?.readings.map((r) => r.offset)).toEqual([0]);
+    expect(result?.readings[0]).toMatchObject({
       format: "markdown",
-      endOffset: 14800 + result!.readings[1].text.length,
-      readArguments: { max_chars: 6000 },
-      truncated: true
+      readArguments: { max_chars: 0 },
+      truncated: false
     });
   });
 
@@ -189,6 +194,15 @@ describe("broad expanded-library collection", () => {
     gateway.signalDeskEnabled.mockReturnValue(false);
     expect(await collectExpandedLibrary({ searchQueries: [query] })).toBeNull();
   });
+  it("retains readable candidates from a partially failed search while reporting incomplete coverage", async () => {
+    gateway.callResearchTool.mockImplementation(async (name, args) => name === "signal_desk_search"
+      ? {status:"partial",results:[article("available")],total:1,next_offset:null,coverage:{online_error:"403"}}
+      : readResult(args));
+    const result = await collectExpandedLibrary({searchQueries:[query]});
+    expect(result?.readings.some(r => r.articleId === "available")).toBe(true);
+    expect(result?.queries.every(q => q.status === "partial")).toBe(true);
+    expect(result?.collectionAudit?.[0].targets[0].coverageExhausted).toBe(false);
+  });
 });
 
 describe("real PDF tool provenance", () => {
@@ -198,7 +212,8 @@ describe("real PDF tool provenance", () => {
     expect(gateway.callResearchTool).toHaveBeenCalledWith("signal_desk_pdf", {
       article_id: "bank",
       start_page: 1,
-      max_pages: 5
+      max_pages: 0,
+      max_chars: 0
     });
     const pdf = result?.readings.find((r) => r.format === "pdf");
     expect(pdf).toMatchObject({
@@ -206,14 +221,14 @@ describe("real PDF tool provenance", () => {
       access: "body_verified",
       sha256: "pdf-hash",
       startPage: 1,
-      nextPage: 4,
+      nextPage: null,
       totalPages: 12,
       pages: [{ page: 1, textChars: 50, truncated: true }],
       truncated: true
     });
     expect(JSON.stringify(result)).not.toContain("/private/");
     expect(result?.collectionAudit?.[0]).toMatchObject({ pdfAttemptCount: 1, pdfReadCount: 1 });
-    expect(() => validateLibraryUse(result, [claim({})], [])).not.toThrow();
+    expect(() => validateLibraryUse(result, [claim({})], [], [], ["https://example.org/bank/pdf"])).not.toThrow();
     expect(() => validateLibraryUse(result, [claim({ sourceUrl: "https://example.org/bank/markdown" })], [])).toThrow(
       /matching URL/
     );
@@ -240,7 +255,7 @@ describe("real PDF tool provenance", () => {
       expect(result?.readings[0].access).toBe("summary_verified");
       expect(result?.readingErrors?.some((e) => e.tool === "signal_desk_pdf")).toBe(true);
       expect(result?.collectionAudit?.[0]).toMatchObject({ pdfAttemptCount: 1, pdfReadCount: 0 });
-      expect(() => validateLibraryUse(result, [claim({})], [])).toThrow(/matching URL/);
+      expect(() => validateLibraryUse(result, [claim({})], [], [], ["https://example.org/bank/pdf"])).toThrow(/matching URL/);
     }
   );
 
@@ -283,12 +298,12 @@ describe("real PDF tool provenance", () => {
       searchQueries: entities.map((name) => ({ ...query, targetId: name, keywords: [name, "capex"] }))
     });
     const pdfCalls = gateway.callResearchTool.mock.calls.filter((c) => c[0] === "signal_desk_pdf");
-    expect(pdfCalls).toHaveLength(8);
+    expect(pdfCalls).toHaveLength(14);
     expect(pdfCalls.slice(0, 7).map((c) => c[1].article_id)).toEqual(entities.map((name) => `${name}-0`));
     expect(result?.collectionAudit?.[0].targets.every((t) => t.pdfReadCount >= 1)).toBe(true);
   });
 
-  it("bounds the combined article text in the model prompt while preserving actual private page readings", async () => {
+  it("offers a complete reading directory without copying all private text into every model prompt", async () => {
     const md: ExpandedLibraryReading = {
       articleId: "shared",
       targetId: "meta",
@@ -313,12 +328,12 @@ describe("real PDF tool provenance", () => {
     const prompt = libraryPrompt(original);
     const encoded = prompt.split("\n")[2];
     const parsed = JSON.parse(encoded);
-    expect(parsed.readings.reduce((sum: number, r: ExpandedLibraryReading) => sum + r.text.length, 0)).toBe(8000);
+    expect(parsed.readings.reduce((sum: number, r: any) => sum + r.textAvailableChars, 0)).toBe(20000);
+    expect(parsed.readings.every((r: any) => r.text === undefined && r.retrieve)).toBe(true);
     expect(parsed.readings.find((r: ExpandedLibraryReading) => r.format === "pdf").targetIds).toEqual([
       "meta",
       "google"
     ]);
-    expect(parsed.readings.every((r: any) => r.promptOmittedChars > 0)).toBe(true);
     expect(original.readings[1].text).toHaveLength(12000);
     expect(prompt).toContain("summary_verified is not PDF verification");
   });
@@ -340,7 +355,7 @@ describe("focused follow-up and compatibility", () => {
       maxArticlesPerTarget: 1,
       knownArticleIds: ["known"]
     });
-    expect(revisit?.readings.some((r) => r.offset === 18800)).toBe(true);
+    expect(revisit?.readings[0].readArguments).toMatchObject({ offset: 0, max_chars: 0 });
   });
 
   it("merges old fixtures with fresh MD/PDF contexts without losing accepted use, exclusions, errors or earlier passages", () => {
@@ -401,4 +416,77 @@ describe("focused follow-up and compatibility", () => {
     };
     expect(() => validateLibraryUse(emptyCoverage([failed]), [claim({})], [])).toThrow(/exact quote/);
   });
+});
+
+it("searches every supplied focus query and preserves all fetched article characters and continuations", async () => {
+  const lead = "Intro " + "x".repeat(12000),
+    tail = "Decisive accounting footnote beyond the former limit.";
+  gateway.callResearchTool.mockImplementation(async (name: string, args: Record<string, any>) => {
+    if (name === "signal_desk_search")
+      return {
+        status: "ok",
+        total: 1,
+        next_offset: null,
+        coverage: { catalogue_window_complete: true },
+        results: [article("long")]
+      };
+    return {
+      ...readResult(args),
+      text: args.offset === 0 ? lead : tail,
+      offset: args.offset,
+      next_offset: args.offset === 0 ? lead.length : null,
+      total_chars: lead.length + tail.length
+    };
+  });
+  const result = await collectExpandedLibrary(
+    {
+      searchQueries: Array.from({ length: 5 }, (_, i) => ({
+        ...query,
+        query: `topic ${i}`,
+        keywords: ["Meta", `topic${i}`]
+      }))
+    },
+    undefined,
+    { mode: "focused" }
+  );
+  expect(result?.queries).toHaveLength(5);
+  expect(result?.readings.map((r) => r.text).join("")).toBe(lead + tail);
+  expect(gateway.callResearchTool.mock.calls.filter((c) => c[0] === "signal_desk_read").map((c) => c[1])).toEqual([
+    { article_id: "long", offset: 0, max_chars: 0 },
+    { article_id: "long", offset: lead.length, max_chars: 0 }
+  ]);
+  expect(() =>
+    validateLibraryUse(
+      result,
+      [claim({ articleId: "long", sourceUrl: "https://example.org/long/markdown", quote: tail })],
+      [], [], ["https://example.org/long/markdown"]
+    )
+  ).not.toThrow();
+});
+
+it("retains partial PDF pages as partial evidence and follows every advancing continuation", async () => {
+  gateway.callResearchTool.mockImplementation(async (name: string, args: Record<string, any>) => {
+    if (name === "signal_desk_search")
+      return { status: "ok", total: 1, results: [article("bank", "Foreign Research")] };
+    if (name !== "signal_desk_pdf") return readResult(args);
+    return {
+      ...pdfResult(args),
+      status: args.start_page === 1 ? "partial" : "ok",
+      access: args.start_page === 1 ? "body_partial" : "body_verified",
+      start_page: args.start_page,
+      next_page: args.start_page === 1 ? 6 : null,
+      total_pages: 12,
+      pages: [{ page: args.start_page, text_chars: 50, truncated: args.start_page === 1 }]
+    };
+  });
+  const result = await collectExpandedLibrary({ searchQueries: [query] });
+  const pdfs = result?.readings.filter((r) => r.format === "pdf") ?? [];
+  expect(pdfs.map((r) => r.startPage)).toEqual([1, 6]);
+  expect(pdfs[0]).toMatchObject({ access: "body_partial", truncated: true });
+  expect(result?.collectionAudit?.[0].targets[0].coverageExhausted).toBe(false);
+  expect(
+    gateway.callResearchTool.mock.calls
+      .filter((c) => c[0] === "signal_desk_pdf")
+      .every((c) => c[1].max_pages === 0 && c[1].max_chars === 0)
+  ).toBe(true);
 });

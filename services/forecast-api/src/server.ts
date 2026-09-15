@@ -16,7 +16,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { z } from "zod";
 import { buildAnswer } from "./answer";
-import { AnswerRequestSchema } from "./answer-request";
+import { AnswerRequestSchema, MaxRoundsSchema } from "./answer-request";
 import { isAuthorized } from "./auth";
 import type { ServiceConfig } from "./config";
 import { getDeltaPmAudit, getDeltaPmReflection } from "./delta-pm-audit";
@@ -36,7 +36,7 @@ const MAX_BODY_BYTES = 64 * 1024;
 const StartBody = z.object({
   answerRequest: AnswerRequestSchema.optional(),
   question: z.string().trim().min(8).max(400),
-  maxRounds: z.number().int().min(1).max(6).optional(),
+  maxRounds: MaxRoundsSchema,
   fresh: z.boolean().optional(),
   provider: z.enum(["claude", "deepseek"]).optional(),
   wait: z.boolean().optional(),
@@ -112,7 +112,7 @@ async function handleStart(
       detail: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`),
       expected: {
         question: "string (8-400 chars)",
-        maxRounds: "1-6 optional",
+        maxRounds: "non-negative integer; 0 or omitted = no round limit",
         fresh: "boolean optional",
         wait: "boolean optional"
       }
@@ -175,6 +175,9 @@ function handleList(req: IncomingMessage, res: ServerResponse, config: ServiceCo
       id: answer.id,
       question: answer.normalizedQuestion ?? answer.question,
       status: answer.status,
+      isFinal: answer.isFinal,
+      researchBlocker: answer.researchBlocker,
+      workingEstimate: answer.workingEstimate,
       answerType: answer.answerType,
       answer: answer.answer,
       answerLabel: answer.answerLabel,

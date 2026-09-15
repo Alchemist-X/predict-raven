@@ -11,6 +11,8 @@ export const V = {
   backToAsk: { en: "← Back to 01 · Ask", zh: "← 返回 01 · 提问" },
   loadingDossier: { en: "Loading dossier…", zh: "档案加载中…" },
   retrying: { en: "{err} — retrying", zh: "{err} — 重试中" },
+  workingEstimate: { en: "Working estimate · not a completed forecast", zh: "暂定估计 · 尚非完成预测" },
+  incompleteBody: { en: "Research stopped before a supported forecast was completed. Review the evidence and unresolved questions.", zh: "研究已停止，尚未形成证据充分的完成预测。请查看已收集证据与未解决问题。" },
   stillRunning: { en: "This forecast is still running —", zh: "该预测仍在运行 —" },
   watchLive: { en: "watch it live", zh: "查看实时进展" },
   runAborted: {
@@ -89,6 +91,9 @@ export const V = {
 // Header status chip ("COMPLETE · 33m 35s · 13 SOURCES"); en is uppercased at
 // the call site, which is a no-op for zh.
 export const STATUS_LABELS: Record<DossierStatus, Entry> = {
+  research_failed: { en: "retrieval failed · incomplete", zh: "检索失败 · 未完成" },
+  insufficient_evidence: { en: "insufficient evidence · incomplete", zh: "证据不足 · 未完成" },
+  max_rounds: { en: "round budget exhausted · incomplete", zh: "轮次预算用尽 · 未完成" },
   complete: { en: "complete", zh: "已完成" },
   running: { en: "running", zh: "运行中" },
   failed: { en: "failed", zh: "已中止" },

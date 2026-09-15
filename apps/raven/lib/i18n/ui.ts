@@ -31,6 +31,11 @@ export const RS = {
     en: "On it. I'll pin this down to a checkable yes-or-no question with a base-rate prior, then research it in up to {n} rounds — each round deliberately hunts for evidence that cuts against the current lean. ",
     zh: "收到。我会先把它界定成一个可判定的是/否问题并设定基础概率先验，然后最多研究 {n} 轮——每一轮都刻意寻找与当前倾向相反的证据。"
   },
+  planIntroUnbounded: {
+    en: "On it. I'll frame a checkable question and research until the evidence supports completion. There is no default round limit; access failures and insufficient evidence are reported as unfinished research. Each round investigates the strongest countercase. ",
+    zh: "收到。我会先界定可判定的问题，再持续研究，直到证据支持完成。默认不设轮次上限；访问失败或证据不足会明确报告为未完成研究。每轮都会调查最强反证。"
+  },
+  planIntroStopped: { en: "Research has stopped. Review the evidence and unresolved questions below before resuming. ", zh: "研究已停止。继续研究前，请查看下方证据与未解决问题。" },
   planIntroBold: {
     en: "Circle what holds up, strike what you doubt",
     zh: "圈住站得住的、存疑靠不住的"
@@ -72,6 +77,7 @@ export const RS = {
     en: "LIVE · ITERATION {cur} OF {max} · {elapsed} · {n} SOURCES",
     zh: "进行中 · 第 {cur}/{max} 轮 · {elapsed} · {n} 个来源"
   },
+  headerLiveUnbounded: { en: "LIVE · ITERATION {cur} · {elapsed} · {n} SOURCES", zh: "进行中 · 第 {cur} 轮 · {elapsed} · {n} 个来源" },
   headerComplete: { en: "COMPLETE · {dur} · {n} SOURCES", zh: "已完成 · {dur} · {n} 个来源" },
   headerAborted: { en: "RUN ABORTED", zh: "运行中止" },
   headerUnforecastable: { en: "UNFORECASTABLE", zh: "无法预测" },
@@ -107,6 +113,8 @@ export const RS = {
     en: "Rephrase it with a concrete event and date — “Will … happen by …?” — and ask again.",
     zh: "请改成具体事件加日期——「……会在……之前发生吗？」——再问一次。"
   },
+  incompleteTitle: { en: "Research stopped · forecast incomplete", zh: "研究已停止 · 预测未完成" },
+  incompleteBody: { en: "The evidence does not support a completed forecast yet. The working estimate and collected evidence below are provisional. Review the blocker before resuming research.", zh: "现有证据尚不支持完成预测。下方估计和已收集证据均为暂定记录；继续研究前请查看阻碍与缺口。" },
   abortedTitle: { en: "The run aborted", zh: "运行中止了" },
   abortedBodyTerminal: {
     en: "The engine stopped before finishing this run. The last log lines may explain why.",
@@ -144,6 +152,8 @@ export const RS = {
 
   // --- progress dock ---
   dockComplete: { en: "Forecast complete — YES probability {p}", zh: "预测完成——YES 概率 {p}" },
+  dockIncomplete: { en: "Research stopped — forecast incomplete", zh: "研究已停止——预测未完成" },
+  dockStep: { en: "Step {n}", zh: "第 {n} 步" },
   dockAborted: { en: "Run aborted — partial evidence kept", zh: "运行中止——已保留部分证据" },
   dockWorking: { en: "Working…", zh: "进行中…" },
   dockCta: { en: "Read the dossier →", zh: "阅读档案 →" },

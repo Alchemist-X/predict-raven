@@ -20,11 +20,14 @@ import { extractJsonObject } from "./claude-agent";
 import type { AgentRunResult, RunAgentOptions } from "./claude-agent";
 import { fetchPageText, webSearch } from "./web-search";
 import {
+  agentTimeoutMs,
+  configuredLimit,
   callResearchTool,
   RESEARCH_POLICY,
   researchSourceUrls,
   researchReadSourceUrls,
   researchToolReading,
+  researchRetrievalAttempt,
   type ResearchToolReading,
   researchTools,
   signalDeskEnabled,
@@ -100,7 +103,7 @@ export async function verifyCitedUrls(urls: string[], fetchFn: typeof fetch = fe
       if (method === "GET") controller.abort(); // headers are enough; do not download the body
       return res.status;
     } finally {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
     }
   };
 
@@ -165,8 +168,21 @@ const RESEARCH_TOOLS = [
   }
 ] as const;
 
-const MAX_MODEL_TURNS = 8; // model responses per round (tool turns + final)
-const MAX_TOOL_CALLS = 14; // total tool executions per round
+// This adapter only sends text chat messages. Never turn image bytes into a
+// text tool result or claim that image retrieval established visual review.
+function textOnlyResearchResult(name: string, raw: Record<string, unknown>): Record<string, unknown> {
+  const { _image_content: image, ...metadata } = raw;
+  if (name !== "research_image" && image === undefined) return metadata;
+  return {
+    ...metadata,
+    visual_review_status: "visual_review_unavailable",
+    visual_review_unavailable: true,
+    visual_review_warning:
+      "This research route only sends text. The image was not delivered to the model for visual review. " +
+      "Use a vision-capable route to inspect it; do not submit visual observations or claim that the figure was read. " +
+      "Captions and OCR are not visual verification. Keep material unread figures as research gaps."
+  };
+}
 
 interface ChatMessage {
   role: "user" | "assistant" | "tool";
@@ -192,7 +208,7 @@ export async function runDeepSeekRaw(
   const baseUrl = process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com";
   const model = opts.model || process.env.FORECAST_DEEPSEEK_MODEL || "deepseek-chat";
   const fetchFn = deps.fetchFn ?? fetch;
-  const timeoutMs = opts.timeoutMs ?? (Number(process.env.FORECAST_AGENT_TIMEOUT_MS) || 360_000);
+  const timeoutMs = agentTimeoutMs(opts.timeoutMs);
 
   if (webSearchEnabled() && opts.allowedTools !== "") {
     return runWithTools(prompt, {
@@ -213,7 +229,7 @@ export async function runDeepSeekRaw(
   // propagates into res.text()/res.json(), so the timer stays armed until the
   // body is fully consumed.
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = timeoutMs > 0 ? setTimeout(() => controller.abort(), timeoutMs) : undefined;
   let data: {
     choices?: { message?: { content?: string } }[];
     usage?: { prompt_tokens?: number; completion_tokens?: number };
@@ -228,7 +244,7 @@ export async function runDeepSeekRaw(
         // json_object mode requires the word "json" in the prompt — every engine
         // prompt already demands a JSON object, so this is safe to always set.
         response_format: { type: "json_object" },
-        max_tokens: 6000
+        ...(signalDeskEnabled() ? {} : { max_tokens: 6000 })
       }),
       signal: controller.signal
     });
@@ -241,7 +257,7 @@ export async function runDeepSeekRaw(
     if (controller.signal.aborted) throw new Error(`deepseek request timed out after ${timeoutMs}ms`);
     throw err;
   } finally {
-    clearTimeout(timer);
+    if (timer) clearTimeout(timer);
   }
   const rawFinalText = data.choices?.[0]?.message?.content ?? "";
   const jsonObject = rawFinalText ? extractJsonObject(rawFinalText) : null;
@@ -290,16 +306,22 @@ interface ToolLoopCtx {
 // suppresses tool calls); if the final content fails to parse, one repair
 // turn asks for the JSON alone.
 async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunResult> {
-  const deadline = Date.now() + ctx.timeoutMs;
+  const deadline = ctx.timeoutMs > 0 ? Date.now() + ctx.timeoutMs : Infinity;
+  const maxModelTurns = configuredLimit("FORECAST_MAX_MODEL_TURNS", ctx.researchSchemas ? 0 : 8);
+  const maxToolCalls = configuredLimit("FORECAST_MAX_TOOL_CALLS", ctx.researchSchemas ? 0 : 14);
+  let modelTurns = 0;
   let promptTokens = 0;
   let completionTokens = 0;
 
   const call = async (messages: ChatMessage[], withTools: boolean, forceJson: boolean): Promise<ChatMessage> => {
+    if (maxModelTurns > 0 && modelTurns >= maxModelTurns)
+      throw new Error(`model-turn limit ${maxModelTurns} reached before a valid final answer`);
     const remaining = deadline - Date.now();
-    if (remaining <= 1000) throw new Error(`deepseek tool loop exhausted its ${ctx.timeoutMs}ms budget`);
+    if (remaining <= 0) throw new Error(`deepseek tool loop exhausted its ${ctx.timeoutMs}ms budget`);
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), remaining);
+    const timer = Number.isFinite(remaining) ? setTimeout(() => controller.abort(), remaining) : undefined;
     try {
+      modelTurns += 1;
       const res = await ctx.fetchFn(`${ctx.baseUrl}/chat/completions`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ctx.apiKey}` },
@@ -308,7 +330,7 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
           messages,
           ...(withTools ? { tools: ctx.researchSchemas ?? RESEARCH_TOOLS } : {}),
           ...(forceJson ? { response_format: { type: "json_object" } } : {}),
-          max_tokens: 6000
+          ...(signalDeskEnabled() ? {} : { max_tokens: 6000 })
         }),
         signal: controller.signal
       });
@@ -326,7 +348,7 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
       if (controller.signal.aborted) throw new Error(`deepseek request timed out (shared ${ctx.timeoutMs}ms budget)`);
       throw err;
     } finally {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
     }
   };
 
@@ -337,18 +359,21 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
   const traceUrls = new Set<string>();
   const readUrls = new Set<string>();
   const readings = new Map<string, ResearchToolReading>();
+  const retrievalAttempts: import("./research-progress").RetrievalAttempt[] = [];
   let toolCalls = 0;
   let finalText = "";
 
-  for (let turn = 0; turn < MAX_MODEL_TURNS; turn++) {
-    const allowTools = toolCalls < MAX_TOOL_CALLS;
+  for (let turn = 0; maxModelTurns === 0 || turn < maxModelTurns; turn++) {
+    const allowTools = maxToolCalls === 0 || toolCalls < maxToolCalls;
     const msg = await call(messages, allowTools, false);
     if (msg.tool_calls?.length && allowTools) {
       messages.push({ role: "assistant", content: msg.content ?? null, tool_calls: msg.tool_calls });
       for (const tc of msg.tool_calls) {
-        toolCalls += 1;
         let resultText: string;
         try {
+          if (maxToolCalls > 0 && toolCalls >= maxToolCalls)
+            throw new Error(`configured tool-call limit ${maxToolCalls} reached`);
+          toolCalls += 1;
           const args = JSON.parse(tc.function.arguments || "{}") as { query?: string; url?: string } & Record<
             string,
             unknown
@@ -359,8 +384,14 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
             if (["web_search", "signal_desk_search"].includes(tc.function.name))
               searchQueries.push(String(args.query ?? args.keywords ?? ""));
             const remaining = deadline - Date.now();
-            if (remaining <= 1000) throw new Error("research tool budget exhausted");
-            const result = await ctx.researchCall(tc.function.name, args, Math.min(90_000, remaining));
+            if (remaining <= 0) throw new Error("research tool budget exhausted");
+            const gatewayTimeout = configuredLimit("FORECAST_RESEARCH_TIMEOUT_MS", 0);
+            const budget = Math.min(gatewayTimeout || Infinity, remaining);
+            if (tc.function.name === "research_image" && args.observation !== undefined)
+              throw new Error("visual_review_unavailable: this text-only route cannot submit visual observations; use a vision-capable route");
+            const result = textOnlyResearchResult(tc.function.name,
+              await ctx.researchCall(tc.function.name, args, Number.isFinite(budget) ? budget : 0));
+            retrievalAttempts.push(researchRetrievalAttempt(tc.function.name, args, result));
             for (const url of researchSourceUrls(result)) traceUrls.add(url);
             for (const url of researchReadSourceUrls(tc.function.name, result)) readUrls.add(url);
             const reading = researchToolReading(tc.function.name, result);
@@ -378,6 +409,11 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
             resultText = `[unknown tool or missing argument: ${tc.function.name}]`;
           }
         } catch (error) {
+          if (ctx.researchSchemas) {
+            let args = {};
+            try { args = JSON.parse(tc.function.arguments || "{}"); } catch { /* Record malformed tool arguments as a failure. */ }
+            retrievalAttempts.push(researchRetrievalAttempt(tc.function.name, args, {error:"Research tool call failed before a valid result"}));
+          }
           resultText = `[tool failed: ${error instanceof Error ? error.message : String(error)}]`;
         }
         messages.push({
@@ -428,9 +464,10 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
     searchResultUrls,
     readSourceUrls: [...readUrls],
     researchReadings: [...readings.values()],
+    retrievalAttempts,
     costUsd,
     costCoverage: costUsd == null ? "unavailable" : ctx.researchSchemas ? "partial" : "complete",
-    numTurns: Math.min(MAX_MODEL_TURNS, toolCalls + 1),
+    numTurns: modelTurns,
     exitCode: 0,
     stderrTail: ""
   };

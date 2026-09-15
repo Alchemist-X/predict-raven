@@ -259,3 +259,26 @@ describe("escapeHtml", () => {
     expect(escapeHtml(`<a href="x">&'`)).toBe("&lt;a href=&quot;x&quot;&gt;&amp;&#39;");
   });
 });
+
+describe("incomplete binary forecasts", () => {
+  it.each(["research_failed", "insufficient_evidence", "max_rounds"] as const)(
+    "%s exposes evidence and a working estimate, never a final answer",
+    (status) => {
+      const stopped = { ...state, status, researchBlocker: "The official baseline is unavailable." } as ForecastState;
+      const answer = buildAnswer("blocked", stopped, null, "http://localhost");
+      expect(answer.status).toBe(status);
+      expect(answer.isFinal).toBe(false);
+      expect(answer.probability).toBeNull();
+      expect(answer.answerLabel).toBeNull();
+      expect(answer.verdict).toBeNull();
+      expect(answer.analysis?.verdict).toBeNull();
+      expect(answer.workingEstimate).toMatchObject({ provisional: true, probability: state.currentProb });
+      expect(answer.evidence).toHaveLength(state.evidenceLedger.length);
+      for (const output of [renderText(answer), renderHtml(answer)]) {
+        expect(output).toContain("INCOMPLETE");
+        expect(output).toContain("official baseline");
+        expect(output).not.toContain("WHY THIS NUMBER");
+      }
+    }
+  );
+});

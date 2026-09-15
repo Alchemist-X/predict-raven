@@ -18,6 +18,7 @@ export function AnalystDesk({
   markSummary,
   nextRound,
   complete,
+  stopped = false,
   composerText,
   onComposerText,
   stance,
@@ -29,6 +30,7 @@ export function AnalystDesk({
   markSummary: string;
   nextRound: number;
   complete: boolean;
+  stopped?: boolean;
   composerText: string;
   onComposerText: (value: string) => void;
   stance: AnalystStance;
@@ -40,7 +42,14 @@ export function AnalystDesk({
   const t = useT();
   return (
     <div className="rvp-rail">
-      <div style={{ background: "var(--bg2)", border: "1px solid var(--line)", borderRadius: 14, padding: "18px 18px 16px" }}>
+      <div
+        style={{
+          background: "var(--bg2)",
+          border: "1px solid var(--line)",
+          borderRadius: 14,
+          padding: "18px 18px 16px"
+        }}
+      >
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>
           <div
             style={{
@@ -56,7 +65,9 @@ export function AnalystDesk({
           <span style={{ fontFamily: "var(--fm)", fontSize: 9.5, color: "var(--faint)" }}>{markSummary}</span>
         </div>
         <p style={{ margin: "8px 0 0", fontSize: 12.5, lineHeight: 1.5, color: "var(--muted)" }}>
-          {complete ? (
+          {stopped ? (
+            t(RP.deskHelpStopped)
+          ) : complete ? (
             <>
               {t(RP.deskHelpDonePre)}
               <b style={{ color: "var(--text)" }}>{t(RP.deskHelpDoneBold)}</b>
@@ -139,7 +150,7 @@ export function AnalystDesk({
             borderRadius: 9
           }}
         >
-          {complete ? t(RP.deskSubmitSave) : t(RP.deskSubmitQueue, { n: nextRound })}
+          {complete || stopped ? t(RP.deskSubmitSave) : t(RP.deskSubmitQueue, { n: nextRound })}
         </button>
       </div>
 
@@ -228,7 +239,7 @@ export function AnalystDesk({
               color: "var(--faint)"
             }}
           >
-            {t(RP.deskQueuedEmpty)}
+            {t(stopped || complete ? RP.deskSavedEmpty : RP.deskQueuedEmpty)}
           </div>
         )}
       </div>

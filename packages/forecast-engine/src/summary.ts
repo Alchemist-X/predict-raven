@@ -9,7 +9,7 @@
 import { runAgent } from "./agent";
 import { extractJsonObject } from "./claude-agent";
 import { languageDirective } from "./language";
-import { applyResearchReview, parseResearchReview, researchReviewPrompt, researchGapSources } from "./research-review";
+import { applyResearchReview, parseResearchReview, researchReviewPrompt, modelVisibleSourceUrls, researchGapSources } from "./research-review";
 import type { AgentRunResult, RunAgentOptions } from "./claude-agent";
 import type { ForecastState, ForecastSummary } from "./types";
 
@@ -149,12 +149,13 @@ export async function summarizeForecast(
 ): Promise<ForecastSummary> {
   const prompt = buildSummaryPrompt(state);
   const callAgent = opts.runAgentFn ?? runAgent;
-  const validate = (raw: unknown) => {
-    const summary = validateSummary(raw);
+  const validate = (result: AgentRunResult) => {
+    if (result.exitCode !== 0) throw new Error(`Summary provider failed with exit code ${result.exitCode}: ${result.stderrTail}`);
+    const summary = validateSummary(result.jsonObject ?? extractJsonObject(result.rawFinalText));
     if (summary.researchFollowup) {
       try {
         applyResearchReview({researchGaps:state.researchGaps}, summary.researchFollowup, state.round,
-          [...(state.readSourceUrls ?? []), ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(r => r.url) ?? [])]);
+          modelVisibleSourceUrls(state));
       } catch (error) { throw new InvalidResearchSummary(error instanceof Error ? error.message : "Invalid summary research review"); }
     }
     return summary;
@@ -162,9 +163,9 @@ export async function summarizeForecast(
   // Synthesis can request another evidence pass, but cannot invent evidence itself.
   let res = await callAgent(prompt, { model: opts.model, allowedTools: "" });
   try {
-    return validate(res.jsonObject ?? extractJsonObject(res.rawFinalText));
+    return validate(res);
   } catch {
     res = await callAgent(prompt, { model: opts.model, allowedTools: "" });
-    return validate(res.jsonObject ?? extractJsonObject(res.rawFinalText));
+    return validate(res);
   }
 }

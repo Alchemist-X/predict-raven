@@ -10,7 +10,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
 import { buildAnswer } from "./answer";
-import { AnswerRequestSchema } from "./answer-request";
+import { AnswerRequestSchema, MaxRoundsSchema } from "./answer-request";
 import type { ServiceConfig } from "./config";
 import { authorizeInviteUse, describeInviteState, inviteState } from "./invites";
 import { QuotaExceededError } from "./quota";
@@ -19,7 +19,7 @@ import { getJob, RunLimitError, startForecast } from "./run-manager";
 import { renderText } from "./render-text";
 
 const START_NOTE =
-  "The forecast runs in the background (typically 3–15 minutes: it frames the question, then does multiple rounds of web research). Poll forecast_status every ~30s; when status is 'done', call forecast_result.";
+  "The forecast runs in the background without a default round limit. Poll forecast_status every ~30s. Only done means a completed forecast. research_failed, insufficient_evidence, and max_rounds are stopped, incomplete outcomes; forecast_result retains their evidence and blocker. / 默认不限研究轮次；只有 done 表示完成，检索失败、证据不足与预算用尽均为未完成。";
 
 function jsonContent(value: unknown): { content: Array<{ type: "text"; text: string }> } {
   return { content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }] };
@@ -59,13 +59,9 @@ export function buildMcpServer(config: ServiceConfig, baseUrl: string): McpServe
           .min(8)
           .max(400)
           .describe("The event question, ideally with a deadline and clear resolution criteria"),
-        max_rounds: z
-          .number()
-          .int()
-          .min(1)
-          .max(6)
-          .optional()
-          .describe("Research rounds (default 3; more = deeper + slower)"),
+        max_rounds: MaxRoundsSchema.describe(
+          "Optional round budget: 0 or omitted means no limit; a positive integer is an explicit budget. / 可选轮次预算：0或省略表示不限，正整数表示明确预算。"
+        ),
         fresh: z.boolean().optional().describe("Discard any earlier run of the same question and start over"),
         invite_code: z
           .string()
@@ -129,6 +125,9 @@ export function buildMcpServer(config: ServiceConfig, baseUrl: string): McpServe
       return jsonContent({
         forecast_id,
         status: answer.status,
+        is_final: answer.isFinal,
+        research_blocker: answer.researchBlocker,
+        working_estimate: answer.workingEstimate,
         rounds_completed: answer.rounds,
         answer_type: answer.answerType,
         answer: answer.answer,

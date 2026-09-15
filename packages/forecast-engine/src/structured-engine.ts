@@ -1,3 +1,4 @@
+import { isLocalResearchUrl } from "./url";
 // Native categorical, numerical and independent-event ranking research loop.
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -8,11 +9,12 @@ import { answerLabel, isStructuredForecast } from "./answer-types";
 import { answerMovement, applyStructuredClaim, initialAnswer } from "./answer-math";
 import { eventDir } from "./store";
 import { collectExpandedLibrary, libraryPrompt, validateLibraryUse } from "./expanded-library";
+import { assessResearchProgress, incompleteResearch, researchProgressPrompt, researchRoundLimit, roundLimitLabel } from "./research-progress";
 import { finite, object, text, validatedCall, validateAnswerRequest, validateQuestionSpec } from "./question-spec";
 import type { AgentRunner } from "./question-spec";
 import { canonicalizeUrl } from "./url";
 import { languageDirective } from "./language";
-import { recordModelReads, parseResearchReview, applyResearchReview, retrieveResearchGaps, researchReviewPrompt, materialResearchGaps, researchGapSources } from "./research-review";
+import { recordModelReads, parseResearchReview, applyResearchReview, retrieveResearchGaps, researchReviewPrompt, modelVisibleSourceUrls, assertModelReadSources, researchEvidenceSources, materialResearchGaps, researchGapSources } from "./research-review";
 import type { ResearchGapRequest, ResearchGapResolution } from "./research-review";
 import { isMarketPriceSource, marketBlind } from "./market-blind";
 import type { Confidence, SourceType } from "./types";
@@ -42,7 +44,7 @@ export function validateStructuredRound(raw: unknown, spec: QuestionSpec): Round
     if (!SOURCE_TYPES.has(c.sourceType as string)) throw new Error("Unknown source type");
     const sourceUrl = text(c.sourceUrl, "sourceUrl");
     const parsed = new URL(sourceUrl);
-    if (!["https:", "http:"].includes(parsed.protocol) || parsed.username || parsed.password) throw new Error("Source must be an HTTP(S) URL without credentials");
+    if (!isLocalResearchUrl(sourceUrl) && (!["https:", "http:"].includes(parsed.protocol) || parsed.username || parsed.password)) throw new Error("Source must be an HTTP(S) URL without credentials");
     const publishedAt = c.publishedAt === null ? null : text(c.publishedAt, "publishedAt");
     if (publishedAt !== null && (!/^\d{4}-\d{2}-\d{2}(?:$|T)/.test(publishedAt) || !Number.isFinite(Date.parse(publishedAt)) || new Date(publishedAt.slice(0, 10)).toISOString().slice(0, 10) !== publishedAt.slice(0, 10) || publishedAt.slice(0, 10) > spec.asOfDate)) throw new Error("Source date is invalid or after the research cutoff");
     const rawEffects = object(c.effects ?? {}, "effects"), effects: Record<string, number> = {};
@@ -126,6 +128,7 @@ const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\n/g, " ");
 export function renderStructuredReport(s: StructuredForecastState): string {
   const spec = s.questionSpec, answer = s.answer;
   const lines = [`# ${s.eventText}`, "", `**${answerLabel(answer)}**`, "", `答案类型：${answer.kind}。研究日：${spec.asOfDate}；截止日：${spec.resolutionDate}。状态：${s.status}。`, ""];
+  if (incompleteResearch(s.status)) lines.splice(2, 0, `**研究未完成：${s.researchBlocker ?? s.error ?? s.status}。以下数值是暂存估计，不是完成研究后的结论。**`, "");
   if (answer.kind === "numeric") lines.push(`数值：${answer.pointEstimate} ${answer.unit}；模型范围：${answer.modelRange.join(" – ")} ${answer.unit}。`, answer.rangeDescription, `评分/测量定义：${spec.scoreRubric ?? spec.resolutionCriteria}`, "");
   else {
     lines.push("| 候选 | 概率 |", "| --- | ---: |");
@@ -146,12 +149,13 @@ export function renderStructuredReport(s: StructuredForecastState): string {
 }
 export function applyStructuredRound(state: StructuredForecastState, proposal: RoundProposal, result: AgentRunResult): StructuredRound {
   recordModelReads(state, result);
+  assertModelReadSources(state, proposal.claims.map(claim => claim.sourceUrl));
   const before = structuredClone(state.answer), roundNo = state.round + 1;
   const seenIds = new Set(state.evidenceLedger.map(e => e.id));
   const seenClaims = new Set(state.evidenceLedger.map(e => e.claim.toLowerCase().replace(/\s+/g, " ").trim()));
-  const verifiedUrls = new Set([...result.searchResultUrls, ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(r => r.url) ?? [])].map(canonicalizeUrl));
+  const verifiedUrls = new Set(researchEvidenceSources(state, result.searchResultUrls).map(canonicalizeUrl));
   if (state.researchGaps || proposal.researchGaps?.length || proposal.gapResolutions?.length) applyResearchReview(state, {researchGaps:proposal.researchGaps ?? [], gapResolutions:proposal.gapResolutions ?? []}, roundNo,
-    [...(state.readSourceUrls ?? []), ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(r => r.url) ?? [])]);
+    modelVisibleSourceUrls(state));
   let accepted = 0, duplicates = 0;
   for (const claim of proposal.claims) {
     const normalized = claim.claim.toLowerCase().replace(/\s+/g, " ").trim();
@@ -171,15 +175,22 @@ export function applyStructuredRound(state: StructuredForecastState, proposal: R
   }
   const now = new Date().toISOString();
   const record: StructuredRound = {round: roundNo, ts: now, before, after: structuredClone(state.answer), newClaimCount: accepted, duplicateCount: duplicates,
-    confidence: proposal.confidence, reasoning: proposal.summary, searchQueries: result.searchQueries, searchResultUrls: [...result.searchResultUrls], costUsd: result.costUsd};
+    confidence: proposal.confidence, reasoning: proposal.summary, searchQueries: result.searchQueries, searchResultUrls: [...result.searchResultUrls], costUsd: result.costUsd, retrievalAttempts:result.retrievalAttempts};
   state.round = roundNo; state.updatedAtUtc = now; state.roundHistory.push(record);
   return record;
 }
 export interface StructuredRunOptions { maxRounds?: number; model?: string; runAgentFn?: AgentRunner; onLog?: (message: string) => void; collectLibraryFn?: typeof collectExpandedLibrary; retrieveGapsFn?: typeof retrieveResearchGaps }
 export async function runStructuredForecast(state: StructuredForecastState, opts: StructuredRunOptions = {}): Promise<StructuredForecastState> {
-  const maxRounds = opts.maxRounds ?? 3, log = opts.onLog ?? (() => {});
-  if (!Number.isInteger(maxRounds) || maxRounds < 1 || maxRounds > 20) throw new Error("maxRounds must be an integer from 1 to 20");
-  if (state.round >= maxRounds && state.status !== "aborted") return state; // completed resume spends no calls
+  const maxRounds = researchRoundLimit(opts.maxRounds), log = opts.onLog ?? (() => {});
+  const pendingSummary = state.summaryPendingStatus;
+  if (!pendingSummary && state.round >= maxRounds && state.status !== "aborted") {
+    if (state.status === "open") {
+      state.status = "max_rounds"; state.summary = null;
+      state.researchBlocker = "Research was interrupted at the explicit round budget before completion was recorded.";
+      saveStructuredState(state);
+    }
+    return state;
+  }
   let recovered: AgentRunResult | undefined;
   if (state.status === "aborted") {
     const attempts = [1,2].flatMap(attempt => {
@@ -190,29 +201,31 @@ export async function runStructuredForecast(state: StructuredForecastState, opts
     if (attempts.length) {
       const last = attempts[attempts.length - 1];
       recovered = {...last, readSourceUrls:[...new Set(attempts.flatMap(r => r.readSourceUrls ?? []))] as string[],researchReadings:attempts.flatMap(r => r.researchReadings ?? []), searchResultUrls:new Set(attempts.flatMap(r=>r.searchResultUrls)),searchQueries:[...new Set(attempts.flatMap(r=>r.searchQueries))] as string[],
+        retrievalAttempts:attempts.flatMap(r => r.retrievalAttempts ?? []),
         costUsd:attempts.some(r=>r.costUsd !== null) ? attempts.reduce((sum,r)=>sum+(r.costUsd??0),0) : null};
       log("Resuming validation from saved research; original attempts remain archived.");
     }
   }
-  state.status = state.round >= maxRounds ? "max_rounds" : "open";
+  state.status = pendingSummary ?? (state.round >= maxRounds ? "max_rounds" : "open");
   delete state.error;
   state.updatedAtUtc = new Date().toISOString();
   saveStructuredState(state);
   try {
-    if (!state.expandedLibrary) { state.expandedLibrary = await (opts.collectLibraryFn ?? collectExpandedLibrary)(state.questionSpec, log); saveStructuredState(state); }
-    for (let round = state.round + 1; round <= maxRounds; round++) {
+    if (!pendingSummary && !state.expandedLibrary) { state.expandedLibrary = await (opts.collectLibraryFn ?? collectExpandedLibrary)(state.questionSpec, log); saveStructuredState(state); }
+    for (let round = state.round + 1; !pendingSummary && round <= maxRounds; round++) {
       if (!recovered && materialResearchGaps(state).length) {
         await (opts.retrieveGapsFn ?? retrieveResearchGaps)(state, round, log, {collectLibrary:opts.collectLibraryFn});
         saveStructuredState(state);
       }
-      log(`Round ${round}/${maxRounds} · ${answerLabel(state.answer)}`);
+      log(`Round ${round}/${roundLimitLabel(maxRounds)} · ${answerLabel(state.answer)}`);
       const {prior: _prior, priorRationale: _priorRationale, ...researchQuestion} = state.questionSpec;
       const prompt = `You are conducting an auditable forecast with a frozen answer space. Research every option/entity, primary sources first. Return atomic facts and forward-looking implications, NOT a new final answer. The engine alone applies updates.
 FROZEN QUESTION: ${JSON.stringify(researchQuestion)}
-ROUND: ${round}/${maxRounds}. ${round > 1 ? "Prioritize the strongest countercase, source cross-checks and previously uncovered entities. Do not repeat facts already counted." : "Establish comparable current facts, reference classes and drivers across every option/entity."}
+ROUND: ${round}/${roundLimitLabel(maxRounds)}. ${round > 1 ? "Prioritize the strongest countercase, source cross-checks and previously uncovered entities. Do not repeat facts already counted." : "Establish comparable current facts, reference classes and drivers across every option/entity."}
 PREVIOUS CLAIMS: ${JSON.stringify(state.evidenceLedger.map(e => ({id:e.id,claim:e.claim,targetIds:e.targetIds,sourceUrl:e.sourceUrl,clusterId:e.clusterId})))}
 ${libraryPrompt(state.expandedLibrary)}
 ${researchReviewPrompt(state)}
+${researchProgressPrompt(state)}
 Use web_search, signal_desk_read or fetch_page for actual research. Public dates must be checked; API dates alone do not establish publication dates. Include accurate original short quotes, values/units/periods and stable URLs. Each ranked entity must have evidence; lack of company guidance is a gap, not zero risk. Do not count syndication as independent evidence; share clusterId for the same underlying fact/story. Source opinion is not company guidance.
 Each claim contains one independently checkable proposition. Split guidance, actual spending, cash balances and author forecasts into separate claims; share clusterId where the same underlying financial story makes them dependent. Put implications in rationale, never disguise a multi-fact paragraph as one fact. Every quote is an exact substring in the source language, at most 300 characters, not a summary.
 Effects: signed log-likelihood adjustments in [-2,2], sparse keys for the frozen option ids. Positive favors that event/option; negative opposes it. Explain why. The engine caps |effect| at 1 and discounts clusters; do not compensate by multiplying claims. Ranking effects change only named targetIds independently. Categorical effects are relative likelihoods and the engine normalizes all options. Neutral/context claims use effects={}. Numeric: effects={}, and numericSignal only when this evidence supplies a forward estimate of the SAME target, period and unit; supply mean and standardDeviation, otherwise null. Historical facts are not independent measurements of the future target. Numeric signals use engine precision updates and must not imply empirically calibrated uncertainty.
@@ -222,10 +235,12 @@ ${languageDirective()}
 JSON only: {"summary":"...","confidence":"medium","claims":[{"id":"stable_fact_id","claim":"atomic dated fact or attributed forecast","targetIds":["entity_id"],"sourceUrl":"https://...","sourceTitle":"...","sourceType":"official|data|academic|original_reporting|press|insider|secondary","publishedAt":"YYYY-MM-DD or null","quote":"short exact original text","rationale":"how this affects the frozen target","clusterId":"underlying_story","effects":{"entity_id":0.1},"numericSignal":null,"articleId":null,"epistemicStatus":"fact|source_opinion|estimate"}],"exclusions":[{"articleId":"id","reason":"specific relevance/quality reason"}]}`;
       const { value, result } = await validatedCall(prompt, raw => {
         const proposal = validateStructuredRound(raw, state.questionSpec);
-        validateLibraryUse(state.expandedLibrary, proposal.claims, proposal.exclusions, state.evidenceLedger);
+        assertModelReadSources(state, proposal.claims.map(claim => claim.sourceUrl));
+        validateLibraryUse(state.expandedLibrary, proposal.claims, proposal.exclusions, state.evidenceLedger, modelVisibleSourceUrls(state));
         applyResearchReview({researchGaps:state.researchGaps}, {researchGaps:proposal.researchGaps ?? [], gapResolutions:proposal.gapResolutions ?? []}, round,
-          [...(state.readSourceUrls ?? []), ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(r => r.url) ?? [])]);
-        if (state.questionSpec.kind === "independent_ranking" && state.questionSpec.options.some(o => ![...state.evidenceLedger, ...proposal.claims].some(c => c.targetIds.includes(o.id)))) throw new Error("Every ranked entity needs cited evidence or an explicit source-backed information gap claim");
+          modelVisibleSourceUrls(state));
+        // Missing target evidence triggers another research pass below, rather
+        // than a tool-free correction that might encourage an invented claim.
         return proposal;
       }, {...opts, initialResult: recovered, onAttempt: (result, attempt) => {
         recordModelReads(state, result);
@@ -241,12 +256,20 @@ JSON only: {"summary":"...","confidence":"medium","claims":[{"id":"stable_fact_i
       log(`Accepted ${record.newClaimCount} claims · ${answerLabel(state.answer)}`);
       const unanswered = materialResearchGaps(state);
       if (unanswered.length) log(`  ${unanswered.length} material questions remain: ${unanswered.map(g => g.id).join(", ")}. A small numerical change is not research completion.`);
-      if (!unanswered.length && round >= Math.min(2, maxRounds) && record.newClaimCount === 0) { state.status = "no_new_info"; break; }
       const weightedClaims = state.evidenceLedger.filter(e => e.effectiveWeight > 0);
-      const covered = state.questionSpec.kind !== "independent_ranking" || state.questionSpec.options.every(o => weightedClaims.some(e => e.targetIds.includes(o.id)));
-      if (!unanswered.length && round >= 2 && weightedClaims.length > 0 && covered && answerMovement(record.before, record.after) < 0.01) { state.status = "converged"; break; }
-      if (round === maxRounds) state.status = "max_rounds";
+      const covered = state.questionSpec.kind === "numeric" || state.questionSpec.options.every(o => weightedClaims.some(e => e.targetIds.includes(o.id)));
+      const checkpoint = assessResearchProgress(state, result, {round,evidenceCount:weightedClaims.length,covered,openGapCount:unanswered.length,newClaimCount:weightedClaims.filter(e => e.round === round).length});
+      if (checkpoint.status === "research_failed" || checkpoint.status === "insufficient_evidence") {
+        state.status = checkpoint.status; state.summary = null; log(`${state.status}: ${checkpoint.reason}`); break;
+      }
+      if (checkpoint.status === "ready" && !unanswered.length && round >= Math.min(2, maxRounds) && record.newClaimCount === 0) { state.status = "no_new_info"; break; }
+      if (checkpoint.status === "ready" && !unanswered.length && round >= 2 && weightedClaims.length > 0 && covered && answerMovement(record.before, record.after) < 0.01) { state.status = "converged"; break; }
+      if (round === maxRounds) { state.status = "max_rounds"; state.researchBlocker = checkpoint.reason || "Explicit research-round budget exhausted; research is incomplete."; }
     }
+    if (incompleteResearch(state.status)) { state.summary = null; saveStructuredState(state); return state; }
+    state.summaryPendingStatus = state.status === "converged" ? "converged" : "no_new_info";
+    state.status = "open"; state.summary = null;
+    saveStructuredState(state);
     const summary = await validatedCall(`Explain this engine result without changing the winner, probabilities, numeric value or units. Distinguish source opinions, financial forecasts and confirmed company facts. Include material counterarguments and missing data. Summarize how the expanded resource library changed or challenged the analysis. Quote sources by title and URL close to claims. Do not expose entire subscription articles.
 If synthesis reveals a material unresolved doubt, add a research_gaps request. You cannot search or assert new facts in this synthesis; the engine will reopen research within the round budget. An unresolved material question is not numerical convergence.
 ${researchReviewPrompt(state)}
@@ -255,16 +278,21 @@ ${languageDirective()}
 JSON only: {"verdict":"...","keyFindings":["..."],"counterarguments":["..."],"uncertainties":["..."],"research_gaps":[],"gap_resolutions":[]}`, raw => {
       const o = object(raw), review = parseResearchReview(o, state.questionSpec.kind === "independent_ranking" ? state.questionSpec.options.map(x => x.id) : ["question", ...state.questionSpec.options.map(x => x.id)]);
       applyResearchReview({researchGaps:state.researchGaps}, review, state.round,
-        [...(state.readSourceUrls ?? []), ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(r => r.url) ?? [])]);
+        modelVisibleSourceUrls(state));
       return {summary:{verdict:text(o.verdict,"verdict"),keyFindings:strings(o.keyFindings,"keyFindings"),counterarguments:strings(o.counterarguments,"counterarguments"),uncertainties:strings(o.uncertainties,"uncertainties")},review};
     }, {...opts, allowedTools: ""});
     if (summary.value.review.researchGaps.length || summary.value.review.gapResolutions.length) {
       applyResearchReview(state, summary.value.review, state.round,
-        [...(state.readSourceUrls ?? []), ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(r => r.url) ?? [])]);
+        modelVisibleSourceUrls(state));
     }
     state.summary = {...summary.value.summary, uncertainties: [...summary.value.summary.uncertainties, ...materialResearchGaps(state).map(g => `尚未解决：${g.question}；影响：${g.whyMaterial}。已执行 ${g.attempts.length} 次定向补搜；状态 ${g.status}。`)]};
+    state.status = state.summaryPendingStatus;
+    delete state.summaryPendingStatus;
+    delete state.researchBlocker;
     if (materialResearchGaps(state).length) {
       state.status = state.round < maxRounds ? "open" : "max_rounds";
+      state.summary = null;
+      if (state.status === "max_rounds") state.researchBlocker = "Synthesis identified a material question after the explicit research budget was exhausted.";
       saveStructuredState(state);
       if (state.round < maxRounds) {
         log("Synthesis identified a material question; reopening evidence collection within the remaining round budget.");
@@ -274,6 +302,6 @@ JSON only: {"verdict":"...","keyFindings":["..."],"counterarguments":["..."],"un
     state.updatedAtUtc = new Date().toISOString(); saveStructuredState(state);
     return state;
   } catch (error) {
-    state.status = "aborted"; state.error = error instanceof Error ? error.message : String(error); state.updatedAtUtc = new Date().toISOString(); saveStructuredState(state); throw error;
+    state.status = "aborted"; state.summary = null; state.error = error instanceof Error ? error.message : String(error); state.updatedAtUtc = new Date().toISOString(); saveStructuredState(state); throw error;
   }
 }

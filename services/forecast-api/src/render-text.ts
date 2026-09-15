@@ -28,12 +28,13 @@ function section(title: string, body: string): string[] {
 }
 
 export function renderText(a: ForecastAnswer): string {
-  if (a.answer && a.structured) {
+  if (a.structured) {
     return [
       "RAVEN FORECASTING ENGINE — FORECAST",
       HR,
       a.normalizedQuestion ?? a.question,
-      `Status / 状态: ${a.status}${a.status === "running" ? " · provisional / 暂定" : ""}`,
+      `Status / 状态: ${a.status}${!a.isFinal ? " · incomplete, provisional only / 未完成，仅为暂定记录" : ""}`,
+      ...(a.researchBlocker ? [`Research blocker / 研究阻碍: ${a.researchBlocker}`] : []),
       ...structuredSections(a).flatMap((section) => ["", section.title, HR, section.paragraphs.join("\n\n")]),
       "",
       `id: ${a.id} · updated / 更新: ${a.updatedAtUtc ?? ""}`,
@@ -52,6 +53,9 @@ export function renderText(a: ForecastAnswer): string {
   } else if (a.status !== "done") {
     out.push(`Status:      ${a.status.toUpperCase()}`);
   }
+  if (!a.isFinal && a.status !== "running") out.push("INCOMPLETE — no completed forecast / 未完成，尚无完成预测");
+  if (a.researchBlocker) out.push(`Research blocker / 研究阻碍: ${a.researchBlocker}`);
+  if (a.workingEstimate && a.probability === null) out.push(`Working estimate only / 仅为暂定估计: ${a.workingEstimate.label}`);
   if (a.probability !== null) {
     out.push("");
     out.push(`PROBABILITY (YES): ${a.probabilityPct}   ·   Verdict: ${a.verdict}`);

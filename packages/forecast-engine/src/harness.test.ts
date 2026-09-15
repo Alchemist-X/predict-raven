@@ -571,7 +571,7 @@ describe("runForecast loop (injected agent, tmp artifact root)", () => {
     expect(after.doubtsHandled?.["led-1"]).toBe(2); // stamped with the round that injected it
   });
 
-  it("a resume with no rounds left ends terminal (max_rounds), not open, and keeps the summary", async () => {
+  it("an interrupted final budget round resumes as incomplete with no final summary", async () => {
     const state = newForecastState({ eventId: "evt-resume", eventText: "t", framing: framing(0.5) });
     let calls = 0;
     const fakeAgent = async (prompt: string): Promise<AgentRunResult> => {
@@ -583,7 +583,7 @@ describe("runForecast loop (injected agent, tmp artifact root)", () => {
     expect(done.status).toBe("max_rounds");
     const summaryBefore = done.summary;
 
-    // CLI resume path: status reset to open, but no rounds remain.
+    // A hard interruption after round persistence can leave open at the budget.
     done.status = "open";
     const boom = async (): Promise<AgentRunResult> => {
       throw new Error("no model call should happen on a no-op resume");

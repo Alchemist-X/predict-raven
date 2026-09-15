@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { recordModelReads, applyResearchReview, materialResearchGaps, parseResearchReview, researchGapSources, retrieveResearchGaps } from "./research-review";
+import { recordModelReads, modelVisibleSourceUrls, assertModelReadSources, researchReviewPrompt, applyResearchReview, materialResearchGaps, parseResearchReview, researchGapSources, retrieveResearchGaps } from "./research-review";
 import type { ResearchGapRequest, ResearchReviewState } from "./research-review";
 
 const request: ResearchGapRequest = {id:"lease_scope",targetIds:["meta"],question:"Does capex include lease payments?",whyMaterial:"The spending forecasts use different accounting scopes.",query:"Meta capex finance lease official",keywords:["Meta","capex"],priority:"high"};
@@ -7,6 +7,16 @@ function pending(): ResearchReviewState { const s = {}; applyResearchReview(s,{r
 afterEach(() => vi.unstubAllEnvs());
 
 describe("question-led retrieval", () => {
+  it("separates successful zero results from a partially failed search with no readable sources", async () => {
+    vi.stubEnv("FORECAST_SIGNAL_DESK","1");
+    for (const status of ["ok","partial"] as const) {
+      const s=pending(), call=vi.fn().mockResolvedValue({status,source_urls:[],results:[]});
+      await retrieveResearchGaps(s,2,()=>{},{callTool:call,collectLibrary:vi.fn().mockResolvedValue(null)});
+      expect(call).toHaveBeenCalledWith("web_search",expect.objectContaining({limit:null}));
+      expect(s.researchGaps![0].attempts[0]).toMatchObject({status,outcome:status === "ok" ? "no_results" : "partial"});
+      expect(materialResearchGaps(s)).toHaveLength(1);
+    }
+  });
   it("keeps legacy outputs compatible while validating explicit questions and targets", () => {
     expect(parseResearchReview({})).toEqual({researchGaps:[],gapResolutions:[]});
     expect(parseResearchReview({research_gaps:[request]},["meta"]).researchGaps).toEqual([request]);
@@ -42,16 +52,19 @@ describe("question-led retrieval", () => {
     expect(s.researchGaps![0].status).toBe("searched");
     expect(materialResearchGaps(s)).toHaveLength(1);
     expect(researchGapSources(s)).toEqual(["https://example.com/filing"]);
-    applyResearchReview(s,{researchGaps:[],gapResolutions:[{id:request.id,reason:"The retrieved footnote reconciles the scopes.",sourceUrls:researchGapSources(s)}]},2,[]);
+    const proposal={researchGaps:[],gapResolutions:[{id:request.id,reason:"The retrieved footnote reconciles the scopes.",sourceUrls:researchGapSources(s)}]};
+    expect(()=>applyResearchReview(s,proposal,2,modelVisibleSourceUrls(s))).toThrow(/absent/);
+    recordModelReads(s,{readSourceUrls:["https://example.com/filing"]});
+    applyResearchReview(s,proposal,2,modelVisibleSourceUrls(s));
     expect(s.researchGaps![0].status).toBe("resolved");
   });
-  it("keeps failed retrieval as an unresolved limitation and respects attempt bounds", async () => {
+  it("keeps failed retrieval unresolved and permits later attempts beyond the former limit", async () => {
     vi.stubEnv("FORECAST_SIGNAL_DESK","1");
     const s=pending(), call=vi.fn().mockRejectedValue(new Error("HTTP 403")), collect=vi.fn().mockResolvedValue(null);
     await retrieveResearchGaps(s,2,()=>{}, {callTool:call,collectLibrary:collect});
     await retrieveResearchGaps(s,3,()=>{}, {callTool:call,collectLibrary:collect});
     await retrieveResearchGaps(s,4,()=>{}, {callTool:call,collectLibrary:collect});
-    expect(call).toHaveBeenCalledTimes(2);
+    expect(call).toHaveBeenCalledTimes(6);
     expect(s.researchGaps![0]).toMatchObject({status:"unavailable"});
     expect(s.researchGaps![0].attempts[0].errors).toContain("HTTP 403");
     expect(materialResearchGaps(s)).toHaveLength(1);
@@ -77,4 +90,39 @@ describe("model-initiated follow-up reads", () => {
     expect(s.expandedLibrary!.readings[1]).toMatchObject({startPage:12,text:result.researchReadings[0].text});
     expect(s.readSourceUrls).toEqual(result.readSourceUrls);
   });
+});
+
+it("keeps all requested gaps and local/public readings beyond former per-round limits",async()=>{
+  vi.stubEnv("FORECAST_SIGNAL_DESK","1");
+  const s:ResearchReviewState={};
+  const gaps=Array.from({length:13},(_,i)=>({...request,id:`gap_${i}`}));
+  const parsed=parseResearchReview({research_gaps:gaps},["meta"]);
+  applyResearchReview(s,parsed,1,[]);
+  const urls=["raven-local://interview-one",...Array.from({length:3},(_,i)=>`https://example.com/${i}`)];
+  const call=vi.fn().mockImplementation(async(tool,args)=>tool==="web_search"
+    ?{status:"ok",source_urls:urls,results:urls.map(url=>({url}))}
+    :{status:"ok",access:"body_verified",source_urls:[args.url],text:"All available text "+"x".repeat(9000),sha256:"hash",offset:0,next_offset:null});
+  await retrieveResearchGaps(s,2,()=>{},{callTool:call,collectLibrary:vi.fn().mockResolvedValue(null)});
+  expect(s.researchGaps).toHaveLength(13);
+  expect(s.researchGaps!.every(g=>g.attempts[0].publicReadings.length===4)).toBe(true);
+  expect(s.researchGaps![0].attempts[0].publicReadings[0].text.length).toBeGreaterThan(9000);
+  expect(parseResearchReview({gap_resolutions:[{id:"gap_0",reason:"Read local interview",sourceUrls:[urls[0]]}]}).gapResolutions[0].sourceUrls).toEqual([urls[0]]);
+});
+
+it("requires actual model reading for directory claims and gap closure while preserving legacy inline text",()=>{
+  vi.stubEnv("FORECAST_SIGNAL_DESK","1");
+  const s=pending(), url="raven-local://interview-proof";
+  s.researchGaps![0].attempts.push({round:2,query:request.query,status:"ok",sourceUrls:[url],errors:[],publicReadings:[{url,title:"Interview",text:"Full original statement",offset:0,sha256:"h"}]});
+  // Existing directly supplied excerpts remain visible until a directory is used.
+  expect(modelVisibleSourceUrls(s)).toContain(url);
+  const prompt=researchReviewPrompt(s);
+  expect(prompt).not.toContain("Full original statement");
+  expect(modelVisibleSourceUrls(s)).not.toContain(url);
+  const proposal={researchGaps:[],gapResolutions:[{id:request.id,reason:"Actual interview reviewed",sourceUrls:[url]}]};
+  expect(()=>assertModelReadSources(s,[url])).toThrow(/actual model reading/);
+  expect(()=>applyResearchReview(s,proposal,2,modelVisibleSourceUrls(s))).toThrow(/absent/);
+  recordModelReads(s,{readSourceUrls:[url]});
+  expect(()=>assertModelReadSources(s,[url])).not.toThrow();
+  applyResearchReview(s,proposal,2,modelVisibleSourceUrls(s));
+  expect(s.researchGaps![0].status).toBe("resolved");
 });

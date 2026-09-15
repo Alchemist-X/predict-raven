@@ -36,6 +36,8 @@ export const RP = {
   },
   deskHelpRunBold: { en: "iteration {n}", zh: "第 {n} 轮" },
   deskHelpRunPost: { en: ".", zh: "验证。" },
+  deskHelpStopped: { en: "Research has stopped without a completed forecast. Notes are saved with the dossier for a future resumed run.", zh: "研究已停止，预测尚未完成。笔记会随档案保存，供后续恢复研究时使用。" },
+  deskSavedEmpty: { en: "No notes saved yet.", zh: "暂无已保存笔记。" },
   deskHelpDonePre: {
     en: "Queue a hypothesis or a lead. The run is complete, so notes are ",
     zh: "排入一个假设或线索。本次运行已完成，笔记将"

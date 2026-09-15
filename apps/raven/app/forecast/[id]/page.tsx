@@ -240,7 +240,7 @@ function Report({ id, dossier }: { id: string; dossier: DossierVM }) {
               </span>
             </div>
           ) : null}
-          {dossier.status === "failed" ? (
+          {dossier.status !== "complete" && dossier.status !== "running" ? (
             <div
               className="rp-banner"
               style={{
@@ -254,7 +254,7 @@ function Report({ id, dossier }: { id: string; dossier: DossierVM }) {
                 color: "var(--neg)"
               }}
             >
-              {t(V.runAborted)}
+              {t(STATUS_LABELS[dossier.status])}. {dossier.researchBlocker ?? t(V.incompleteBody)}
             </div>
           ) : null}
 
@@ -273,6 +273,7 @@ function Report({ id, dossier }: { id: string; dossier: DossierVM }) {
               >
                 {meta.question}
               </h1>
+              {dossier.status !== "complete" ? <p role="status" style={{ color: "var(--muted)" }}>{t(V.workingEstimate)}</p> : null}
               <div style={{ display: "flex", alignItems: "flex-end", gap: 20, marginTop: 22 }}>
                 <div
                   className="rp-prob"

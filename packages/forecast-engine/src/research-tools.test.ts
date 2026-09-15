@@ -13,6 +13,7 @@ import {
   researchReadSourceUrls,
   researchToolReading,
   researchToolNames,
+  researchTools,
   signalDeskEnabled
 } from "./research-tools";
 
@@ -75,7 +76,22 @@ describe("personal research boundary", () => {
     expect(researchToolNames("")).toEqual([]);
     const noTools = researchClaudeArgs("");
     expect(JSON.parse(noTools[noTools.indexOf("--mcp-config") + 1]).mcpServers).toEqual({});
-    expect(researchToolNames("WebSearch")).toEqual(["web_search", "signal_desk_search"]);
+    expect(researchToolNames("WebSearch")).toEqual(["research_sources", "web_search", "signal_desk_search"]);
+    expect(researchToolNames("WebFetch")).toEqual(["fetch_page", "signal_desk_read", "signal_desk_pdf", "research_images", "research_image"]);
+    expect(args.at(-1)).toContain(RESEARCH_MCP_PREFIX + "research_image");
+  });
+
+  it("accepts the expanded gateway registry while respecting existing explicit tool filters", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "research image registry "));
+    temps.push(dir);
+    const command = join(dir, "gateway");
+    writeFileSync(command, '#!/usr/bin/env node\nprocess.stdin.resume();process.stdin.on("end",()=>console.log(' + JSON.stringify(JSON.stringify(schemas)) + '));');
+    chmodSync(command, 0o700);
+    vi.stubEnv("FORECAST_SIGNAL_DESK_COMMAND", command);
+    expect((await researchTools()).map(t => t.function.name)).toEqual(RESEARCH_TOOL_NAMES);
+    expect((await researchTools("WebSearch")).map(t => t.function.name)).toEqual(["research_sources", "web_search", "signal_desk_search"]);
+    expect((await researchTools("signal_desk_read")).map(t => t.function.name)).toEqual(["signal_desk_read"]);
+    expect(await researchTools("")).toEqual([]);
   });
 
   it("accepts only successful, correlated MCP provenance, never input URLs or embedded links", () => {
@@ -116,7 +132,55 @@ describe("personal research boundary", () => {
 });
 
 describe("OpenAI-compatible research tool loop", () => {
-  it("sends all five schemas, executes search/read, keeps complete JSON and records genuine source URLs", async () => {
+  it("strips image bytes, reports unavailable visual review and refuses text-only observation writes", async () => {
+    vi.stubEnv("FORECAST_SIGNAL_DESK", "1");
+    vi.stubEnv("DEEPSEEK_API_KEY", "test");
+    const requests: any[] = [];
+    const imageArgs = { image_id: "figure-1", question: "Did capex fall?", importance_reason: "The chart compares actual annual capex." };
+    const fetchFn = vi.fn(async (_input, init) => {
+      requests.push(JSON.parse(String(init?.body)));
+      const args = requests.length === 1 ? imageArgs : { ...imageArgs, observation: { key_observations: ["Fabricated visual claim"] } };
+      return new Response(JSON.stringify({ choices: [{ message: requests.length < 3
+        ? { content: null, tool_calls: [{ id: String(requests.length), type: "function", function: { name: "research_image", arguments: JSON.stringify(args) } }] }
+        : { content: '{"answer":"Visual review unavailable"}' } }] }));
+    }) as typeof fetch;
+    const researchCall = vi.fn(async () => ({ status: "ok", image_id: "figure-1", access: "image_retrieved",
+      source_urls: [url], sha256: "image-hash", text: "Caption only", _image_content: { type: "image", mimeType: "image/png", data: "PRIVATE_IMAGE_BYTES" } }));
+    const out = await runDeepSeekRaw("Read material figures", {}, { fetchFn, researchCall, researchSchemas: schemas });
+    const firstResult = JSON.parse(requests[1].messages.find((m: any) => m.role === "tool").content);
+    expect(firstResult).toMatchObject({ access: "image_retrieved", visual_review_status: "visual_review_unavailable", visual_review_unavailable: true });
+    expect(firstResult.visual_review_warning).toContain("vision-capable");
+    expect(JSON.stringify(requests)).not.toContain("PRIVATE_IMAGE_BYTES");
+    expect(JSON.stringify(requests)).not.toContain("_image_content");
+    expect(JSON.stringify(out)).not.toContain("PRIVATE_IMAGE_BYTES");
+    expect(researchCall).toHaveBeenCalledTimes(1);
+    expect(out.readSourceUrls).toEqual([]);
+    expect(out.researchReadings).toEqual([]);
+    expect(out.retrievalAttempts?.map(a => a.outcome)).toEqual(["results", "failed"]);
+    expect(out.retrievalAttempts?.every(a => !a.readKey)).toBe(true);
+  });
+
+  it("keeps native MCP image retrieval separate from article text-reading provenance", () => {
+    const metadata = { status: "ok", image_id: "figure-1", access: "image_retrieved", source_urls: [url], text: "A chart caption" };
+    const stream = wire([
+      use("research_image", "figure", { image_id: "figure-1", importance_reason: "Tests the capex claim" }),
+      { type: "user", message: { content: [{ type: "tool_result", tool_use_id: "figure", content: [
+        { type: "text", text: JSON.stringify(metadata) },
+        { type: "image", source: { type: "base64", media_type: "image/png", data: "PRIVATE_IMAGE_BYTES" } }
+      ] }] } },
+      { type: "result", result: '{"answer":"done"}' }
+    ]);
+    const parsed = parseStreamJson(stream);
+    expect([...parsed.searchResultUrls]).toEqual([url]);
+    expect(parsed.readSourceUrls).toEqual([]);
+    expect(parsed.researchReadings).toEqual([]);
+    expect(parsed.retrievalAttempts[0]).toMatchObject({ tool: "research_image", outcome: "results" });
+    expect(parsed.retrievalAttempts[0].readKey).toBeUndefined();
+    expect(JSON.stringify(parsed)).not.toContain("PRIVATE_IMAGE_BYTES");
+    expect(parsed.usage?.webFetchRequests).toBe(1);
+  });
+
+  it("sends all research schemas, executes search/read, keeps complete JSON and records genuine source URLs", async () => {
     vi.stubEnv("FORECAST_SIGNAL_DESK", "1");
     vi.stubEnv("DEEPSEEK_API_KEY", "test");
     let calls = 0;
@@ -154,7 +218,7 @@ describe("OpenAI-compatible research tool loop", () => {
         : { status: "ok", text: "e".repeat(12000), access: "body_verified", source_urls: [url], next_offset: 12000 }
     );
     const out = await runDeepSeekRaw("Research Meta", {}, { fetchFn, researchCall, researchSchemas: schemas });
-    expect(requests[0].tools).toHaveLength(5);
+    expect(requests[0].tools).toHaveLength(RESEARCH_TOOL_NAMES.length);
     expect(requests[0].messages[0].content).toContain("coverage");
     const toolMessage = requests[2].messages.filter((m: any) => m.role === "tool").at(-1);
     expect(JSON.parse(toolMessage.content).text).toHaveLength(12000);
@@ -226,6 +290,15 @@ const verifiedPdf = () =>
   });
 
 describe("strict successfully-read provenance", () => {
+  it("preserves partial PDF reading without upgrading it to complete extraction", () => {
+    const partial = { ...verifiedPdf(), status: "partial", access: "body_partial" };
+    expect(researchReadSourceUrls("signal_desk_pdf", partial)).toEqual([pdfUrl]);
+    expect(researchToolReading("signal_desk_pdf", partial)).toMatchObject({
+      access: "body_partial",
+      pages: [{ page: 4, text_chars: 1300, truncated: true }]
+    });
+    expect(researchReadSourceUrls("signal_desk_pdf", { ...partial, access: "body_verified" })).toEqual([]);
+  });
   it.each(["fetch_page", "signal_desk_read", "signal_desk_pdf"])(
     "accepts %s only with an actual readable response",
     (name) => {

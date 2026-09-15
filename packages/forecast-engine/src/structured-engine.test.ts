@@ -151,27 +151,26 @@ describe("evidence updates and durable replay", () => {
 });
 
 describe("native typed research loop", () => {
-  it("runs multiple rounds with real state persistence, library provenance and a separate explanation", async () => {
+  it("preserves multiple evidence rounds and marks an explicit exhausted budget incomplete", async () => {
     const s = state();
     const library = coverage();
     const privateClaim = claim("private-fact", "meta", 0.4, { sourceUrl: library.readings[0].url, quote: "An investor expects Meta capital spending to decline.", articleId: "private-1", epistemicStatus: "source_opinion" });
     const first = [privateClaim, claim("google-official", "google", -0.3)];
     const second = [claim("meta-countercase", "meta", -0.4)];
-    const runAgentFn = vi.fn().mockResolvedValueOnce(result(proposal(first), [first[1]]))
+    const runAgentFn = vi.fn().mockResolvedValueOnce(result(proposal(first), [first[1]], {readSourceUrls: [privateClaim.sourceUrl]}))
       .mockResolvedValueOnce(result(proposal(second), second)).mockResolvedValueOnce(result(summary));
     const collectLibraryFn = vi.fn().mockResolvedValue(library);
     const output = await runStructuredForecast(s, { maxRounds: 2, runAgentFn, collectLibraryFn });
     expect(output.round).toBe(2);
     expect(output.status).toBe("max_rounds");
-    expect(output.summary).toEqual(summary);
+    expect(output.summary).toBeNull();
     expect(output.expandedLibrary?.usedArticleIds).toEqual(["private-1"]);
     expect(output.evidenceLedger[0].verifiedInSearchTrace).toBe(true);
     expect(output.roundHistory[1].before).toEqual(output.roundHistory[0].after);
     expect(collectLibraryFn).toHaveBeenCalledTimes(1);
-    expect(runAgentFn).toHaveBeenCalledTimes(3);
+    expect(runAgentFn).toHaveBeenCalledTimes(2);
     expect(runAgentFn.mock.calls[0][0]).toContain("MANDATORY EXPANDED RESOURCE LIBRARY");
     expect(runAgentFn.mock.calls[1][0]).toContain("Prioritize the strongest countercase");
-    expect(runAgentFn.mock.calls[2][1].allowedTools).toBe("");
     expect(loadStructuredState(s.eventId)).toEqual(output);
     expect(readdirSync(eventDir(s.eventId))).toEqual(expect.arrayContaining(["round-1-attempt-1.json", "round-2-attempt-1.json", "state.json", "report.md"]));
   });
@@ -180,6 +179,7 @@ describe("native typed research loop", () => {
     const s = state();
     const claims = [claim("meta-1", "meta", 0.4), claim("google-1", "google", -0.4)];
     applyStructuredRound(s, validateStructuredRound(proposal(claims), s.questionSpec), result({}, claims));
+    s.status = "max_rounds";
     const snapshot = JSON.stringify(s);
     const runAgentFn = vi.fn();
     const collectLibraryFn = vi.fn();
@@ -217,7 +217,7 @@ describe("native typed research loop", () => {
       .mockResolvedValueOnce(result(summary));
     await runStructuredForecast(s, { maxRounds: 1, runAgentFn, collectLibraryFn: vi.fn().mockResolvedValue(null) });
     expect(s.evidenceLedger.every(e => e.verifiedInSearchTrace && e.effectiveWeight === 1)).toBe(true);
-    expect(runAgentFn).toHaveBeenCalledTimes(3);
+    expect(runAgentFn).toHaveBeenCalledTimes(2);
     expect(readdirSync(eventDir(s.eventId))).toContain("round-1-attempt-2.json");
   });
 
@@ -228,8 +228,9 @@ describe("native typed research loop", () => {
     batches.forEach(claims => runAgentFn.mockResolvedValueOnce(result(proposal(claims))));
     runAgentFn.mockResolvedValueOnce(result(summary));
     await runStructuredForecast(s, { maxRounds: 3, runAgentFn, collectLibraryFn: vi.fn().mockResolvedValue(null) });
-    expect(s.round).toBe(3);
-    expect(s.status).toBe("max_rounds");
+    expect(s.round).toBe(2);
+    expect(s.status).toBe("insufficient_evidence");
+    expect(s.summary).toBeNull();
     expect(s.answer).toEqual(initialAnswer(s.questionSpec));
     expect(s.evidenceLedger.every(e => e.effectiveWeight === 0)).toBe(true);
   });
@@ -241,7 +242,7 @@ describe("native typed research loop", () => {
     await expect(runStructuredForecast(s,{maxRounds:1,collectLibraryFn,runAgentFn:vi.fn().mockResolvedValue(result({...proposal(claims),confidence:"invalid"},claims))})).rejects.toThrow(/confidence/);
     const repair = vi.fn().mockResolvedValueOnce(result(proposal(claims))).mockResolvedValueOnce(result(summary));
     await runStructuredForecast(s,{maxRounds:1,collectLibraryFn,runAgentFn:repair});
-    expect(repair).toHaveBeenCalledTimes(2);
+    expect(repair).toHaveBeenCalledTimes(1);
     expect(repair.mock.calls.every(call=>call[1].allowedTools === "")).toBe(true);
     expect(s.status).toBe("max_rounds");
     expect(s.error).toBeUndefined();
@@ -255,15 +256,16 @@ describe("native typed research loop", () => {
     const s=state();
     const claims=[claim("meta-done","meta",0.2),claim("google-done","google",-0.2)];
     const collectLibraryFn=vi.fn().mockResolvedValue({...coverage(),required:false,readings:[],queries:[]});
-    const failed=vi.fn().mockResolvedValueOnce(result(proposal(claims),claims)).mockResolvedValue(result({}));
-    await expect(runStructuredForecast(s,{maxRounds:1,collectLibraryFn,runAgentFn:failed})).rejects.toThrow(/verdict/);
+    const failed=vi.fn().mockResolvedValueOnce(result(proposal(claims),claims)).mockResolvedValueOnce(result(proposal([]))).mockResolvedValue(result({}));
+    await expect(runStructuredForecast(s,{maxRounds:2,collectLibraryFn,runAgentFn:failed})).rejects.toThrow(/verdict/);
     const before=structuredClone(s.answer), finish=vi.fn().mockResolvedValue(result(summary));
-    await runStructuredForecast(s,{maxRounds:1,collectLibraryFn,runAgentFn:finish});
+    await runStructuredForecast(s,{maxRounds:2,collectLibraryFn,runAgentFn:finish});
     expect(finish).toHaveBeenCalledTimes(1);
     expect(s.answer).toEqual(before);
-    expect(s.round).toBe(1);
-    expect(s.status).toBe("max_rounds");
+    expect(s.round).toBe(2);
+    expect(s.status).toBe("no_new_info");
     expect(s.summary).toEqual(summary);
+    expect(s.summaryPendingStatus).toBeUndefined();
   });
 
   it("stops after an empty second round without counting duplicate support again", async () => {
@@ -279,14 +281,16 @@ describe("native typed research loop", () => {
     expect(validateStructuredState(s)).toBe(s);
   });
 
-  it("rejects a round that omits a compared company even if the included source is valid", async () => {
+  it("continues research for a missing company and reports insufficient evidence without inventing claims", async () => {
     const s = state();
     const claims = [claim("meta-only", "meta", 0.3)];
     const runAgentFn = vi.fn().mockResolvedValue(result(proposal(claims), claims));
-    await expect(runStructuredForecast(s, { maxRounds: 1, runAgentFn, collectLibraryFn: vi.fn().mockResolvedValue(null) })).rejects.toThrow(/Every ranked entity/);
-    expect(runAgentFn).toHaveBeenCalledTimes(2);
-    expect(s.round).toBe(0);
-    expect(s.status).toBe("aborted");
+    await runStructuredForecast(s, { maxRounds: 0, runAgentFn, collectLibraryFn: vi.fn().mockResolvedValue(null) });
+    expect(runAgentFn).toHaveBeenCalledTimes(3);
+    expect(s.round).toBe(3);
+    expect(s.status).toBe("insufficient_evidence");
+    expect(s.summary).toBeNull();
+    expect(s.evidenceLedger).toHaveLength(1);
   });
 });
 
@@ -308,9 +312,10 @@ describe("question-led research loop", () => {
       order.push("reason"); expect(prompt).not.toContain('"prior":'); expect(prompt).not.toContain("CURRENT ANSWER");
       return result({...proposal(first),research_gaps:[gap]},first);
     }).mockImplementationOnce(async(prompt:string)=>{
-      expect(retrieveGapsFn).toHaveBeenCalledTimes(1); expect(prompt).toContain("A committed credit facility");
+      expect(retrieveGapsFn).toHaveBeenCalledTimes(1); expect(prompt).toContain("Financing terms"); expect(prompt).toContain("textAvailableChars"); expect(prompt).toContain("fetch_page"); expect(prompt).not.toContain("A committed credit facility");
+      expect(s.researchGaps![0].attempts[0].publicReadings[0].text).toContain("A committed credit facility");
       return result(proposal([]));
-    }).mockResolvedValueOnce(result({...proposal([claim("funding","meta",-0.01)]),gap_resolutions:[{id:"funding",reason:"Reviewed facility terms; funding is available, still not a spending commitment.",sourceUrls:["https://example.org/funding"]}]}))
+    }).mockResolvedValueOnce(result({...proposal([claim("funding","meta",-0.01)]),gap_resolutions:[{id:"funding",reason:"Reviewed facility terms; funding is available, still not a spending commitment.",sourceUrls:["https://example.org/funding"]}]},[],{readSourceUrls:["https://example.org/funding"]}))
       .mockResolvedValueOnce(result(summary));
     await runStructuredForecast(s,{maxRounds:4,runAgentFn,collectLibraryFn,retrieveGapsFn});
     expect(order.slice(0,2)).toEqual(["broad","reason"]);
@@ -324,14 +329,14 @@ describe("question-led research loop", () => {
     const runAgentFn=vi.fn().mockResolvedValueOnce(result({...proposal(first),research_gaps:[gap]},first))
       .mockResolvedValueOnce(result(proposal([]))).mockResolvedValueOnce(result(summary));
     await runStructuredForecast(s,{maxRounds:2,runAgentFn,collectLibraryFn:vi.fn().mockResolvedValue(null),retrieveGapsFn:retrieve()});
-    expect(s.status).toBe("max_rounds"); expect(s.summary?.uncertainties.join(" ")).toContain(gap.question);
+    expect(s.status).toBe("max_rounds"); expect(s.summary).toBeNull(); expect(s.researchGaps?.[0].question).toBe(gap.question);
   });
   it("reopens collection when synthesis discovers a material doubt, within the original budget", async()=>{
     const s=state(), first=initial(), retrieveGapsFn=retrieve();
     const runAgentFn=vi.fn().mockResolvedValueOnce(result(proposal(first),first))
       .mockResolvedValueOnce(result(proposal([])))
       .mockResolvedValueOnce(result({...summary,research_gaps:[gap]}))
-      .mockResolvedValueOnce(result({...proposal([]),gap_resolutions:[{id:"funding",reason:"The actual facility terms resolve the cash funding question.",sourceUrls:["https://example.org/funding"]}]}))
+      .mockResolvedValueOnce(result({...proposal([]),gap_resolutions:[{id:"funding",reason:"The actual facility terms resolve the cash funding question.",sourceUrls:["https://example.org/funding"]}]},[],{readSourceUrls:["https://example.org/funding"]}))
       .mockResolvedValueOnce(result(summary));
     await runStructuredForecast(s,{maxRounds:3,runAgentFn,collectLibraryFn:vi.fn().mockResolvedValue(null),retrieveGapsFn});
     expect(retrieveGapsFn).toHaveBeenCalledTimes(1); expect(s.round).toBe(3);
@@ -355,4 +360,12 @@ describe("actual read provenance for closing questions",()=>{
     await expect(runStructuredForecast(s,{maxRounds:2,runAgentFn,collectLibraryFn:vi.fn().mockResolvedValue(null),retrieveGapsFn:vi.fn()})).rejects.toThrow(/absent from actual retrieval/);
     expect(s.researchGaps![0].status).toBe("open");expect(s.status).toBe("aborted");
   });
+});
+
+
+it("accepts traced stable local interview claims without allowing filesystem URLs",()=>{
+  const s=state(), local=claim("local","meta",0.2,{sourceUrl:"raven-local://interview-A"});
+  expect(validateStructuredRound(proposal([local]),s.questionSpec).claims[0].sourceUrl).toBe(local.sourceUrl);
+  expect(()=>validateStructuredRound(proposal([{...local,sourceUrl:"file:///private/interview.md"}]),s.questionSpec)).toThrow(/HTTP/);
+  expect(()=>validateStructuredRound(proposal([{...local,sourceUrl:"raven-local://id/path"}]),s.questionSpec)).toThrow(/HTTP/);
 });

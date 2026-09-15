@@ -8,10 +8,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { withBasePath } from "../base-path";
 import type { AnalystState } from "../server/analyst";
+import type { IncompleteStatus } from "../vm/forecast-status";
 import type { DossierVM } from "../vm/types";
 
 export interface JobInfo {
-  status: "running" | "done" | "error" | "unforecastable";
+  status: "running" | "done" | "error" | "unforecastable" | IncompleteStatus;
   question?: string;
   log: string[];
   startedAtUtc: string;

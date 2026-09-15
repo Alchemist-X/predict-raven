@@ -3,7 +3,7 @@
 // Usage:
 //   ANTHROPIC_BASE_URL=... ANTHROPIC_API_KEY=... \
 //   pnpm forecast:event -- "Will SpaceX land Starship before 2027?" \
-//     [--resolution "..."] [--max-rounds 3] [--model X] [--fresh]
+//     [--resolution "..."] [--max-rounds N] [--model X] [--fresh]
 //
 // Round 0 frames the prompt into a precise binary question (resolution criteria,
 // resolution date, settlement source) before any probability is estimated; an
@@ -24,6 +24,7 @@ import { classifyQuestion, frameStructuredQuestion, validateAnswerRequest } from
 import { loadStructuredState, newStructuredState, runStructuredForecast, saveStructuredState } from "./structured-engine";
 import { researchCommand, researchTools, signalDeskEnabled } from "./research-tools";
 import { expandedLibraryRequired } from "./expanded-library";
+import { incompleteResearch, researchRoundLimit } from "./research-progress";
 
 interface CliArgs {
   question: string;
@@ -64,7 +65,7 @@ function parseArgs(argv: string[]): CliArgs {
   }
   if (resolution && answerRequest.resolution && resolution !== answerRequest.resolution) throw new Error("Conflicting resolution arguments");
   if (resolution) answerRequest.resolution = resolution;
-  if (maxRounds !== undefined && (!Number.isInteger(maxRounds) || maxRounds < 1 || maxRounds > 20)) throw new Error("max-rounds must be an integer from 1 to 20");
+  researchRoundLimit(maxRounds);
   return { question: positional.join(" ").trim(), resolution: resolution ?? (answerRequest.resolution as string | null) ?? null, maxRounds, model, fresh, answerRequest: validateAnswerRequest(answerRequest) };
 }
 
@@ -113,7 +114,8 @@ async function main(): Promise<void> {
       await frameStructuredQuestion(args.question, kind, args.answerRequest, {model: args.model}));
     saveStructuredState(state);
     const result = await runStructuredForecast(state, {maxRounds: args.maxRounds, model: args.model, onLog: console.log});
-    console.log(`FINAL ANSWER: ${answerLabel(result.answer)}`);
+    console.log(`${incompleteResearch(result.status) ? "INCOMPLETE RESEARCH — PROVISIONAL ESTIMATE" : "FINAL ANSWER"}: ${answerLabel(result.answer)}`);
+    if (result.researchBlocker) console.log(`Research incomplete: ${result.researchBlocker}`);
     console.log(JSON.stringify(result.answer));
     console.log(`Status: ${result.status} · Rounds: ${result.round} · Claims: ${result.evidenceLedger.length}`);
     console.log(`Report: ${eventDir(eventId)}/report.md`);
@@ -126,7 +128,6 @@ async function main(): Promise<void> {
     console.log(
       `↻ Resuming forecast \`${eventId}\` (already ran ${state.round} round(s), P(YES)=${pct(state.currentProb)})`
     );
-    state.status = "open";
     if (!state.provider) state.provider = provider;
   } else {
     // Round 0 — frame the prompt before any forecasting.
@@ -184,9 +185,10 @@ async function main(): Promise<void> {
   // The band is an uncalibrated internal heuristic — logged for the audit
   // trail, never presented as a confidence interval (user decision 2026-07-02).
   console.log(
-    `FINAL P(YES) = ${pct(final.currentProb)}  (internal band ${pct(final.credibleInterval[0])} – ${pct(final.credibleInterval[1])})`
+    `${incompleteResearch(final.status) ? "INCOMPLETE RESEARCH — PROVISIONAL P(YES)" : "FINAL P(YES)"} = ${pct(final.currentProb)}  (internal band ${pct(final.credibleInterval[0])} – ${pct(final.credibleInterval[1])})`
   );
   console.log(`Status: ${final.status}  ·  Rounds: ${final.round}  ·  Sources: ${final.evidenceLedger.length}`);
+  if (final.researchBlocker) console.log(`Research incomplete: ${final.researchBlocker}`);
   if (final.summary?.verdict) console.log(`\n${final.summary.verdict}`);
   const totalCost = final.roundHistory.reduce((s, r) => s + (r.costUsd ?? 0), 0);
   if (totalCost > 0) console.log(`Total round cost: $${totalCost.toFixed(3)}`);

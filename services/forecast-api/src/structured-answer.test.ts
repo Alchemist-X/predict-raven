@@ -149,3 +149,30 @@ describe("typed forecast consumers", () => {
     }
   });
 });
+
+describe("incomplete typed forecasts", () => {
+  it.each(["research_failed", "insufficient_evidence", "max_rounds"] as const)(
+    "%s remains incomplete in JSON, reports, and Raven",
+    (status) => {
+      const base = structuredFixture();
+      const state = { ...base, status, researchBlocker: "PDF pages could not be retrieved." } as typeof base;
+      const result = buildAnswer(state.eventId, state, null, "http://localhost");
+      expect(result.status).toBe(status);
+      expect(result.isFinal).toBe(false);
+      expect(result.answer).toBeNull();
+      expect(result.answerLabel).toBeNull();
+      expect(result.verdict).toBeNull();
+      expect(result.workingEstimate?.answer).toEqual(base.answer);
+      expect(result.structured?.evidence).toEqual(base.evidenceLedger);
+      const dossier = adaptState(state, null);
+      expect(dossier.status).toBe(status);
+      expect(dossier.researchBlocker).toContain("PDF pages");
+      expect(dossier.maxRounds).toBe(0);
+      for (const output of [renderText(result), renderHtml(result)]) {
+        expect(output).toContain("not a completed forecast");
+        expect(output).toContain("PDF pages");
+        expect(output).not.toContain("PRIVATE_FULL_BODY");
+      }
+    }
+  );
+});

@@ -9,6 +9,7 @@ import {
   type AnyForecastState,
   type StructuredForecastState
 } from "@autopoly/forecast-engine/answer-types";
+import { completedForecast, isIncompleteStatus } from "../vm/forecast-status";
 import { GTA6_DEMO, GTA6_DEMO_ID } from "../demo/gta6";
 import {
   credWord,
@@ -100,10 +101,11 @@ function toIteration(round: RoundRecord, ledger: LedgerX[], leanYes: boolean): I
   };
 }
 
-function statusFor(state: StateX): DossierStatus {
+export function statusFor(state: {status: string}): DossierStatus {
+  if (isIncompleteStatus(state.status)) return state.status;
   if (state.status === "open") return "running";
   if (state.status === "aborted") return "failed";
-  return "complete";
+  return completedForecast(state.status) ? "complete" : "failed";
 }
 
 function firstSentence(text: string): string {
@@ -129,7 +131,7 @@ export function adaptState(state: AnyForecastState, job: Job | null): DossierVM 
   const nCounter = allEvidence.filter((e) => e.side === "counter").length;
   const nNeutral = allEvidence.filter((e) => e.side === "neutral").length;
 
-  const summary = state.summary;
+  const summary = isIncompleteStatus(state.status) ? null : state.summary;
   const lastRound = state.roundHistory[state.roundHistory.length - 1];
   const confidence = lastRound?.confidence ?? "medium";
 
@@ -198,6 +200,7 @@ export function adaptState(state: AnyForecastState, job: Job | null): DossierVM 
 
   return {
     id: state.eventId,
+    researchBlocker: state.researchBlocker,
     status: statusFor(state),
     meta,
     iterations,
@@ -207,7 +210,7 @@ export function adaptState(state: AnyForecastState, job: Job | null): DossierVM 
     isDemo: false,
     currentProb: state.currentProb,
     priorProb: state.framing.priorProbability,
-    maxRounds: Math.max(job?.maxRounds ?? 3, state.roundHistory.length),
+    maxRounds: job?.maxRounds ?? 0,
     startedAtUtc: state.createdAtUtc,
     summaryParagraphs: summary ? summary.verdict.split(/\n\n+/).filter(Boolean).map(cleanPct) : [],
     researchPlan: state.researchPlan
@@ -232,9 +235,11 @@ export function adaptState(state: AnyForecastState, job: Job | null): DossierVM 
 function adaptStructuredState(state: StructuredForecastState, job: Job | null): DossierVM {
   const spec = state.questionSpec;
   const library = state.expandedLibrary;
+  const summary = isIncompleteStatus(state.status) ? null : state.summary;
   return {
     id: state.eventId,
-    status: state.status === "open" ? "running" : state.status === "aborted" ? "failed" : "complete",
+    researchBlocker: state.researchBlocker,
+    status: statusFor(state),
     meta: {
       question: spec.question,
       prob: answerLabel(state.answer),
@@ -246,9 +251,9 @@ function adaptStructuredState(state: StructuredForecastState, job: Job | null): 
       nSupport: "0",
       nCounter: "0",
       nNeutral: "0",
-      why: state.summary?.verdict ?? "",
+      why: summary?.verdict ?? "",
       confWhy: "",
-      openUnc: state.summary?.uncertainties.join("\n") ?? "",
+      openUnc: summary?.uncertainties.join("\n") ?? "",
       resDate: spec.resolutionDate,
       normQ: spec.question,
       criteria: spec.resolutionCriteria,
@@ -260,7 +265,7 @@ function adaptStructuredState(state: StructuredForecastState, job: Job | null): 
     structured: {
       answer: state.answer,
       questionSpec: spec,
-      summary: state.summary,
+      summary,
       evidence: state.evidenceLedger,
       rounds: state.roundHistory,
       library: library
@@ -282,9 +287,9 @@ function adaptStructuredState(state: StructuredForecastState, job: Job | null): 
     isDemo: false,
     currentProb: null,
     priorProb: null,
-    maxRounds: Math.max(job?.maxRounds ?? 3, state.round),
+    maxRounds: job?.maxRounds ?? 0,
     startedAtUtc: state.createdAtUtc,
-    summaryParagraphs: state.summary?.verdict.split(/\n\n+/).filter(Boolean) ?? [],
+    summaryParagraphs: summary?.verdict.split(/\n\n+/).filter(Boolean) ?? [],
     researchPlan: null
   };
 }
@@ -304,7 +309,7 @@ export function listRuns(): RunListItem[] {
         answerType: s.answer.kind,
         question: s.questionSpec.question,
         prob: answerLabel(s.answer),
-        status: s.status === "open" ? "running" : s.status === "aborted" ? "failed" : "complete",
+        status: statusFor(s),
         sources: new Set(s.evidenceLedger.map((entry) => entry.sourceUrl)).size,
         updatedAtUtc: s.updatedAtUtc,
         verdict: "",
@@ -319,7 +324,7 @@ export function listRuns(): RunListItem[] {
       eventId: s.eventId,
       question: s.framing?.normalizedQuestion || s.eventText,
       prob: pct(s.currentProb),
-      status: s.status === "open" ? "running" : s.status === "aborted" ? "failed" : "complete",
+      status: statusFor(s),
       sources: new Set(
         s.evidenceLedger.flatMap((entry) =>
           entry.sources?.length ? entry.sources.map((source) => source.url) : [entry.url]

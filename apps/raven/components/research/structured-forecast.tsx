@@ -44,9 +44,10 @@ export function StructuredForecast({
         <header>
           <p className="rv-structured-eyebrow">
             {t(S[answer.kind])} ·{" "}
-            {t(S[dossier.status === "running" ? "running" : dossier.status === "failed" ? "failed" : "complete"])}
+            {t(S[dossier.status])}
           </p>
           <h1>{spec.question}</h1>
+          {dossier.status !== "complete" ? <p role="status"><strong>{t(S.workingEstimate)}</strong>{dossier.researchBlocker ? ` · ${dossier.researchBlocker}` : ""}</p> : null}
           <p className="rv-structured-answer">{answerLabel(answer)}</p>
           <p>
             {t(S.sources, { n: dossier.meta.sources })} · {t(S.deadline)}: {spec.resolutionDate}

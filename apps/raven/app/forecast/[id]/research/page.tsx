@@ -36,6 +36,8 @@ import { VerdictDigest } from "../../../../components/research/verdict-digest";
 import { useForecast } from "../../../../lib/client/use-forecast";
 import { useLocale, useT } from "../../../../lib/i18n";
 import { RS } from "../../../../lib/i18n/ui";
+import { STATUS_LABELS } from "../../../../lib/i18n/verdict";
+import { isIncompleteStatus } from "../../../../lib/vm/forecast-status";
 import { GTA6_DEMO, GTA6_DEMO_ID } from "../../../../lib/demo/gta6";
 import type { AnalystStance } from "../../../../lib/server/analyst";
 import { formatElapsed } from "../../../../lib/vm/format";
@@ -83,7 +85,7 @@ export default function ResearchPage() {
 
   const dossier = isDemo ? GTA6_DEMO : (data?.dossier ?? null);
   const job = (data?.job ?? null) as JobX | null;
-  const running = isDemo ? true : job?.status === "running";
+  const running = isDemo ? true : dossier ? dossier.status === "running" : job?.status === "running";
   const framing = !isDemo && running && dossier === null;
 
   const now = useNowTick(running);
@@ -117,9 +119,10 @@ export default function ResearchPage() {
     return buildLiveBlocks(dossier.iterations, running, readingFromJob(job, locale), locale);
   }, [isDemo, dossier, running, job, locale, t]);
 
-  const maxRounds = isDemo ? 3 : Math.max(1, dossier?.maxRounds ?? job?.maxRounds ?? 3);
+  const maxRounds = isDemo ? 3 : (dossier?.maxRounds ?? job?.maxRounds ?? 0);
   const nextRound = nextRoundFor(blocks.length, maxRounds);
   const complete = !isDemo && !running && dossier?.status === "complete";
+  const incomplete = !isDemo && !running && (isIncompleteStatus(dossier?.status) || isIncompleteStatus(job?.status));
   const aborted = !isDemo && !running && (job?.status === "error" || dossier?.status === "failed");
 
   // --- Manus-style plan checklist + progressive reveal ---
@@ -191,14 +194,17 @@ export default function ResearchPage() {
   if (complete && dossier) {
     dockTone = "complete";
     dockLabel = t(RS.dockComplete, { p: dossier.meta.prob });
+  } else if (incomplete) {
+    dockTone = "error";
+    dockLabel = t(RS.dockIncomplete);
   } else if (aborted) {
     dockTone = "error";
     dockLabel = t(RS.dockAborted);
   }
   const dockElapsed = isDemo
     ? demoElapsed(now, demoT0)
-    : running && job
-      ? formatElapsed(job.startedAtUtc, now ?? Date.parse(job.startedAtUtc))
+    : running && startedIso
+      ? formatElapsed(startedIso, now ?? Date.parse(startedIso))
       : null;
 
   // --- header status (pulsing dot + mono text) ---
@@ -208,13 +214,20 @@ export default function ResearchPage() {
   if (isDemo) {
     headerText = t(RS.headerLive, { cur: 2, max: 3, elapsed: demoElapsed(now, demoT0), n: "08" });
     headerLive = true;
-  } else if (running && job) {
-    const cur = Math.min(Math.max(blocks.length, 1), maxRounds);
-    const elapsed = formatElapsed(job.startedAtUtc, now ?? Date.parse(job.startedAtUtc));
-    headerText = t(RS.headerLive, { cur, max: maxRounds, elapsed, n: String(sourcesShown).padStart(2, "0") });
+  } else if (running && startedIso) {
+    const cur = maxRounds === 0 ? Math.max(blocks.length, 1) : Math.min(Math.max(blocks.length, 1), maxRounds);
+    const elapsed = formatElapsed(startedIso, now ?? Date.parse(startedIso));
+    headerText = t(maxRounds === 0 ? RS.headerLiveUnbounded : RS.headerLive, {
+      cur,
+      max: maxRounds,
+      elapsed,
+      n: String(sourcesShown).padStart(2, "0")
+    });
     headerLive = true;
   } else if (dossier && dossier.status === "complete") {
     headerText = t(RS.headerComplete, { dur: dossier.meta.duration, n: dossier.meta.sources.padStart(2, "0") });
+  } else if (incomplete) {
+    headerText = dossier ? t(STATUS_LABELS[dossier.status]).toUpperCase() : t(RS.incompleteTitle);
   } else if (aborted) {
     headerText = t(RS.headerAborted);
   } else if (job?.status === "unforecastable") {
@@ -258,7 +271,9 @@ export default function ResearchPage() {
     ? DEMO_NOW
     : running && dossier
       ? {
-          bold: t(RS.nowRoundBold, { n: Math.min(Math.max(blocks.length, 1), maxRounds) }),
+          bold: t(RS.nowRoundBold, {
+            n: maxRounds === 0 ? Math.max(blocks.length, 1) : Math.min(Math.max(blocks.length, 1), maxRounds)
+          }),
           rest: t(RS.nowRoundRest)
         }
       : null;
@@ -277,8 +292,17 @@ export default function ResearchPage() {
   const markSummary = t(RS.markSummary, { k: ann.keptCount, d: ann.doubtedCount, n: ann.notes.length });
   const leanYes = (dossier?.currentProb ?? dossier?.priorProb ?? 0) >= 0.5;
   const queued = useMemo(
-    () => buildQueued(ann.notes, blocks, dossier?.iterations ?? [], nextRound, complete, leanYes, locale),
-    [ann.notes, blocks, dossier, nextRound, complete, leanYes, locale]
+    () =>
+      buildQueued(
+        ann.notes,
+        blocks,
+        dossier?.iterations ?? [],
+        nextRound,
+        complete || incomplete || aborted,
+        leanYes,
+        locale
+      ),
+    [ann.notes, blocks, dossier, nextRound, complete, incomplete, aborted, leanYes, locale]
   );
 
   const onToggleNote = (evidenceId: string) => {
@@ -325,6 +349,12 @@ export default function ResearchPage() {
           {job.question ? t(RS.vagueBodyQuoted, { q: job.question }) : t(RS.vagueBodyPlain)} {t(RS.vagueBodyTail)}
         </NoticeCard>
       );
+    } else if (incomplete) {
+      notice = (
+        <NoticeCard tone="error" title={t(RS.incompleteTitle)} log={job?.log.slice(-8)}>
+          {t(RS.incompleteBody)}
+        </NoticeCard>
+      );
     } else if (job?.status === "error") {
       notice = (
         <NoticeCard tone="error" title={t(RS.abortedTitle)} log={job.log.slice(-8)}>
@@ -355,12 +385,20 @@ export default function ResearchPage() {
     <RvShell active="research" forecastId={id} showFooter={false} headerRight={headerRight}>
       <IconDefs />
       <div className="rv-research has-dock">
+        {incomplete && (
+          <NoticeCard tone="error" title={dossier ? t(STATUS_LABELS[dossier.status]) : t(RS.incompleteTitle)} inline>
+            {dossier?.researchBlocker ?? t(RS.incompleteBody)}
+          </NoticeCard>
+        )}
         <StatusStrip question={question} now={nowLine} quant={quant} />
         <div className="rvp-grid">
           <div>
             <RavenMessage provider={providerLabel} time={startedAt}>
               <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6, color: "var(--muted)" }}>
-                {t(RS.planIntroA, { n: maxRounds })}
+                {t(
+                  incomplete || aborted ? RS.planIntroStopped : maxRounds === 0 ? RS.planIntroUnbounded : RS.planIntroA,
+                  { n: maxRounds }
+                )}
                 <b style={{ color: "var(--text)" }}>{t(RS.planIntroBold)}</b>
                 {t(RS.planIntroB)}
               </p>
@@ -414,6 +452,7 @@ export default function ResearchPage() {
             markSummary={markSummary}
             nextRound={nextRound}
             complete={complete}
+            stopped={incomplete || aborted}
             composerText={composerText}
             onComposerText={setComposerText}
             stance={stance}
@@ -425,6 +464,7 @@ export default function ResearchPage() {
         </div>
       </div>
       <ProgressDock
+        unbounded={maxRounds === 0}
         tone={dockTone}
         label={dockLabel}
         steps={planSteps}

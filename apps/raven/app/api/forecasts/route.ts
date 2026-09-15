@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { AnswerRequestSchema } from "../../../lib/server/answer-request";
+import { AnswerRequestSchema, MaxRoundsSchema } from "../../../lib/server/answer-request";
 import { z } from "zod";
 import { listRuns } from "../../../lib/server/dossier";
 import { authorizeInviteUse, describeInviteState, ensureSeeded, inviteState } from "../../../lib/server/invites";
@@ -22,7 +22,7 @@ export async function GET() {
 const CreateSchema = z.object({
   answerRequest: AnswerRequestSchema.optional(),
   question: z.string().trim().min(8, "question too short").max(400, "question too long"),
-  maxRounds: z.number().int().min(1).max(6).optional(),
+  maxRounds: MaxRoundsSchema,
   fresh: z.boolean().optional(),
   provider: z.enum(["claude", "deepseek"]).optional(),
   invite: z.string().optional(),

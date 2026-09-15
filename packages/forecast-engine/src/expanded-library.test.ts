@@ -32,7 +32,7 @@ describe("mandatory expanded library use", () => {
     expect(libraryKeywords(["Google Cloud", "revenue", "TPU"])).toEqual(["Google Cloud", "revenue", "TPU"]);
     gateway.callResearchTool.mockResolvedValue({status:"ok",total:0,results:[]});
     await collectExpandedLibrary({searchQueries:[{targetId:"amazon",query:"Amazon capital investments guidance",keywords:["Amazon","capital investments guidance"]}]});
-    expect(gateway.callResearchTool).toHaveBeenCalledWith("signal_desk_search",{keywords:["Amazon","capex"],match:"all",limit:12,scope:"all",offset:0});
+    expect(gateway.callResearchTool).toHaveBeenCalledWith("signal_desk_search",{keywords:["Amazon","capex"],match:"all",limit:null,scope:"all",offset:0});
   });
   it("requires exact quotes and the actually read source URL, while retaining author-opinion status", () => {
     expect(() => validateLibraryUse(coverage(), [libraryClaim()], [])).not.toThrow();
@@ -104,11 +104,11 @@ describe("expanded library retrieval", () => {
   it("reads a different company passage in the same article and accepts either exact quoted segment", async () => {
     gateway.callResearchTool.mockImplementation(async (name: string, args: Record<string, any>) => name === "signal_desk_search"
       ? {status:"ok",total:1,results:[{id:"shared",title:"Comparison",url:"https://example.org/shared",evidence:[{source:"body",read_offset:args.keywords[0] === "Meta" ? 200 : 6000}]}]}
-      : {status:"ok",title:"Comparison",url:"https://example.org/shared",text:args.offset === 0 ? "Meta plans less spending." : "Google plans more spending.",sha256:"digest",content_kind:"article",date:"2026-09-12"});
+      : {status:"ok",title:"Comparison",url:"https://example.org/shared",text:"Meta plans less spending. Google plans more spending.",sha256:"digest",content_kind:"article",date:"2026-09-12"});
     const found = await collectExpandedLibrary({searchQueries:[query,{targetId:"google",query:"Google capex",keywords:["Google","capex"]}]}, undefined, {mode:"focused"});
-    expect(gateway.callResearchTool.mock.calls.filter(call => call[0] === "signal_desk_read").map(call => call[1].offset)).toEqual([0,5800]);
-    expect(() => validateLibraryUse(found,[libraryClaim({articleId:"shared",sourceUrl:"https://example.org/shared",quote:"Meta plans less spending."})],[])).not.toThrow();
-    expect(binaryLibraryUsage(found,[{libraryArticleId:"shared",libraryQuote:"Google plans more spending.",sources:[{url:"https://example.org/shared"}]}],{})).toEqual({usedArticleIds:["shared"],exclusions:[]});
+    expect(gateway.callResearchTool.mock.calls.filter(call => call[0] === "signal_desk_read").map(call => call[1].offset)).toEqual([0]);
+    expect(() => validateLibraryUse(found,[libraryClaim({articleId:"shared",sourceUrl:"https://example.org/shared",quote:"Meta plans less spending."})],[],[],["https://example.org/shared"])).not.toThrow();
+    expect(binaryLibraryUsage(found,[{libraryArticleId:"shared",libraryQuote:"Google plans more spending.",sources:[{url:"https://example.org/shared"}]}],{},["https://example.org/shared"])).toEqual({usedArticleIds:["shared"],exclusions:[]});
   });
 
   it("performs conjunctive multi-keyword searches, reads matched context, and retains quote provenance", async () => {
@@ -118,8 +118,8 @@ describe("expanded library retrieval", () => {
       .mockResolvedValueOnce({ status: "ok", title: "Article", url: "https://example.org/research/1", text: "Capital expenditure context.", sha256: "content-digest", content_kind: "markdown", date: "2026-09-12" });
     const found = await collectExpandedLibrary({ searchQueries: [query] }, undefined, {mode:"focused"});
     expect(gateway.callResearchTool.mock.calls).toEqual([
-      ["signal_desk_search", { keywords: ["Meta", "capex"], match: "all", limit: 6, scope: "all", offset: 0 }],
-      ["signal_desk_read", { article_id: "article-1", offset: 0, max_chars: 8000 }],
+      ["signal_desk_search", { keywords: ["Meta", "capex"], match: "all", limit: null, scope: "all", offset: 0 }],
+      ["signal_desk_read", { article_id: "article-1", offset: 0, max_chars: 0 }],
     ]);
     expect(found?.queries[0]).toMatchObject({ targetId: "meta", status: "ok", total: 3, coverage: { partial: true } });
     expect(found?.readings[0]).toMatchObject({ articleId: "article-1", targetId: "meta", text: "Capital expenditure context.", offset: 0, sha256: "content-digest", apiDate: "2026-09-12" });
@@ -168,4 +168,13 @@ describe("expanded library retrieval", () => {
     expect(await collectExpandedLibrary({ searchQueries: [query] }, undefined, {mode:"focused"})).toBeNull();
     expect(gateway.callResearchTool).not.toHaveBeenCalled();
   });
+});
+
+it("rejects an exact quote copied from an unseen directory until the model reads its source",()=>{
+  const data=coverage();data.modelReadRequired=true;
+  expect(()=>validateLibraryUse(data,[libraryClaim()],[])).toThrow(/actual article/);
+  expect(()=>validateLibraryUse(data,[libraryClaim()],[],[],[data.readings[0].url])).not.toThrow();
+  const binary=[{libraryArticleId:"article-1",libraryQuote:"The capital budget may decline.",sources:[{url:data.readings[0].url}]}];
+  expect(()=>binaryLibraryUsage(data,binary,{})).toThrow(/actual article/);
+  expect(()=>binaryLibraryUsage(data,binary,{},[data.readings[0].url])).not.toThrow();
 });

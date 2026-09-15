@@ -1,3 +1,4 @@
+import type { IncompleteStatus } from "./forecast-status";
 // View-model types for the three Raven screens. Shape mirrors the design
 // handoff's data module (raven-gta6-data.js) so the archived demo dossier and
 // live engine runs render through one code path.
@@ -106,7 +107,7 @@ export interface TopCounter {
   resolution: string; // how the counter-signal was resolved (or why it stands)
 }
 
-export type DossierStatus = "complete" | "running" | "failed" | "unforecastable";
+export type DossierStatus = "complete" | "running" | "failed" | "unforecastable" | IncompleteStatus;
 
 export interface DossierVM {
   structured?: StructuredDossierVM;
@@ -121,7 +122,8 @@ export interface DossierVM {
   // Live-run extras (null for the archived demo)
   currentProb: number | null; // 0..1
   priorProb: number | null; // 0..1
-  maxRounds: number;
+  maxRounds: number; // 0 means no explicit round budget.
+  researchBlocker?: string;
   startedAtUtc: string | null;
   summaryParagraphs: string[]; // narrative paragraphs (may reference [NN] evidence indices)
   researchPlan?: ResearchPlanVM | null;

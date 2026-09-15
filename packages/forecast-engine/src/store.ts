@@ -739,6 +739,9 @@ export function renderReport(state: ForecastState): string {
   const d = REPORT_DICTS[forecastLanguage()];
   const cite = (text: string): string => linkCitations(text, state.evidenceLedger.length);
   return [
+    ...(["research_failed", "insufficient_evidence", "max_rounds", "aborted"].includes(state.status) ? [forecastLanguage() === "zh"
+      ? `> **研究未完成。** ${state.researchBlocker ?? state.status}。下列数值仅为暂存估计，不是完成研究后的结论。`
+      : `> **Research incomplete.** ${state.researchBlocker ?? state.status}. Values below are provisional working estimates, not a completed forecast.`, ""] : []),
     ...renderVerdictBlock(state, d, cite),
     ...renderReaderSections(state, cite),
     ...renderSourceList(state),

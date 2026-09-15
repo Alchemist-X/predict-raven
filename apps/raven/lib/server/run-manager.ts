@@ -10,7 +10,10 @@ import path from "node:path";
 import { QuotaExceededError, tryConsumeQuota } from "./quota";
 import { loadAnyState, makeEventId, readEnvFile, repoRoot } from "./repo";
 
-export type JobStatus = "running" | "done" | "error" | "unforecastable";
+import { finishedJobStatus, type IncompleteStatus } from "../vm/forecast-status";
+import { MaxRoundsSchema } from "./answer-request";
+
+export type JobStatus = "running" | "done" | "error" | "unforecastable" | IncompleteStatus;
 
 export interface Job {
   eventId: string;
@@ -88,6 +91,7 @@ export interface StartOptions {
 const ORPHAN_RUN_FRESH_MS = 10 * 60_000;
 
 export function startForecast(question: string, opts: StartOptions = {}): Job {
+  MaxRoundsSchema.parse(opts.maxRounds);
   const eventId = makeEventId(question, opts.answerRequest);
   const existing = jobs.get(eventId);
   if (existing && existing.status === "running") return existing;
@@ -101,7 +105,7 @@ export function startForecast(question: string, opts: StartOptions = {}): Job {
       code: null,
       log: ["an engine process for this event appears to be running already — reattached instead of respawning"],
       startedAtUtc: onDisk.createdAtUtc,
-      maxRounds: opts.maxRounds && Number.isFinite(opts.maxRounds) ? opts.maxRounds : 3,
+      maxRounds: MaxRoundsSchema.parse(opts.maxRounds),
       provider: (onDisk as { provider?: string }).provider ?? pickProvider(opts.provider)
     };
   }
@@ -114,7 +118,7 @@ export function startForecast(question: string, opts: StartOptions = {}): Job {
   }
 
   const provider = pickProvider(opts.provider);
-  const maxRounds = opts.maxRounds && Number.isFinite(opts.maxRounds) ? opts.maxRounds : 3;
+  const maxRounds = MaxRoundsSchema.parse(opts.maxRounds);
   const root = repoRoot();
   const args = [path.join(root, "scripts/forecast/cli.ts"), question, "--max-rounds", String(maxRounds)];
   if (opts.fresh) args.push("--fresh");
@@ -153,7 +157,10 @@ export function startForecast(question: string, opts: StartOptions = {}): Job {
   });
   child.on("close", (code) => {
     job.code = code;
-    job.status = code === 0 ? "done" : code === 2 ? "unforecastable" : "error";
+    const saved = loadAnyState(eventId);
+    const currentStatus =
+      saved && Date.parse(saved.updatedAtUtc) >= Date.parse(job.startedAtUtc) ? saved.status : undefined;
+    job.status = finishedJobStatus(currentStatus, code);
   });
   return job;
 }

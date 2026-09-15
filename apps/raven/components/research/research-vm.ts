@@ -150,7 +150,7 @@ export function readingFromJob(job: Pick<JobX, "log" | "provider"> | null, local
 }
 
 export function nextRoundFor(shownIterations: number, maxRounds: number): number {
-  return Math.min(shownIterations + 1, Math.max(1, maxRounds));
+  return maxRounds === 0 ? shownIterations + 1 : Math.min(shownIterations + 1, maxRounds);
 }
 
 // --- run plan (Manus-style checklist) ---
@@ -189,7 +189,9 @@ export function buildPlanSteps(args: {
       state: frameActive ? "active" : "done"
     }
   ];
-  const roundCount = running || framing ? Math.max(1, maxRounds) : Math.max(1, blocks.length);
+  const roundCount = running || framing
+    ? maxRounds === 0 ? Math.max(1, blocks.length) : Math.max(1, maxRounds)
+    : blocks.length;
   for (let k = 1; k <= roundCount; k++) {
     const block = blocks[k - 1];
     if (!block) {

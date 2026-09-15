@@ -24,7 +24,9 @@ describe('summary research validation',()=>{
  });
  it('aborts binary completion when summary mixes a new material gap with an invalid resolution',async()=>{
   const s=state();const round={round_summary:'No new evidence',new_claims:[],reflection:[],confidence:'medium',found_new_information:false};
-  const agent=vi.fn().mockResolvedValueOnce(result(round)).mockResolvedValue(result(bad));
+  await runForecast(s,{maxRounds:1,runAgentFn:vi.fn().mockResolvedValue(result(round))});
+  s.status='no_new_info';s.summaryPendingStatus='no_new_info';
+  const agent=vi.fn().mockResolvedValue(result(bad));
   await expect(runForecast(s,{maxRounds:1,runAgentFn:agent})).rejects.toBeInstanceOf(InvalidResearchSummary);
   expect(s.status).toBe('aborted');expect(s.round).toBe(1);expect(s.summary).toBeNull();
  });

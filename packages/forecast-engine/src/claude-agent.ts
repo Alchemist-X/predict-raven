@@ -13,12 +13,14 @@
 
 import { spawn } from "node:child_process";
 import {
+  agentTimeoutMs,
   RESEARCH_MCP_PREFIX,
   RESEARCH_POLICY,
   researchClaudeArgs,
   researchSourceUrls,
   researchReadSourceUrls,
   researchToolReading,
+  researchRetrievalAttempt,
   type ResearchToolReading,
   researchToolNames,
   signalDeskEnabled
@@ -45,6 +47,7 @@ export interface AgentUsage {
 }
 
 export interface AgentRunResult {
+  retrievalAttempts?: import("./research-progress").RetrievalAttempt[];
   rawFinalText: string;
   jsonObject: unknown | null; // first balanced JSON object extracted from the final text
   jsonError: string | null; // set when no JSON object could be extracted
@@ -65,8 +68,6 @@ export interface AgentRunResult {
   exitCode: number;
   stderrTail: string;
 }
-
-const DEFAULT_TIMEOUT_MS = Number(process.env.FORECAST_AGENT_TIMEOUT_MS) || 360_000;
 
 // Collect every URL the agent actually interacted with via a tool, so a cited
 // source can be reconciled against what was really retrieved (fabrication guard).
@@ -168,6 +169,7 @@ export function extractToolUrls(stdout: string): Set<string> {
 }
 
 interface ParsedStreamJson {
+  retrievalAttempts: import("./research-progress").RetrievalAttempt[];
   finalText: string;
   searchQueries: string[];
   searchResultUrls: Set<string>;
@@ -234,6 +236,29 @@ function addUsage(target: AgentUsage, source: AgentUsage): void {
 // Exported for provenance tests. Claude Code's result event is preferred as
 // the authoritative aggregate; assistant-message usage is only a fallback.
 export function parseStreamJson(stdout: string): ParsedStreamJson {
+  const retrievalAttempts: import("./research-progress").RetrievalAttempt[] = [];
+  const retrievalCalls = new Map<string, {name: string; args: Record<string, unknown>; complete: boolean}>();
+  const collectRetrieval = (node: unknown): void => {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) { node.forEach(collectRetrieval); return; }
+    const r = node as Record<string, any>;
+    if (r.type === "tool_use" && typeof r.name === "string" && r.name.startsWith(RESEARCH_MCP_PREFIX) && typeof r.id === "string") {
+      if (!retrievalCalls.has(r.id)) retrievalCalls.set(r.id, {name:r.name.slice(RESEARCH_MCP_PREFIX.length),args:r.input ?? {},complete:false});
+      return;
+    }
+    if (r.type === "tool_result") {
+      const call = retrievalCalls.get(r.tool_use_id);
+      if (!call || call.complete) return;
+      let data: unknown = r.structuredContent;
+      if (!data) for (const block of Array.isArray(r.content) ? r.content : [{text:r.content}]) {
+        try { data = JSON.parse(block.text); break; } catch { /* An unreadable result is a failed retrieval. */ }
+      }
+      retrievalAttempts.push(researchRetrievalAttempt(call.name, call.args, r.is_error ? {error:"MCP tool failed"} : data));
+      call.complete = true;
+      return;
+    }
+    Object.values(r).forEach(collectRetrieval);
+  };
   const queries: string[] = [];
   const urls = new Set<string>();
   const researchIds = new Set<string>();
@@ -264,6 +289,7 @@ export function parseStreamJson(stdout: string): ParsedStreamJson {
       continue;
     }
     const type = obj.type;
+    collectRetrieval(obj);
     collectToolUrlsDeep(obj, urls, researchIds); // tool_use.input.url (WebFetch) + {title,url} (WebSearch)
     collectToolReads(obj, readCalls, readUrls, readings);
     if (type === "system" && obj.subtype === "init") {
@@ -286,13 +312,15 @@ export function parseStreamJson(stdout: string): ParsedStreamJson {
             b.name === RESEARCH_MCP_PREFIX + "web_search" ||
             b.name === RESEARCH_MCP_PREFIX + "signal_desk_search")
         ) {
-          const input = b.input as { query?: unknown } | undefined;
-          if (typeof input?.query === "string") queries.push(input.query);
+          const input = b.input as { query?: unknown; keywords?: unknown } | undefined;
+          const query = input?.query ?? input?.keywords;
+          if (typeof query === "string") queries.push(query);
+          else if (Array.isArray(query)) queries.push(query.join(" "));
         }
         if (
           b.type === "tool_use" &&
           (b.name === "WebFetch" ||
-            ["fetch_page", "signal_desk_read", "signal_desk_pdf"].some((name) => b.name === RESEARCH_MCP_PREFIX + name))
+            ["fetch_page", "signal_desk_read", "signal_desk_pdf", "research_images", "research_image"].some((name) => b.name === RESEARCH_MCP_PREFIX + name))
         )
           observedWebFetchCalls += 1;
         if (b.type === "text" && typeof b.text === "string") {
@@ -322,6 +350,8 @@ export function parseStreamJson(stdout: string): ParsedStreamJson {
   if (!finalText && lastAssistantTexts.length) {
     finalText = lastAssistantTexts[lastAssistantTexts.length - 1] ?? "";
   }
+  for (const call of retrievalCalls.values()) if (!call.complete)
+    retrievalAttempts.push(researchRetrievalAttempt(call.name, call.args, {error:"Tool call has no correlated result"}));
   let usage = resultUsage ?? modelUsage ?? (assistantUsageObserved ? assistantUsage : null);
   // Older Claude Code builds did not put tool counts in the result usage. The
   // actual tool trace is a safe lower-bound fallback and avoids a misleading 0.
@@ -336,6 +366,7 @@ export function parseStreamJson(stdout: string): ParsedStreamJson {
     searchResultUrls: urls,
     readSourceUrls: [...readUrls],
     researchReadings: [...readings.values()],
+    retrievalAttempts,
     costUsd,
     numTurns,
     resolvedModel: assistantModel ?? modelUsageModel ?? systemModel,
@@ -557,6 +588,7 @@ export async function runAgentRaw(prompt: string, opts: RunAgentOptions = {}): P
   const model = opts.model ?? process.env.FORECAST_MODEL ?? "";
   const research = signalDeskEnabled();
   const researchActive = research && researchToolNames(opts.allowedTools).length > 0;
+  const timeoutMs = agentTimeoutMs(opts.timeoutMs);
   const args = [
     "--print",
     "--output-format",
@@ -576,21 +608,24 @@ export async function runAgentRaw(prompt: string, opts: RunAgentOptions = {}): P
     });
     let stdout = "";
     let stderr = "";
-    const timer = setTimeout(() => {
-      child.kill("SIGTERM");
-      reject(new Error(`agent timed out after ${opts.timeoutMs ?? DEFAULT_TIMEOUT_MS}ms`));
-    }, opts.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+    const timer =
+      timeoutMs > 0
+        ? setTimeout(() => {
+            child.kill("SIGTERM");
+            reject(new Error(`agent timed out after ${timeoutMs}ms`));
+          }, timeoutMs)
+        : undefined;
 
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
     child.stdout.on("data", (d) => (stdout += d.toString()));
     child.stderr.on("data", (d) => (stderr += d.toString()));
     child.on("error", (err) => {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
       reject(err);
     });
     child.on("close", (code) => {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
       const parsedStream = parseStreamJson(stdout);
       const jsonObject = extractJsonObject(parsedStream.finalText);
       const jsonError = jsonObject ? null : "no JSON object found in agent final text";
@@ -602,6 +637,7 @@ export async function runAgentRaw(prompt: string, opts: RunAgentOptions = {}): P
         searchResultUrls: parsedStream.searchResultUrls,
         readSourceUrls: parsedStream.readSourceUrls,
         researchReadings: parsedStream.researchReadings,
+        retrievalAttempts: parsedStream.retrievalAttempts,
         costUsd: parsedStream.costUsd,
         resolvedModel: parsedStream.resolvedModel,
         usage: parsedStream.usage ?? undefined,

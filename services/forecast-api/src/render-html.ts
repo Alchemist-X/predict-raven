@@ -73,14 +73,14 @@ function evidenceCard(e: ForecastAnswer["evidence"][number]): string {
 }
 
 export function renderHtml(a: ForecastAnswer): string {
-  if (a.answer && a.structured) {
+  if (a.structured) {
     const sections = structuredSections(a)
       .map(
         (section) =>
           `<section><h2>${escapeHtml(section.title)}</h2>${section.paragraphs.map((paragraph) => `<p style="white-space:pre-wrap;overflow-wrap:anywhere">${escapeHtml(paragraph)}</p>`).join("")}</section>`
       )
       .join("");
-    return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${escapeHtml(a.question)}</title><style>${CSS}</style></head><body><header><div class="brand">Raven Forecasting Engine</div><h1>${escapeHtml(a.normalizedQuestion ?? a.question)}</h1></header><p>Status / 状态: ${escapeHtml(a.status)}${a.status === "running" ? " · provisional / 暂定" : ""}</p>${sections}<footer>id: ${escapeHtml(a.id)} · updated / 更新: ${escapeHtml(a.updatedAtUtc ?? "")}</footer></body></html>`;
+    return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${escapeHtml(a.question)}</title><style>${CSS}</style></head><body><header><div class="brand">Raven Forecasting Engine</div><h1>${escapeHtml(a.normalizedQuestion ?? a.question)}</h1></header><p>Status / 状态: ${escapeHtml(a.status)}${!a.isFinal ? " · incomplete, provisional only / 未完成，仅为暂定记录" : ""}</p>${a.researchBlocker ? `<p>Research blocker / 研究阻碍: ${escapeHtml(a.researchBlocker)}</p>` : ""}${sections}<footer>id: ${escapeHtml(a.id)} · updated / 更新: ${escapeHtml(a.updatedAtUtc ?? "")}</footer></body></html>`;
   }
   const an = a.analysis;
   const generated = new Date().toISOString();
@@ -115,6 +115,9 @@ export function renderHtml(a: ForecastAnswer): string {
   ${a.normalizedQuestion && a.normalizedQuestion !== a.question ? `<div class="asked">Asked as: ${escapeHtml(a.question)}</div>` : ""}
 </header>
 ${statusBadge}
+${!a.isFinal && a.status !== "running" ? "<p>INCOMPLETE — no completed forecast / 未完成，尚无完成预测</p>" : ""}
+${a.researchBlocker ? `<p>Research blocker / 研究阻碍: ${escapeHtml(a.researchBlocker)}</p>` : ""}
+${a.workingEstimate && a.probability === null ? `<p>Working estimate only / 仅为暂定估计: ${escapeHtml(a.workingEstimate.label)}</p>` : ""}
 ${
   a.probability !== null
     ? `<div class="hero"><div class="prob mono">${escapeHtml(a.probabilityPct ?? "")}</div><div><div class="verdict">${escapeHtml(a.verdict ?? "")}</div><div style="font-size:10px;color:#8a7a63">probability the answer is YES</div></div></div>

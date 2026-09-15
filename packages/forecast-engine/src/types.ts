@@ -212,6 +212,7 @@ export interface WhyChanged {
 }
 
 export interface RoundRecord {
+  retrievalAttempts?: import("./research-progress").RetrievalAttempt[];
   round: number;
   ts: string;
   priorProb: number; // MUST equal previous round's postProb (continuity invariant)
@@ -241,6 +242,8 @@ export type ForecastStatus =
   | "max_rounds"
   | "resolved"
   | "aborted"
+  | "research_failed"
+  | "insufficient_evidence"
   // The unclamped posterior crossed PROB_FLOOR/PROB_CEIL: the reported number
   // is the engine's expressible bound, not a settled estimate. Distinct from
   // "converged" so consumers never mistake a pinned artifact for convergence.
@@ -267,6 +270,9 @@ export interface ForecastSummary {
 }
 
 export interface ForecastState {
+  summaryPendingStatus?: "converged" | "no_new_info" | "saturated";
+  researchProgress?: import("./research-progress").ResearchCheckpoint[];
+  researchBlocker?: string;
   readSourceUrls?: string[];
   researchGaps?: import("./research-review").ResearchGap[];
   expandedLibrary?: import("./answer-types").ExpandedLibraryCoverage | null;

@@ -51,6 +51,8 @@ export interface ExpandedLibraryReading {
   extractionWarning?: string;
 }
 export interface ExpandedLibraryCoverage {
+  modelReadRequired?: boolean;
+  inlineSourceUrls?: string[];
   required: boolean;
   searchedAtUtc: string;
   queries: Array<{ targetId: string; query: string; status: string; total: number | null; error?: string; coverage?: unknown;
@@ -62,7 +64,7 @@ export interface ExpandedLibraryCoverage {
   candidates?: Array<{ articleId: string; targetId: string; title: string; url: string; publisher: string;
     bodyIndexed: boolean; contentKind: string; selected: boolean; selectionReason: string; query: string }>;
   collectionAudit?: Array<{ mode: "broad" | "focused"; startedAtUtc: string; completedAtUtc: string;
-    budgets: { maxQueriesPerTarget: number; maxPagesPerQuery: number; candidatesPerPage: number; maxArticlesPerTarget: number; maxPdfArticles: number; maxPdfArticlesPerTarget: number; maxCharsPerRead: number };
+    budgets: { maxQueriesPerTarget: number | null; maxPagesPerQuery: number | null; candidatesPerPage: number | null; maxArticlesPerTarget: number | null; maxPdfArticles: number | null; maxPdfArticlesPerTarget: number | null; maxCharsPerRead: number | null };
     targets: Array<{ targetId: string; queryCount: number; candidateCount: number; readArticleCount: number; pdfAttemptCount: number; pdfReadCount: number;
       coverageExhausted: boolean; limitations: string[] }>; pdfAttemptCount: number; pdfReadCount: number }>;
 }
@@ -90,6 +92,7 @@ export interface StructuredLedgerEntry extends StructuredClaim {
   after: StructuredAnswer;
 }
 export interface StructuredRound {
+  retrievalAttempts?: import("./research-progress").RetrievalAttempt[];
   round: number;
   ts: string;
   before: StructuredAnswer;
@@ -103,6 +106,9 @@ export interface StructuredRound {
   costUsd: number | null;
 }
 export interface StructuredForecastState {
+  summaryPendingStatus?: "converged" | "no_new_info" | "saturated";
+  researchProgress?: import("./research-progress").ResearchCheckpoint[];
+  researchBlocker?: string;
   readSourceUrls?: string[];
   researchGaps?: import("./research-review").ResearchGap[];
   schemaVersion: 2;

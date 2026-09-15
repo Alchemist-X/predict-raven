@@ -10,8 +10,9 @@
 
 import { providerHasWebSearch, runAgent } from "./agent";
 import { expandedLibraryRequired, collectExpandedLibrary, libraryPrompt, binaryLibraryUsage } from "./expanded-library";
+import { assessResearchProgress, incompleteResearch, researchProgressPrompt, researchRoundLimit, roundLimitLabel } from "./research-progress";
 import { validatedCall, object, text } from "./question-spec";
-import { recordModelReads, parseResearchReview, applyResearchReview, retrieveResearchGaps, researchReviewPrompt, materialResearchGaps, researchGapSources } from "./research-review";
+import { recordModelReads, parseResearchReview, applyResearchReview, retrieveResearchGaps, researchReviewPrompt, modelVisibleSourceUrls, assertModelReadSources, researchEvidenceSources, materialResearchGaps, researchGapSources } from "./research-review";
 import { canonicalClaimKey, claimQualityScore, crossCheckWeight, rankClaimSources } from "./claims";
 import { languageDirective } from "./language";
 import {
@@ -32,7 +33,7 @@ import { defaultResearchPlan } from "./research-plan";
 import { validateRoundOutput } from "./claude-agent";
 import type { AgentRunResult, AgentUsage, RunAgentOptions } from "./claude-agent";
 import { loadAnalyst, saveAnalyst, saveState, writeDiagnostic, writeReport } from "./store";
-import { InvalidResearchSummary, summarizeForecast } from "./summary";
+import { summarizeForecast } from "./summary";
 import { canonicalizeUrl } from "./url";
 import type {
   AgentRoundOutput,
@@ -159,7 +160,7 @@ ${sourceRanking}
 Search strategy: ${plan.searchStrategy}
 
 CURRENT ESTIMATE (this is your PRIOR for this round): P(YES) = ${(state.currentProb * 100).toFixed(1)}%
-ROUND: ${roundNo} of ${maxRounds}
+ROUND: ${roundNo} of ${roundLimitLabel(maxRounds)}
 
 CLAIMS ALREADY COUNTED IN PREVIOUS ROUNDS — do not count the same factual claim again under a new URL. Reuse the listed claim id when research revises it:
 ${counted}
@@ -221,6 +222,7 @@ OUTPUT FORMAT: Respond with ONLY a single JSON object — no prose before or aft
 }
 If you genuinely found no new relevant information this round, return an empty new_claims array, an empty reflection array, and set found_new_information to false.
 ${libraryPrompt(state.expandedLibrary)}
+${researchProgressPrompt(state)}
 ${researchReviewPrompt(state)}
 When using a pre-read library source in new_claims, include library_article_id and library_quote (an exact short original quote) and its URL in sources. Add a top-level library_exclusions:[{articleId,reason}] for each read article not relevant enough to use. Previous usage/exclusions remain valid.
 ${marketBlindDirective()}${languageDirective()}`;
@@ -285,6 +287,7 @@ function mergeAttempts(first: AgentRunResult, retry: AgentRunResult): AgentRunRe
     searchResultUrls: new Set([...first.searchResultUrls, ...retry.searchResultUrls]),
     readSourceUrls:[...new Set([...(first.readSourceUrls ?? []), ...(retry.readSourceUrls ?? [])])],
     researchReadings:[...(first.researchReadings ?? []), ...(retry.researchReadings ?? [])],
+    retrievalAttempts:[...(first.retrievalAttempts ?? []), ...(retry.retrievalAttempts ?? [])],
     costUsd: first.costUsd === null || retry.costUsd === null ? null : first.costUsd + retry.costUsd,
     usage,
     numTurns: first.numTurns === null || retry.numTurns === null ? null : first.numTurns + retry.numTurns
@@ -322,11 +325,13 @@ async function runOneRound(
   let lastValidationError = "";
   const validate = (r: AgentRunResult): AgentRoundOutput | null => {
     try {
+      if (r.exitCode !== 0) throw new Error(`provider failed with exit code ${r.exitCode}: ${r.stderrTail}`);
       recordModelReads(state, r);
       const out = validateRoundOutput(r.jsonObject);
-      binaryLibraryUsage(state.expandedLibrary, out.newClaims, r.jsonObject);
+      assertModelReadSources(state, out.newClaims.flatMap(claim => claim.sources.map(source => source.url)));
+      binaryLibraryUsage(state.expandedLibrary, out.newClaims, r.jsonObject, modelVisibleSourceUrls(state));
       applyResearchReview({researchGaps:state.researchGaps}, parseResearchReview(r.jsonObject, ["question"]), roundNo,
-        [...(state.readSourceUrls ?? []), ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(read => read.url) ?? [])]);
+        modelVisibleSourceUrls(state));
       return out;
     } catch (error) {
       lastValidationError = validationError(r, error);
@@ -366,13 +371,11 @@ async function runOneRound(
   // Canonical set of URLs the agent's searches actually returned (for the
   // fabricated-citation guard).
   const traceCanonical = new Set<string>();
-  for (const u of result.searchResultUrls) traceCanonical.add(canonicalizeUrl(u));
-  for (const reading of state.expandedLibrary?.readings ?? []) traceCanonical.add(canonicalizeUrl(reading.url));
-  for (const source of researchGapSources(state)) traceCanonical.add(canonicalizeUrl(source));
+  for (const u of researchEvidenceSources(state, result.searchResultUrls)) traceCanonical.add(canonicalizeUrl(u));
   const review = parseResearchReview(result.jsonObject, ["question"]);
   if (state.researchGaps || review.researchGaps.length || review.gapResolutions.length) applyResearchReview(state, review, roundNo,
-    [...(state.readSourceUrls ?? []), ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(read => read.url) ?? [])]);
-  const libraryUsage = binaryLibraryUsage(state.expandedLibrary, out.newClaims, result.jsonObject);
+    modelVisibleSourceUrls(state));
+  const libraryUsage = binaryLibraryUsage(state.expandedLibrary, out.newClaims, result.jsonObject, modelVisibleSourceUrls(state));
   if (state.expandedLibrary && libraryUsage) Object.assign(state.expandedLibrary, libraryUsage);
 
   // The probability unit is an atomic CLAIM. A page may support several
@@ -702,6 +705,7 @@ async function runOneRound(
     confidence: out.confidence,
     reasoning: out.round_summary + (out.notes ? `  Notes: ${out.notes}` : ""),
     searchQueries: result.searchQueries,
+    retrievalAttempts: result.retrievalAttempts,
     searchResultUrlCount: result.searchResultUrls.size,
     costUsd: result.costUsd,
     ...(result.usage ? { usage: result.usage } : {})
@@ -733,10 +737,17 @@ async function runOneRound(
 }
 
 export async function runForecast(state: ForecastState, opts: RunForecastOptions = {}): Promise<ForecastState> {
-  // Default 3: across a varied batch, round 1 does the bulk of the prior→evidence
-  // correction and rounds beyond 3 moved <2pp (or oscillated without converging),
-  // so 3 captures ~all the signal at ~1/2 the cost of higher caps.
-  const maxRounds = opts.maxRounds ?? (Number(process.env.FORECAST_MAX_ROUNDS) || 3);
+  const maxRounds = researchRoundLimit(opts.maxRounds);
+  const pendingSummary = state.summaryPendingStatus;
+  if (!pendingSummary && state.round >= maxRounds && state.status !== "aborted") {
+    if (state.status === "open") {
+      state.status = "max_rounds"; state.summary = null;
+      state.researchBlocker = "Research was interrupted at the explicit round budget before completion was recorded.";
+      saveState(state); writeReport(state);
+    }
+    return state;
+  }
+  state.status = pendingSummary ?? "open";
   const epsilon = opts.convergenceEpsilon ?? 0.01;
   // A single round with offsetting evidence can net ~0pp; before minRounds have
   // run, that is treated as "balanced so far", not convergence — the next
@@ -746,7 +757,7 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
   const minRounds = opts.minRounds ?? (Number(process.env.FORECAST_MIN_ROUNDS) || Math.min(2, maxRounds));
   const log = opts.onLog ?? (() => {});
 
-  if (expandedLibraryRequired() && state.round < maxRounds && !state.expandedLibrary) {
+  if (!pendingSummary && expandedLibraryRequired() && state.round < maxRounds && !state.expandedLibrary) {
     const queries = await validatedCall(`Return concise keyword searches for the expanded resource library for this binary investment question: ${state.eventText}. Each query uses a company and metric, not a full sentence. JSON only: {"queries":[{"query":"public query","keywords":["company","metric"]}]}`, raw => {
       const rows = object(raw).queries;
       if (!Array.isArray(rows) || !rows.length || rows.length > 4) throw new Error("Provide 1–4 research queries");
@@ -757,14 +768,15 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
   }
   const startRound = state.round + 1;
   let roundsRan = 0;
-  for (let roundNo = startRound; roundNo <= maxRounds; roundNo++) {
+  for (let roundNo = startRound; !pendingSummary && roundNo <= maxRounds; roundNo++) {
     if (materialResearchGaps(state).length) { await retrieveResearchGaps(state, roundNo, log); saveState(state); }
-    log(`\n▶ Round ${roundNo}/${maxRounds} — prior P(YES) = ${(state.currentProb * 100).toFixed(1)}%`);
+    log(`\n▶ Round ${roundNo}/${roundLimitLabel(maxRounds)} — prior P(YES) = ${(state.currentProb * 100).toFixed(1)}%`);
     let record: RoundRecord;
     try {
       record = await runOneRound(state, roundNo, maxRounds, opts);
     } catch (err) {
       state.status = "aborted";
+      state.summary = null;
       state.updatedAtUtc = nowUtc();
       saveState(state);
       writeReport(state);
@@ -787,7 +799,18 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
 
     // Stop conditions.
     const plannedMinimum = state.researchPlan?.minimumSearchQueries ?? 0;
-    const searchBreadthMet = !providerHasWebSearch() || record.searchQueries.length >= plannedMinimum;
+    const checkpoint = assessResearchProgress(state, record, {round:roundNo,
+      evidenceCount:state.evidenceLedger.filter(e => e.kind === "evidence" && e.verifiedInSearchTrace && !e.excluded).length,
+      covered:true, openGapCount:materialResearchGaps(state).length,
+      newClaimCount:state.evidenceLedger.filter(e => e.firstSeenRound === roundNo && e.kind === "evidence" && e.verifiedInSearchTrace && !e.excluded).length,
+      minimumQueries:plannedMinimum});
+    const searchBreadthMet = checkpoint.status === "ready";
+    if (checkpoint.status === "research_failed" || checkpoint.status === "insufficient_evidence") {
+      state.status = checkpoint.status;
+      state.summary = null;
+      log(`  ■ ${state.status}: ${checkpoint.reason}`);
+      break;
+    }
     if (!searchBreadthMet) {
       log(
         `  ⚠ search breadth ${record.searchQueries.length}/${plannedMinimum}; another round should cover unresolved Focus Center items.`
@@ -795,7 +818,7 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
     }
     const unresolved = materialResearchGaps(state);
     if (unresolved.length) log(`  ↻ ${unresolved.length} material research questions remain; small probability movement is insufficient to stop.`);
-    if (!unresolved.length && (record.newClaimCount ?? record.newSourceCount) === 0 && record.reflectionCount === 0) {
+    if (searchBreadthMet && !unresolved.length && (record.newClaimCount ?? record.newSourceCount) === 0 && record.reflectionCount === 0) {
       if (roundNo < minRounds && roundNo < maxRounds) {
         log(`  ↻ no accepted claim yet, but the minimum research depth is ${minRounds} rounds — continuing.`);
         continue;
@@ -822,13 +845,13 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
     }
     if (roundNo >= maxRounds) {
       state.status = "max_rounds";
+      state.researchBlocker = checkpoint.reason || "Explicit research-round budget exhausted; research is incomplete.";
       log(`  ■ reached max rounds — stopping.`);
     }
   }
 
   // A resume with no rounds left (state.round already >= maxRounds) must not be
-  // left "open" — the CLI resets status on resume, and an open state reads as
-  // "still running" to every consumer forever.
+  // left "open", which every consumer would read as "still running".
   if (state.status === "open" && roundsRan === 0) {
     state.status = "max_rounds";
     log(`  ■ already at ${state.round}/${maxRounds} rounds — nothing to do.`);
@@ -837,24 +860,29 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
   // Final whole-forecast synthesis (explains the number; never re-decides it).
   // Skipped when no new round ran and a summary already exists (a no-op resume
   // must not re-spend an LLM call rewriting the same summary).
-  if (state.roundHistory.length > 0 && state.status !== "aborted" && (roundsRan > 0 || !state.summary)) {
+  if (state.roundHistory.length > 0 && !incompleteResearch(state.status) && (pendingSummary || roundsRan > 0 || !state.summary)) {
     log(`\n▶ Writing final summary…`);
+    state.summaryPendingStatus = state.status === "saturated" ? "saturated" : state.status === "converged" ? "converged" : "no_new_info";
+    state.status = "open"; state.summary = null;
+    saveState(state);
     try {
       const proposed = await summarizeForecast(state, { model: opts.model, runAgentFn: opts.runAgentFn });
       if (proposed.researchFollowup) applyResearchReview(state, proposed.researchFollowup, state.round,
-        [...(state.readSourceUrls ?? []), ...researchGapSources(state), ...(state.expandedLibrary?.readings.map(r => r.url) ?? [])]);
+        modelVisibleSourceUrls(state));
       state.summary = proposed;
+      state.status = state.summaryPendingStatus!;
+      delete state.summaryPendingStatus;
+      delete state.researchBlocker;
       const gaps = materialResearchGaps(state);
       if (gaps.length) state.summary.mainUncertainties += "\n" + gaps.map(g => `尚未解决：${g.question}；${g.whyMaterial}；已执行 ${g.attempts.length} 次定向补搜。`).join("\n");
     } catch (err) {
-      if (err instanceof InvalidResearchSummary) {
-        state.status = "aborted"; state.updatedAtUtc = nowUtc(); saveState(state); writeReport(state); throw err;
-      }
-      log(`  ⚠ summary generation failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
+      state.status = "aborted"; state.summary = null; state.updatedAtUtc = nowUtc();
+      state.researchBlocker = `Summary generation failed: ${err instanceof Error ? err.message : String(err)}`;
+      saveState(state); writeReport(state); throw err;
     }
   }
 
-  if (materialResearchGaps(state).length && state.status !== "aborted") {
+  if (materialResearchGaps(state).length && !incompleteResearch(state.status)) {
     state.status = state.round < maxRounds ? "open" : "max_rounds";
     if (state.round < maxRounds) {
       saveState(state); writeReport(state);
@@ -863,6 +891,7 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
     }
   }
   state.updatedAtUtc = nowUtc();
+  if (incompleteResearch(state.status)) state.summary = null;
   saveState(state);
   writeReport(state);
   return state;

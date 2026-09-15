@@ -12,8 +12,9 @@ import {
   type StructuredForecastState
 } from "@autopoly/forecast-engine/answer-types";
 import type { Job } from "./run-manager";
+import { completedForecast, isIncompleteStatus, type IncompleteStatus } from "./forecast-status";
 
-export type AnswerStatus = "running" | "done" | "unforecastable" | "error" | "aborted";
+export type AnswerStatus = "running" | "done" | "unforecastable" | "error" | "aborted" | IncompleteStatus;
 
 export interface EvidenceItem {
   n: number;
@@ -47,6 +48,14 @@ export interface ForecastAnswer {
   structured: StructuredDetails | null;
   id: string;
   status: AnswerStatus;
+  isFinal: boolean;
+  researchBlocker: string | null;
+  workingEstimate: {
+    provisional: true;
+    answer: StructuredAnswer | null;
+    probability: number | null;
+    label: string;
+  } | null;
   question: string;
   normalizedQuestion: string | null;
   probability: number | null;
@@ -124,12 +133,18 @@ export function answerStatus(
     if (job && Number.isFinite(jobStart) && jobStart > stateUpdated && job.status !== "done") {
       return job.status;
     }
-    return state.status === "aborted" ? "aborted" : "done";
+    return isIncompleteStatus(state.status)
+      ? state.status
+      : state.status === "aborted"
+        ? "aborted"
+        : completedForecast(state.status)
+          ? "done"
+          : "error";
   }
 
   // state is "open": someone is (or was) mid-run.
   if (job?.status === "running") return "running";
-  if (job && (job.status === "error" || job.status === "unforecastable")) {
+  if (job && job.status !== "done") {
     // State writes newer than our job's end mean another container owns the
     // run now — don't let our dead job shadow it.
     const jobEnd = job.endedAtUtc ? Date.parse(job.endedAtUtc) : jobStart;
@@ -185,20 +200,35 @@ export function buildAnswer(
 ): ForecastAnswer {
   const status = answerStatus(state, job, stateMtime);
   const lastRound = state?.roundHistory[state.roundHistory.length - 1] ?? null;
-  const showJobLog = status === "error" || status === "unforecastable";
+  const publish = status === "done" || status === "running";
+  const showJobLog = !publish;
+  const outcome = {
+    isFinal: status === "done",
+    researchBlocker: state?.researchBlocker ?? null,
+    workingEstimate:
+      state && status !== "done"
+        ? {
+            provisional: true as const,
+            answer: isStructuredForecast(state) ? state.answer : null,
+            probability: isStructuredForecast(state) ? null : state.currentProb,
+            label: isStructuredForecast(state) ? answerLabel(state.answer) : pct(state.currentProb)
+          }
+        : null
+  };
   if (isStructuredForecast(state)) {
     const library = state.expandedLibrary;
     return {
       id,
       status,
+      ...outcome,
       question: state.eventText,
       normalizedQuestion: state.questionSpec.question,
       answerType: state.answer.kind,
-      answer: state.answer,
-      answerLabel: answerLabel(state.answer),
+      answer: publish ? state.answer : null,
+      answerLabel: publish ? answerLabel(state.answer) : null,
       structured: {
         questionSpec: state.questionSpec,
-        summary: state.summary,
+        summary: publish ? state.summary : null,
         evidence: state.evidenceLedger,
         rounds: state.roundHistory,
         library: library
@@ -210,14 +240,16 @@ export function buildAnswer(
               gaps: library.queries
                 .filter((query) => query.error || query.status !== "ok")
                 .map((query) => `${query.targetId}: ${query.error ?? query.status}`)
-                .concat((library.readingErrors ?? []).map(read => `${read.targetId}: ${read.articleId}: ${read.error}`))
+                .concat(
+                  (library.readingErrors ?? []).map((read) => `${read.targetId}: ${read.articleId}: ${read.error}`)
+                )
             }
           : null
       },
       probability: null,
       probabilityPct: null,
-      verdict: state.summary?.verdict ?? null,
-      confidence: lastRound?.confidence ?? null,
+      verdict: publish ? (state.summary?.verdict ?? null) : null,
+      confidence: publish ? (lastRound?.confidence ?? null) : null,
       analysis: null,
       framing: {
         resolutionCriteria: state.questionSpec.resolutionCriteria,
@@ -241,20 +273,21 @@ export function buildAnswer(
   return {
     answerType: state ? "binary" : null,
     answer: null,
-    answerLabel: state ? pct(state.currentProb) : null,
+    answerLabel: state && publish ? pct(state.currentProb) : null,
     structured: null,
     id,
     status,
+    ...outcome,
     question: state?.eventText ?? job?.question ?? "",
     normalizedQuestion: state?.framing.normalizedQuestion ?? null,
-    probability: state ? state.currentProb : null,
-    probabilityPct: state ? pct(state.currentProb) : null,
-    verdict: state ? verdictFor(state.currentProb) : null,
-    confidence: lastRound?.confidence ?? null,
+    probability: state && publish ? state.currentProb : null,
+    probabilityPct: state && publish ? pct(state.currentProb) : null,
+    verdict: state && publish ? verdictFor(state.currentProb) : null,
+    confidence: publish ? (lastRound?.confidence ?? null) : null,
     analysis: state
       ? {
-          whySentence: state.summary?.whySentence ?? null,
-          verdict: state.summary?.verdict ?? null,
+          whySentence: publish ? (state.summary?.whySentence ?? null) : null,
+          verdict: publish ? (state.summary?.verdict ?? null) : null,
           keyFactorsYes: state.summary?.keyFactorsYes ?? [],
           keyFactorsNo: state.summary?.keyFactorsNo ?? [],
           mainUncertainties: state.summary?.mainUncertainties ?? null,

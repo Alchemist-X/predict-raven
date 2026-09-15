@@ -1,6 +1,9 @@
 // Boundary validation for explicit answer contracts; omitted fields are inferred.
 import { z } from "zod";
 
+// Zero or omission means no round budget; positive integers are explicit limits.
+export const MaxRoundsSchema = z.number().int().min(0).default(0);
+
 export const AnswerRequestSchema = z
   .object({
     answerType: z.enum(["auto", "binary", "categorical", "numeric", "independent_ranking"]).optional(),

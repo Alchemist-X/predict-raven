@@ -8,8 +8,8 @@ export interface ReportSection {
 
 // Shared content for text and PDF: one typed result, identical evidence and scope.
 export function structuredSections(a: ForecastAnswer): ReportSection[] {
-  if (!a.answer || !a.structured) return [];
-  const result = a.answer;
+  if ((!a.answer && !a.workingEstimate?.answer) || !a.structured) return [];
+  const result = (a.answer ?? a.workingEstimate?.answer)!;
   const detail = a.structured;
   const sections: ReportSection[] = [];
   const values =
@@ -31,7 +31,7 @@ export function structuredSections(a: ForecastAnswer): ReportSection[] {
               ]
             : [])
         ];
-  sections.push({ title: "Answer / 预测结果", paragraphs: values });
+  sections.push({ title: a.isFinal ? "Answer / 预测结果" : "Working estimate, not a completed forecast / 暂定估计，尚非完成预测", paragraphs: values });
   if (detail.summary) {
     sections.push({ title: "Analysis / 分析", paragraphs: [detail.summary.verdict] });
     if (detail.summary.keyFindings.length)

@@ -41,9 +41,11 @@ export function ProgressDock({
   label,
   steps,
   ctaHref,
-  elapsed
+  elapsed,
+  unbounded = false
 }: {
   tone: DockTone;
+  unbounded?: boolean;
   label: string;
   steps: readonly PlanStepVM[];
   ctaHref: string | null; // dossier link, shown when the run is complete
@@ -82,7 +84,7 @@ export function ProgressDock({
           <span style={{ fontFamily: "var(--fm)", fontSize: 10, color: "var(--faint)", flex: "none" }}>{elapsed}</span>
         )}
         <span style={{ fontFamily: "var(--fm)", fontSize: 10, color: "var(--faint)", flex: "none" }}>
-          {stepNo} / {steps.length}
+          {unbounded && tone === "live" ? t(RS.dockStep, { n: stepNo }) : `${stepNo} / ${steps.length}`}
         </span>
         {tone === "complete" && ctaHref && (
           <Link
