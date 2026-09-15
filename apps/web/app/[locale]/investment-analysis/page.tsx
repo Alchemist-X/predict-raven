@@ -39,6 +39,15 @@ const CASES: ReadonlyArray<CaseStudy> = [
     summaryKey: "iaMetaCapexSummary",
     signalLabelKey: "iaMetaCapexSignalLabel",
     signalKey: "iaMetaCapexSignal"
+  },
+  {
+    slug: "openai-gpt6-sol",
+    index: "04",
+    companyKey: "iaOpenaiCompany",
+    titleKey: "iaOpenaiTitle",
+    summaryKey: "iaOpenaiSummary",
+    signalLabelKey: "iaOpenaiSignalLabel",
+    signalKey: "iaOpenaiSignal"
   }
 ];
 
@@ -62,7 +71,7 @@ export default async function InvestmentAnalysisPage({ params }: { params: Promi
         </div>
         <div className={styles.metaItem}>
           <span>{t(locale, "iaAsOfLabel")}</span>
-          <strong>2026-09-06</strong>
+          <strong>2026-09-15</strong>
         </div>
       </section>
 
