@@ -53,9 +53,15 @@ function parseArgs(argv: string[]): CliArgs {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--") continue;
-    if (a === "--resume-event") resumeEvent = argv[++i];
-    else if (a === "--feedback-file") feedbackFile = argv[++i];
-    else if (a === "--additional-rounds") additionalRounds = Number(argv[++i]);
+    const requiredValue = () => {
+      const value = argv[i + 1];
+      if (!value || value.startsWith("--")) throw new Error(`${a} requires a value`);
+      i += 1;
+      return value;
+    };
+    if (a === "--resume-event") resumeEvent = requiredValue();
+    else if (a === "--feedback-file") feedbackFile = requiredValue();
+    else if (a === "--additional-rounds") additionalRounds = Number(requiredValue());
     else if (a === "--resolution") resolution = argv[++i] ?? null;
     else if (a === "--max-rounds") maxRounds = Number(argv[++i]);
     else if (a === "--model") model = argv[++i];

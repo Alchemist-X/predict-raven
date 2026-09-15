@@ -20,6 +20,10 @@ describe("CLI continuation boundary",()=>{
     const result=run(["--resume-event","existing","--additional-rounds","2",...extra]);
     expect(result.code).toBe(1);expect(result.output).toContain("cannot change the saved question");expect(result.output).not.toContain("provider:");
   });
+  it.each(["--resume-event", "--feedback-file", "--additional-rounds"])("rejects a missing value for %s before loading state",(flag)=>{
+    const result=run(["--resume-event","existing","--additional-rounds","2",flag]);
+    expect(result.code).toBe(1);expect(result.output).toContain(`${flag} requires a value`);expect(result.output).not.toContain("provider:");
+  });
   it("requires an explicit additional round budget",()=>{
     expect(run(["--resume-event","existing"]).output).toContain("requires --additional-rounds");
   });
