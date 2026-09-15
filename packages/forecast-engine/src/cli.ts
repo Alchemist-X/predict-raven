@@ -1,3 +1,6 @@
+import path from "node:path";
+import { acquireRunLock } from "./run-lock";
+import { prepareResume } from "./resume";
 // CLI entry: preserve binary, categorical, numeric and independent-ranking answers.
 //
 // Usage:
@@ -27,6 +30,9 @@ import { expandedLibraryRequired } from "./expanded-library";
 import { incompleteResearch, researchRoundLimit } from "./research-progress";
 
 interface CliArgs {
+  resumeEvent?: string;
+  feedbackFile?: string;
+  additionalRounds?: number;
   question: string;
   resolution: string | null;
   maxRounds: number | undefined;
@@ -41,11 +47,16 @@ function parseArgs(argv: string[]): CliArgs {
   let maxRounds: number | undefined;
   let model: string | undefined;
   let fresh = false;
+  let resumeEvent: string | undefined, feedbackFile: string | undefined, additionalRounds: number | undefined;
   let answerRequest: Record<string, unknown> = {};
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === "--resolution") resolution = argv[++i] ?? null;
+    if (a === "--") continue;
+    if (a === "--resume-event") resumeEvent = argv[++i];
+    else if (a === "--feedback-file") feedbackFile = argv[++i];
+    else if (a === "--additional-rounds") additionalRounds = Number(argv[++i]);
+    else if (a === "--resolution") resolution = argv[++i] ?? null;
     else if (a === "--max-rounds") maxRounds = Number(argv[++i]);
     else if (a === "--model") model = argv[++i];
     else if (a === "--question") positional.push(argv[++i] ?? "");
@@ -60,19 +71,24 @@ function parseArgs(argv: string[]): CliArgs {
     else if (a === "--minimum") answerRequest.minimum = Number(argv[++i]);
     else if (a === "--maximum") answerRequest.maximum = Number(argv[++i]);
     else if (a.startsWith("--")) {
-      /* ignore unknown flags */
+      throw new Error(`Unknown argument: ${a}`);
     } else positional.push(a);
   }
   if (resolution && answerRequest.resolution && resolution !== answerRequest.resolution) throw new Error("Conflicting resolution arguments");
   if (resolution) answerRequest.resolution = resolution;
   researchRoundLimit(maxRounds);
-  return { question: positional.join(" ").trim(), resolution: resolution ?? (answerRequest.resolution as string | null) ?? null, maxRounds, model, fresh, answerRequest: validateAnswerRequest(answerRequest) };
+  if (resumeEvent && (fresh || positional.length || resolution || maxRounds !== undefined || Object.keys(answerRequest).length)) throw new Error("--resume-event cannot change the saved question, resolution or answer type, or use --fresh/--max-rounds; use --additional-rounds");
+  if (!resumeEvent && (feedbackFile || additionalRounds !== undefined)) throw new Error("Feedback and additional rounds require --resume-event");
+  if (resumeEvent && (!Number.isSafeInteger(additionalRounds) || (additionalRounds ?? 0) <= 0)) throw new Error("Resume requires --additional-rounds with a positive integer");
+  return { resumeEvent, feedbackFile, additionalRounds, question: positional.join(" ").trim(), resolution: resolution ?? (answerRequest.resolution as string | null) ?? null, maxRounds, model, fresh, answerRequest: validateAnswerRequest(answerRequest) };
 }
 
 const pct = (p: number): string => `${(p * 100).toFixed(1)}%`;
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
+  const resumed = args.resumeEvent ? prepareResume({eventId:args.resumeEvent, feedbackFile:args.feedbackFile, additionalRounds:args.additionalRounds!}) : null;
+  if (resumed) { args.question = resumed.state.eventText; args.maxRounds = resumed.maxRounds; }
   if (!args.question) {
     console.error(
       'Usage: pnpm forecast:event -- "<event prompt>" [--resolution ...] [--max-rounds N] [--model X] [--fresh]'
@@ -104,7 +120,9 @@ async function main(): Promise<void> {
       : "cli-login";
   console.log(`provider: ${provider}${provider === "claude" ? ` (auth: ${claudeAuth})` : ""}`);
 
-  const eventId = makeEventId(args.question, args.answerRequest);
+  const eventId = args.resumeEvent ?? makeEventId(args.question, args.answerRequest);
+  const releaseLock = acquireRunLock(path.join(eventDir(eventId), "engine.lock"));
+  try {
   const structured = args.fresh ? null : loadStructuredState(eventId);
   const existingBinary = args.fresh ? null : loadState(eventId);
   const kind = structured?.questionSpec.kind ?? (existingBinary ? "binary" : await classifyQuestion(args.question, args.answerRequest, {model: args.model}));
@@ -153,7 +171,8 @@ async function main(): Promise<void> {
       console.log(`\n■ This prompt is not forecastable as a clean binary event.`);
       console.log(`  Clarification needed: ${framing.clarificationNeeded || "(unspecified)"}`);
       console.log(`\n  Refine your prompt (or pass --resolution "...") and re-run.`);
-      process.exit(2);
+      process.exitCode = 2;
+      return;
     }
     console.log(`\n▶ Focus Center — planning the research…`);
     const researchPlan = await createResearchPlan(framing, { model: args.model });
@@ -194,6 +213,7 @@ async function main(): Promise<void> {
   if (totalCost > 0) console.log(`Total round cost: $${totalCost.toFixed(3)}`);
   console.log(`\nTrace:  ${dir}/report.md`);
   console.log(`State:  ${dir}/state.json`);
+  } finally { releaseLock(); }
 }
 
 main().catch((err) => {

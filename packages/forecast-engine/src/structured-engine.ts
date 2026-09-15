@@ -1,3 +1,5 @@
+import { consumeFeedback, feedbackSnapshot } from "./analyst-feedback";
+import { analystPath, loadAnalyst } from "./store";
 import { isLocalResearchUrl } from "./url";
 // Native categorical, numerical and independent-event ranking research loop.
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
@@ -182,6 +184,9 @@ export function applyStructuredRound(state: StructuredForecastState, proposal: R
 export interface StructuredRunOptions { maxRounds?: number; model?: string; runAgentFn?: AgentRunner; onLog?: (message: string) => void; collectLibraryFn?: typeof collectExpandedLibrary; retrieveGapsFn?: typeof retrieveResearchGaps }
 export async function runStructuredForecast(state: StructuredForecastState, opts: StructuredRunOptions = {}): Promise<StructuredForecastState> {
   const maxRounds = researchRoundLimit(opts.maxRounds), log = opts.onLog ?? (() => {});
+  for (const round of state.roundHistory) consumeFeedback(analystPath(state.eventId), round, round.round);
+  const currentFeedback = feedbackSnapshot(loadAnalyst(state.eventId), state.evidenceLedger.map(e => ({id:e.id, url:e.sourceUrl, claim:e.claim})), true);
+  if (currentFeedback.prompt) delete state.summaryPendingStatus;
   const pendingSummary = state.summaryPendingStatus;
   if (!pendingSummary && state.round >= maxRounds && state.status !== "aborted") {
     if (state.status === "open") {
@@ -192,7 +197,7 @@ export async function runStructuredForecast(state: StructuredForecastState, opts
     return state;
   }
   let recovered: AgentRunResult | undefined;
-  if (state.status === "aborted") {
+  if (state.status === "aborted" && !currentFeedback.prompt) {
     const attempts = [1,2].flatMap(attempt => {
       const file = path.join(eventDir(state.eventId), `round-${state.round + 1}-attempt-${attempt}.json`);
       if (!existsSync(file)) return [];
@@ -218,11 +223,13 @@ export async function runStructuredForecast(state: StructuredForecastState, opts
         saveStructuredState(state);
       }
       log(`Round ${round}/${roundLimitLabel(maxRounds)} · ${answerLabel(state.answer)}`);
+      const snapshot = recovered ? {prompt:""} : feedbackSnapshot(loadAnalyst(state.eventId), state.evidenceLedger.map(e => ({id:e.id, url:e.sourceUrl, claim:e.claim})), true);
       const {prior: _prior, priorRationale: _priorRationale, ...researchQuestion} = state.questionSpec;
       const prompt = `You are conducting an auditable forecast with a frozen answer space. Research every option/entity, primary sources first. Return atomic facts and forward-looking implications, NOT a new final answer. The engine alone applies updates.
 FROZEN QUESTION: ${JSON.stringify(researchQuestion)}
 ROUND: ${round}/${roundLimitLabel(maxRounds)}. ${round > 1 ? "Prioritize the strongest countercase, source cross-checks and previously uncovered entities. Do not repeat facts already counted." : "Establish comparable current facts, reference classes and drivers across every option/entity."}
 PREVIOUS CLAIMS: ${JSON.stringify(state.evidenceLedger.map(e => ({id:e.id,claim:e.claim,targetIds:e.targetIds,sourceUrl:e.sourceUrl,clusterId:e.clusterId})))}
+${snapshot.prompt}
 ${libraryPrompt(state.expandedLibrary)}
 ${researchReviewPrompt(state)}
 ${researchProgressPrompt(state)}
@@ -252,7 +259,10 @@ JSON only: {"summary":"...","confidence":"medium","claims":[{"id":"stable_fact_i
       }});
       recovered = undefined;
       const record = applyStructuredRound(state, value, result);
+      const {prompt: _feedbackPrompt, ...receipt} = snapshot;
+      Object.assign(record, receipt);
       saveStructuredState(state);
+      consumeFeedback(analystPath(state.eventId), record, record.round);
       log(`Accepted ${record.newClaimCount} claims · ${answerLabel(state.answer)}`);
       const unanswered = materialResearchGaps(state);
       if (unanswered.length) log(`  ${unanswered.length} material questions remain: ${unanswered.map(g => g.id).join(", ")}. A small numerical change is not research completion.`);
@@ -270,7 +280,7 @@ JSON only: {"summary":"...","confidence":"medium","claims":[{"id":"stable_fact_i
     state.summaryPendingStatus = state.status === "converged" ? "converged" : "no_new_info";
     state.status = "open"; state.summary = null;
     saveStructuredState(state);
-    const summary = await validatedCall(`Explain this engine result without changing the winner, probabilities, numeric value or units. Distinguish source opinions, financial forecasts and confirmed company facts. Include material counterarguments and missing data. Summarize how the expanded resource library changed or challenged the analysis. Quote sources by title and URL close to claims. Do not expose entire subscription articles.
+    const summary = await validatedCall(`Explain the current final assessment only. Do not narrate iterations, previous drafts, user feedback processing, or before/after probability changes. Explain this engine result without changing the winner, probabilities, numeric value or units. Distinguish source opinions, financial forecasts and confirmed company facts. Include material counterarguments and missing data. Summarize how the expanded resource library changed or challenged the analysis. Quote sources by title and URL close to claims. Do not expose entire subscription articles.
 If synthesis reveals a material unresolved doubt, add a research_gaps request. You cannot search or assert new facts in this synthesis; the engine will reopen research within the round budget. An unresolved material question is not numerical convergence.
 ${researchReviewPrompt(state)}
 ${JSON.stringify({question:state.questionSpec,answer:state.answer,claims:state.evidenceLedger.map(({before,after,...e})=>e),library:state.expandedLibrary?.queries})}

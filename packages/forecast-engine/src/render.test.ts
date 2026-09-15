@@ -6,7 +6,7 @@
 // market-blind banner.
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { renderReport, sourceLabel } from "./store";
+import { renderAuditReport as renderReport, renderReport as renderCurrentReport, sourceLabel } from "./store";
 import type { ForecastState } from "./types";
 
 const PIPE_TITLE = "IMF | Strait [7-day MA] Series";
@@ -374,5 +374,17 @@ describe("renderReport (decision-first layout)", () => {
     expect(report).toContain("引擎可表达的下限");
     expect(report).toContain("市场盲测");
     expect(report).toContain("第 1 轮");
+  });
+});
+
+
+describe("current report without iteration history", () => {
+  it("shows the final assessment and working source anchors without audit tables", () => {
+    const report = renderCurrentReport(makeState());
+    expect(report).toContain("Probability of YES");
+    expect(report).toContain('id="src-01"');
+    expect(report).not.toContain("## Probability trajectory");
+    expect(report).not.toContain("## Round 1");
+    expect(report).not.toContain("Rounds:");
   });
 });

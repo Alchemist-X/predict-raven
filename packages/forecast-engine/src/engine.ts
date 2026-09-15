@@ -1,3 +1,5 @@
+import { consumeFeedback, feedbackSnapshot } from "./analyst-feedback";
+import { analystPath } from "./store";
 // The iterative forecasting loop.
 //
 // One forecast = a binary event whose P(YES) is maintained across rounds. Each
@@ -99,36 +101,8 @@ export function buildPrompt(
     )
     .join("\n");
 
-  // Analyst-in-the-loop: unconsumed notes become leads (never established
-  // fact); "doubt" marks ask the agent to re-examine specific prior sources via
-  // the reflection mechanism. Rendered only when there is anything to inject.
-  const ledgerById = new Map(state.evidenceLedger.map((e) => [e.id, e]));
-  const pendingNotes = extras.analyst?.notes.filter((n) => n.consumedRound == null) ?? [];
-  const handledDoubts = extras.analyst?.doubtsHandled ?? {};
-  const doubted = Object.entries(extras.analyst?.marks ?? {})
-    .filter(([id, mark]) => mark === "doubt" && handledDoubts[id] == null)
-    .map(([id]) => ledgerById.get(id))
-    .filter((e): e is LedgerEntry => e !== undefined);
-  let analystSection = "";
-  if (pendingNotes.length || doubted.length) {
-    const stanceTag = (s: string): string =>
-      s === "yes" ? "[PUSHES YES]" : s === "no" ? "[PUSHES NO]" : "[OPEN QUESTION]";
-    const lines: string[] = [
-      "",
-      "ANALYST INPUT — a human analyst reviewing this run left the following. Treat each item as a hypothesis or lead to INVESTIGATE this round — not as established fact. If a lead pans out, include it as evidence with a real source; if it does not, say so in round_summary."
-    ];
-    for (const n of pendingNotes) {
-      const target = n.targetId ? ledgerById.get(n.targetId) : undefined;
-      lines.push(`- ${stanceTag(n.stance)}${target ? ` (re: ${target.url})` : ""} ${n.text}`);
-    }
-    if (doubted.length) {
-      lines.push(
-        "The analyst DOUBTS these prior sources — re-examine them; if the doubt is justified, walk them back with a reflection entry (cite a new source):"
-      );
-      for (const e of doubted) lines.push(`- ${e.url} — ${e.claim}`);
-    }
-    analystSection = lines.join("\n") + "\n";
-  }
+  const analystSection = extras.analyst ? feedbackSnapshot(extras.analyst,
+    state.evidenceLedger.map(e => ({id:e.id, url:e.url, claim:e.claim}))).prompt : "";
 
   // Research instructions are provider-aware: a search-less provider must never
   // be told to WebSearch, and must not fabricate URLs to satisfy the cite rule.
@@ -308,16 +282,9 @@ async function runOneRound(
   // doubt re-injected every round would let the agent walk the same source
   // back repeatedly — reflections are not URL-deduped).
   const analyst = loadAnalyst(state.eventId);
-  const pendingNotes = analyst.notes.filter((n) => n.consumedRound == null);
-  const doubtsHandled = analyst.doubtsHandled ?? {};
-  const ledgerIds = new Set(state.evidenceLedger.map((e) => e.id));
-  const pendingDoubtIds = Object.entries(analyst.marks)
-    .filter(([id, mark]) => mark === "doubt" && doubtsHandled[id] == null && ledgerIds.has(id))
-    .map(([id]) => id);
-  const hasAnalystInput = pendingNotes.length > 0 || pendingDoubtIds.length > 0;
+  const snapshot = feedbackSnapshot(analyst, state.evidenceLedger.map(e => ({id:e.id, url:e.url, claim:e.claim})));
   const prompt = buildPrompt(state, roundNo, maxRounds, {
-    hasWebSearch: providerHasWebSearch(),
-    analyst: hasAnalystInput ? analyst : null
+    hasWebSearch: providerHasWebSearch(), analyst: snapshot.prompt ? analyst : null
   });
 
   // Run the agent, validating fail-closed with one retry on a parse/schema miss.
@@ -711,26 +678,8 @@ async function runOneRound(
     ...(result.usage ? { usage: result.usage } : {})
   };
 
-  // Stamp consumed analyst input (success path only). Re-read fresh: the app may
-  // have appended notes while the round ran — only the ids actually injected are
-  // stamped, anything newer stays pending for the next round. Doubt marks stay
-  // visible in the UI but get a doubtsHandled stamp so they inject only once.
-  if (pendingNotes.length > 0 || pendingDoubtIds.length > 0) {
-    const injectedIds = new Set(pendingNotes.map((n) => n.id));
-    const fresh = loadAnalyst(state.eventId);
-    const freshHandled = { ...(fresh.doubtsHandled ?? {}) };
-    for (const id of pendingDoubtIds) {
-      if (fresh.marks[id] === "doubt" && freshHandled[id] == null) freshHandled[id] = roundNo;
-    }
-    saveAnalyst(state.eventId, {
-      ...fresh,
-      notes: fresh.notes.map((n) =>
-        injectedIds.has(n.id) && n.consumedRound == null ? { ...n, consumedRound: roundNo } : n
-      ),
-      doubtsHandled: freshHandled
-    });
-    if (pendingNotes.length > 0) record.analystConsumedIds = pendingNotes.map((n) => n.id);
-  }
+  const {prompt: _feedbackPrompt, ...receipt} = snapshot;
+  Object.assign(record, receipt);
 
   state.roundHistory.push(record);
   return record;
@@ -738,6 +687,9 @@ async function runOneRound(
 
 export async function runForecast(state: ForecastState, opts: RunForecastOptions = {}): Promise<ForecastState> {
   const maxRounds = researchRoundLimit(opts.maxRounds);
+  for (const round of state.roundHistory) consumeFeedback(analystPath(state.eventId), round, round.round);
+  const pendingFeedback = feedbackSnapshot(loadAnalyst(state.eventId), state.evidenceLedger.map(e => ({id:e.id, url:e.url, claim:e.claim})));
+  if (pendingFeedback.prompt) delete state.summaryPendingStatus;
   const pendingSummary = state.summaryPendingStatus;
   if (!pendingSummary && state.round >= maxRounds && state.status !== "aborted") {
     if (state.status === "open") {
@@ -786,6 +738,7 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
     // Persist after EVERY round before deciding to stop (crash-resumable).
     roundsRan++;
     saveState(state);
+    consumeFeedback(analystPath(state.eventId), record, record.round);
     writeReport(state);
     opts.onRoundComplete?.(state, record);
 

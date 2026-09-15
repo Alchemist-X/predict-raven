@@ -4,6 +4,8 @@
 // instantly and are confirmed (or rolled back with a toast) by the API; notes
 // get a temp entry until the server copy lands via refresh().
 
+import { useT } from "../../lib/i18n";
+import { RP } from "../../lib/i18n/research-parts";
 import { useCallback, useMemo, useState } from "react";
 import { apiAddNote, apiRemoveNote, apiSetMark } from "../../lib/client/use-forecast";
 import type { AnalystMark, AnalystNote, AnalystState, AnalystStance } from "../../lib/server/analyst";
@@ -19,7 +21,7 @@ export interface Annotations {
   keptCount: number;
   doubtedCount: number;
   toggleMark: (targetId: string, val: AnalystMark) => void;
-  addNote: (input: { text: string; stance: AnalystStance; targetId: string | null }) => boolean;
+  addNote: (input: { id?:string; text: string; stance: AnalystStance; targetId: string | null; continueResearch?:boolean; invite?:string; language?:"en"|"zh" }) => Promise<boolean>;
   removeNote: (noteId: string) => void;
   toast: string | null;
   clearToast: () => void;
@@ -30,6 +32,7 @@ export function useAnnotations(
   server: AnalystState | undefined,
   refresh: () => Promise<unknown>
 ): Annotations {
+  const t = useT();
   const [markOverlay, setMarkOverlay] = useState<Readonly<Record<string, AnalystMark | null>>>({});
   const [tempNotes, setTempNotes] = useState<readonly AnalystNote[]>([]);
   const [removedIds, setRemovedIds] = useState<readonly string[]>([]);
@@ -46,7 +49,7 @@ export function useAnnotations(
 
   const notes = useMemo(() => {
     const persisted = (server?.notes ?? []).filter((n) => !removedIds.includes(n.id));
-    return [...persisted, ...tempNotes];
+    return [...persisted, ...tempNotes.filter(note => !persisted.some(item => item.id === note.id))];
   }, [server, removedIds, tempNotes]);
 
   const toggleMark = useCallback(
@@ -60,37 +63,27 @@ export function useAnnotations(
         })
         .catch(() => {
           setMarkOverlay((o) => withoutKey(o, targetId));
-          setToast("Saving the mark failed — it was undone.");
+          setToast(t(RP.feedbackMarkFailed));
         });
     },
-    [id, marks, refresh]
+    [id, marks, refresh, t]
   );
 
   const addNote = useCallback(
-    (input: { text: string; stance: AnalystStance; targetId: string | null }): boolean => {
+    async (input: { id?:string; text: string; stance: AnalystStance; targetId: string | null; continueResearch?:boolean; invite?:string; language?:"en"|"zh" }): Promise<boolean> => {
       const text = input.text.trim();
       if (!text) return false;
-      const temp: AnalystNote = {
-        id: `temp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        text,
-        stance: input.stance,
-        targetId: input.targetId,
-        createdAtUtc: new Date().toISOString(),
-        consumedRound: null
-      };
-      setTempNotes((t) => [...t, temp]);
-      apiAddNote(id, { text, stance: input.stance, targetId: input.targetId })
-        .then(async () => {
-          await refresh();
-          setTempNotes((t) => t.filter((n) => n.id !== temp.id));
-        })
-        .catch(() => {
-          setTempNotes((t) => t.filter((n) => n.id !== temp.id));
-          setToast("Saving the note failed — it was not queued.");
-        });
-      return true;
-    },
-    [id, refresh]
+      const temp: AnalystNote = {id:input.id ?? `note-${crypto.randomUUID()}`, text, stance:input.stance, targetId:input.targetId,createdAtUtc:new Date().toISOString(),consumedRound:null};
+      setTempNotes(notes => [...notes,temp]);
+      try {
+        const result = await apiAddNote(id, {...input,id:temp.id,text});
+        await refresh();
+        const status = result.continuation?.status;
+        setToast(t(status === "authorization_required" ? RP.feedbackAuth : status === "quota_exceeded" ? RP.feedbackQuota : status === "failed" || status === "provider_unavailable" ? RP.feedbackStopped : status === "running" ? RP.feedbackStarted : status === "queued" ? RP.feedbackQueued : RP.feedbackSaved));
+        return true;
+      } catch { setToast(t(RP.feedbackSaveFailed)); return false; }
+      finally { setTempNotes(notes => notes.filter(note => note.id !== temp.id)); }
+    }, [id,refresh,t]
   );
 
   const removeNote = useCallback(
@@ -107,10 +100,10 @@ export function useAnnotations(
         })
         .catch(() => {
           setRemovedIds((r) => r.filter((x) => x !== noteId));
-          setToast("Removing the note failed — try again.");
+          setToast(t(RP.feedbackRemoveFailed));
         });
     },
-    [id, refresh]
+    [id, refresh, t]
   );
 
   const keptCount = useMemo(() => Object.values(marks).filter((v) => v === "keep").length, [marks]);

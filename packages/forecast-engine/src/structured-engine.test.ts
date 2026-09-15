@@ -369,3 +369,45 @@ it("accepts traced stable local interview claims without allowing filesystem URL
   expect(()=>validateStructuredRound(proposal([{...local,sourceUrl:"file:///private/interview.md"}]),s.questionSpec)).toThrow(/HTTP/);
   expect(()=>validateStructuredRound(proposal([{...local,sourceUrl:"raven-local://id/path"}]),s.questionSpec)).toThrow(/HTTP/);
 });
+
+describe("human feedback in every structured answer type", () => {
+  it.each(["numeric","categorical","independent_ranking"] as const)("continues a completed %s forecast with only the injected feedback consumed", async kind => {
+    const {appendFeedback,readAnalystFile}=await import("./analyst-feedback");
+    const {analystPath}=await import("./store");
+    const typed=state(spec(kind === "numeric" ? {kind,options:[],unit:"USD",prior:{mean:50,standardDeviation:10}} : {kind,prior:kind === "categorical" ? {meta:0.5,google:0.5} : {meta:0.3,google:0.25}}));
+    const initial=kind === "numeric" ? [claim("baseline","question",0,{effects:{}})] : [claim("baseline","meta",0),claim("other","google",0)];
+    applyStructuredRound(typed,validateStructuredRound(proposal(initial),typed.questionSpec),result({},initial));
+    typed.status="converged"; typed.summary=summary;
+    saveStructuredState(typed);
+    const frozen=structuredClone(typed.questionSpec), before=structuredClone(typed.answer);
+    appendFeedback(analystPath(typed.eventId),{notes:[{id:"human",text:"Check whether the historic naming analogy is valid"}],doubtIds:["baseline"]});
+    let researchPrompt="";
+    await runStructuredForecast(typed,{maxRounds:3,collectLibraryFn:async()=>null,runAgentFn:async prompt=>{
+      if (prompt.includes("ANALYST INPUT")) {
+        researchPrompt=prompt;
+        appendFeedback(analystPath(typed.eventId),{notes:[{id:"concurrent",text:"A separate question arriving during research"}]});
+        return result(proposal([]),initial);
+      }
+      return result(summary);
+    }});
+    expect(researchPrompt).toContain("not as established fact");
+    expect(researchPrompt).toContain("historic naming analogy");
+    expect(researchPrompt).toContain("Re-examine the doubted evidence");
+    expect(typed.round).toBe(2);
+    expect(typed.questionSpec).toEqual(frozen);
+    expect(typed.answer).toEqual(before);
+    expect(typed.roundHistory[1].analystConsumedIds).toEqual(["human"]);
+    const feedback=readAnalystFile(analystPath(typed.eventId));
+    expect(feedback.notes.map(note=>note.consumedRound)).toEqual([2,null]);
+    expect(feedback.doubtsHandled?.baseline).toBe(2);
+  });
+  it("retains feedback after a failed model response",async()=>{
+    const {appendFeedback,readAnalystFile}=await import("./analyst-feedback");
+    const {analystPath}=await import("./store");
+    const typed=state();
+    appendFeedback(analystPath(typed.eventId),{notes:[{id:"pending",text:"Check a conflicting source"}]});
+    await expect(runStructuredForecast(typed,{maxRounds:1,collectLibraryFn:async()=>null,runAgentFn:async()=>{throw new Error("model unavailable");}})).rejects.toThrow("model unavailable");
+    expect(readAnalystFile(analystPath(typed.eventId)).notes[0].consumedRound).toBeNull();
+    expect(typed.roundHistory).toHaveLength(0);
+  });
+});

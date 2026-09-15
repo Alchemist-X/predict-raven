@@ -1,3 +1,4 @@
+import type { FeedbackReceipt as importFeedbackReceipt } from "./analyst-feedback";
 // Shared types for the iterative binary forecaster.
 //
 // One forecast tracks ONE binary (yes/no) event. Its probability is maintained
@@ -211,7 +212,7 @@ export interface WhyChanged {
   dominantKind: "evidence" | "reflection";
 }
 
-export interface RoundRecord {
+export interface RoundRecord extends importFeedbackReceipt {
   retrievalAttempts?: import("./research-progress").RetrievalAttempt[];
   round: number;
   ts: string;
@@ -321,6 +322,7 @@ export interface AnalystNote {
   consumedRound: number | null; // set by the engine when injected into a round
 }
 export interface AnalystState {
+  markVersions?: Record<string, string>;
   notes: AnalystNote[];
   marks: Record<string, AnalystMark>; // key = LedgerEntry.id (or reasoning id `round-<n>`)
   // Engine-side stamp: LedgerEntry.id -> the round that already injected this

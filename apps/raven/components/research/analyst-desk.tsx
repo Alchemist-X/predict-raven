@@ -24,6 +24,11 @@ export function AnalystDesk({
   stance,
   onStance,
   onSubmit,
+  onSave,
+  onContinue,
+  busy = false,
+  invite = "",
+  onInvite,
   queued,
   onRemove
 }: {
@@ -36,6 +41,11 @@ export function AnalystDesk({
   stance: AnalystStance;
   onStance: (stance: AnalystStance) => void;
   onSubmit: () => void;
+  onSave?: () => void;
+  onContinue?: () => void;
+  busy?: boolean;
+  invite?: string;
+  onInvite?: (value: string) => void;
   queued: readonly QueuedVM[];
   onRemove: (noteId: string) => void;
 }) {
@@ -130,7 +140,12 @@ export function AnalystDesk({
             );
           })}
         </div>
+        {(complete || stopped) && onInvite ? <label style={{display:"block",marginTop:12,fontSize:12}}>
+          {t(RP.feedbackInvite)}
+          <input type="password" autoComplete="off" value={invite} onChange={event => onInvite(event.target.value)} style={{width:"100%",marginTop:6}} />
+        </label> : null}
         <button
+          disabled={busy || !composerText.trim()}
           type="button"
           className="cta"
           onClick={onSubmit}
@@ -150,8 +165,10 @@ export function AnalystDesk({
             borderRadius: 9
           }}
         >
-          {complete || stopped ? t(RP.deskSubmitSave) : t(RP.deskSubmitQueue, { n: nextRound })}
+          {busy ? t(RP.feedbackSaving) : complete || stopped ? t(RP.deskSubmitSave) : t(RP.deskSubmitQueue, { n: nextRound })}
         </button>
+        {onSave && (complete || stopped) ? <button type="button" disabled={busy || !composerText.trim()} onClick={onSave} style={{marginTop:8}}>{t(RP.feedbackSaveOnly)}</button> : null}
+        {onContinue && (complete || stopped) ? <button type="button" disabled={busy} onClick={onContinue} style={{marginTop:8,marginLeft:8}}>{t(RP.feedbackContinue)}</button> : null}
       </div>
 
       <div style={{ marginTop: 14 }}>

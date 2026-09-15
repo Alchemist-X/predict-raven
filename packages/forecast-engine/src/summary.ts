@@ -30,16 +30,14 @@ function buildSummaryPrompt(state: ForecastState): string {
               }] ${e.claim} — best source: ${e.title || e.url} (${e.url}); ${e.sources?.length ?? 1} selected source(s)`
           )
           .join("\n");
-  const trajectory = state.roundHistory.map((r) => `${pct(r.priorProb)}→${pct(r.postProb)}`).join(", ");
 
   const plan = state.researchPlan;
-  return `You are compiling a decision-first forecasting report from a completed research record. Explain the engine's single final probability. Do not change the number, do not introduce new evidence, do not search, and never offer an alternative probability or range.
+  return `You are compiling a decision-first forecasting report from a completed research record. Explain the engine's single final probability and the current evidence. Do not narrate iterations, earlier drafts, processing user feedback, or before/after probability changes. Do not change the number, do not introduce new evidence, do not search, and never offer an alternative probability or range.
 
 EVENT: ${state.framing.normalizedQuestion}
 RESOLUTION CRITERIA: ${state.framing.resolutionCriteria}
 RESOLUTION DATE: ${state.framing.resolutionDate ?? "(open-ended)"}
 FINAL P(YES): ${pct(state.currentProb)}
-ROUNDS: ${state.round}; trajectory: ${trajectory || "(none)"}
 QUESTION TYPE: ${plan?.archetype ?? "not classified"}
 SINGLE PROBABILITY MODEL: ${plan?.modelKind ?? "binary_bayesian"} — ${plan?.modelRationale ?? "one maintained binary estimate"}
 EVENT DECOMPOSITION: ${plan?.decomposition.join(" | ") ?? "not available"}
