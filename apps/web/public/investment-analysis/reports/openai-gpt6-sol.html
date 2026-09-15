@@ -1,0 +1,502 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GPT-6 的非旗舰模型会继续叫 Sol 吗？</title><link rel="icon" href="data:,">
+<style>
+:root{--ink:#18201d;--muted:#657069;--paper:#fffdf8;--canvas:#eeeae1;--line:#d9d4c8;--accent:#9d3f25;--accent-soft:#f5e7df;--shadow:0 18px 55px rgba(47,42,31,.10)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:var(--canvas);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;line-height:1.72}
+.topbar{position:sticky;top:0;z-index:10;background:rgba(255,253,248,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1480px;margin:auto;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-weight:750;letter-spacing:.02em}.brand span{color:var(--accent)}
+.meta{font-size:13px;color:var(--muted)}
+.layout{max-width:1480px;margin:28px auto 64px;padding:0 24px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px}
+.toc{position:sticky;top:72px;align-self:start;max-height:calc(100vh - 96px);overflow:auto;padding:18px 14px;border:1px solid var(--line);border-radius:14px;background:rgba(255,253,248,.72)}
+.toc-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.toc a{display:block;color:var(--ink);text-decoration:none;font-size:13.5px;padding:4px 8px;border-radius:8px;margin:1px 0}
+.toc a:hover{background:var(--accent-soft);color:var(--accent)}
+main{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:40px 48px 56px;min-width:0}
+main h1{font-size:26px;line-height:1.35;margin:.2em 0 .6em;letter-spacing:.01em}
+main h2{font-size:21px;margin:2.2em 0 .7em;padding-top:.6em;border-top:1px solid var(--line)}
+main h3{font-size:17px;margin:1.6em 0 .5em;line-height:1.5}
+main h2:first-of-type{border-top:none;padding-top:0;margin-top:1em}
+main a{color:var(--accent)}
+main blockquote{margin:1.2em 0;padding:12px 18px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0}
+main blockquote p{margin:.3em 0}
+.tablewrap{overflow-x:auto;margin:1.1em 0}
+main table{border-collapse:collapse;font-size:14px;min-width:60%}
+main th{background:var(--accent-soft);color:var(--ink);text-align:left;font-weight:650}
+main th,main td{border:1px solid var(--line);padding:8px 12px;vertical-align:top;line-height:1.65}
+main tr:nth-child(even) td{background:rgba(238,234,225,.35)}
+main code{background:var(--canvas);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.9em}
+main hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+main li{margin:.25em 0}
+main ul ul,main ol ul{margin-top:.2em}
+main strong{color:#111}
+main u.key{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:4px}
+main u.minor{text-decoration:underline dotted;text-decoration-color:#9aa39d;text-decoration-thickness:1.5px;text-underline-offset:4px}
+.tag{display:inline-block;font-size:11.5px;line-height:1;padding:3px 6px;border-radius:5px;background:var(--canvas);border:1px solid var(--line);color:var(--muted);margin-right:5px;vertical-align:1px;white-space:nowrap}
+.note{display:block;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.55;font-weight:400}
+.legend{font-size:13.5px;color:#4d5651;background:rgba(238,234,225,.5);border:1px dashed var(--line);border-radius:10px;padding:10px 14px;margin:.6em 0 1.2em;line-height:1.75}
+.legend p{margin:.2em 0}
+.formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"PingFang SC","Hiragino Sans GB",monospace;background:var(--canvas);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:1em 0;line-height:2;font-size:13.5px;overflow-x:auto;white-space:nowrap}
+.formula b{color:var(--accent)}
+.org td:first-child,.tight1 td:first-child{white-space:nowrap}
+.org td:first-child{font-weight:650}
+.org td:nth-child(2){width:58%}
+.org td:nth-child(3){min-width:260px}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.toc{position:static;max-height:none}main{padding:24px 20px}}
+</style></head><body>
+<div class="topbar"><div class="topbar-inner"><div class="brand">Predict-Raven</div><div class="meta">GPT-6 的非旗舰模型会继续叫 Sol 吗？｜生成 2026-09-15｜research-only / market-blind</div></div></div>
+<div class="layout"><nav class="toc"><div class="toc-title">目录</div><a href="#gpt-6-sol">GPT-6 的非旗舰模型会继续叫 Sol 吗？</a>
+<a href="#1">1. 阅读结论</a>
+<a href="#2">2. 路径推演</a>
+<a href="#3">3. 核心判断</a>
+<a href="#4">4. 结算口径</a>
+<a href="#5">5. 情景与路径</a>
+<a href="#6">6. 关键证据表</a>
+<a href="#7">7. 信息缺口树</a>
+<a href="#8">8. 信源覆盖与限制</a>
+<a href="#9">9. 研究说明</a>
+<a href="#10">10. 最终预测声明</a>
+<a href="#_1">附录：估计依据与情景权重</a></nav><main><h1 id="gpt-6-sol">GPT-6 的非旗舰模型会继续叫 Sol 吗？</h1>
+<p>Predict-Raven｜研究截点：2026-09-15｜官方命名预测</p>
+<style>
+.tablewrap table { width:100%; min-width:680px; }
+.org table { min-width:780px; }
+.path-tree { overflow-x:auto; padding:20px; border:1px solid var(--line); border-radius:10px; background:var(--canvas); line-height:1.9; font-size:13px; }
+.brand { white-space:nowrap; flex-shrink:0; }
+main h1, main h2, main h3 { scroll-margin-top:90px; }
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+@media(max-width:600px) { .layout { padding:0 12px; } .meta { font-size:11px; } main { padding:20px 16px; } main h1 { font-size:24px; } .toc { display:grid; grid-template-columns:1fr 1fr; gap:2px 8px; } .toc-title { grid-column:1 / -1; } }
+</style>
+
+<h2 id="1">1. 阅读结论</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>问题与口径</th>
+<th>当前判断</th>
+<th>不确定性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>gpt-6的非旗舰模型有叫sol（和gpt5.6一致）的概率是多少？</td>
+<td><strong>约 70%</strong>：条件是 GPT-6 确实增加 Astra 以下的通用模型，至少一档官方叫 Sol</td>
+<td>主观合理范围 <strong>50%–85%</strong></td>
+</tr>
+<tr>
+<td>补充六个月窗口：截至 2027-03-15，官方已公布 GPT-6 Sol 这一非旗舰通用型号</td>
+<td><strong>约 50%</strong></td>
+<td>主观合理范围 <strong>35%–75%</strong>；包含推出时间的不确定性</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>立场：倾向沿用 Sol。最直接的理由是 OpenAI 已把它定义为可跨版本升级的长期档位；最有力的反方，是 Astra 接替原主型号，而较便宜的需求由 Terra、Luna 或旧 Sol 承接。</strong></p>
+<p><strong>保留 Sol 这个名字，与让它进入 GPT-6.0，是两件事。</strong> 长期档位可以独立升级：Sol 可能继续存在，却停留在 5.6，或直接等到 6.1。Astra 出现后，Sol 也可能成为次高档；它曾是旗舰，并不意味着名称永久只属于最强型号。</p>
+<p>本文按官方产品名或模型 ID 是否包含独立名称 Sol 判断，大小写不影响结果。主估计回答“新增较低档时如何命名”；六个月窗口和严格 6.0 是补充观察口径，具体定义见第 4 节。上表范围是主观判断范围，不是统计置信区间，也不是预测市场报价。</p>
+<p>截至研究截点，实际读取的<a href="https://developers.openai.com/api/docs/models">官方模型目录</a>列出 GPT-6 Astra 和 GPT-5.6 Sol／Terra／Luna，<strong>没有列出 GPT-6 Sol</strong>。因此本报告给的是预测。</p>
+<h2 id="2">2. 路径推演</h2>
+<h3 id="21">2.1 名字延续，需要哪些事情成立</h3>
+<pre class="path-tree">
+GPT-6 是否出现一个官方名为 Sol 的非旗舰通用模型？
+├─ 产品线会不会向 Astra 以下扩展？
+│  ├─ 客户是否需要较低成本、适合大量日常任务的型号？
+│  └─ 这些需求会由新 GPT-6、旧 GPT-5.6 降价，还是其他版本满足？
+├─ Sol 是否仍是一个长期存在的档位？
+│  ├─ 已公开的“代际数字＋能力档位”规则是否继续适用？
+│  └─ Astra 是在上方增加一档，还是取代 Sol 的旗舰位置与名称？
+└─ 官方是否把“GPT-6”与“Sol”组合使用？
+   ├─ 产品发布文章、开发者文档或型号目录是否明确列名？
+   └─ 是否属于新通用模型，而非旧型号别名或内部研发代号？
+</pre>
+
+<p>研究重点依次是命名规则、实际产品分档、推出节奏。芯片数量和榜单成绩只能解释产品背景，无法单独推出一个商品名。</p>
+<h3 id="22">2.2 谁的公开表态有用</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>人或职能</th>
+<th>已取得的信息</th>
+<th>对本题的作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI 官方产品与开发者文档</td>
+<td>已定义数字与档位名称的关系，当前目录继续保留 Sol／Terra／Luna</td>
+<td>判断官方名称的首要依据</td>
+</tr>
+<tr>
+<td>Sam Altman，OpenAI CEO</td>
+<td>在 Bloomberg 访谈中强调覆盖不同智能水平的价格表现，并谈到持续降低价格</td>
+<td>支持维持多档产品；没有承诺 GPT-6 Sol</td>
+</tr>
+<tr>
+<td>Sarah Friar，OpenAI CFO</td>
+<td>高盛会议纪要描述前沿模型帮助训练较便宜子模型的成本循环</td>
+<td>支持继续发展便宜型号；没有披露名称与发布日期</td>
+</tr>
+</tbody>
+</table></div>
+<p>这里不对人员关系打分。没有取得品牌命名的内部审批文件，不能据上述发言推定谁有最终命名权。访谈和会议纪要的具体来源见第 6 节。</p>
+<h3 id="23">2.3 产品与组织要素快照</h3>
+<div class="org">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>要素</th>
+<th>当前事实</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>命名规则</td>
+<td>2026-06-26 的<a href="https://openai.com/index/previewing-gpt-5-6-sol/">官方预览公告</a>把数字与能力档位分开；2026-07-09 的<a href="https://openai.com/index/gpt-5-6/">发布公告</a>重申同一规则</td>
+<td>版本更新不必伴随档位改名；各档位可以分别升级</td>
+</tr>
+<tr>
+<td>产品层次</td>
+<td>2026-09-15 读取的<a href="https://developers.openai.com/api/docs/models">官方目录</a>同时列出 GPT-6 Astra 与 GPT-5.6 三档</td>
+<td>已出现跨代共存；同代一次补齐所有档位尚未发生</td>
+</tr>
+<tr>
+<td>商业取向</td>
+<td>2026-07-30 的<a href="https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6/">官方更新</a>分别降低 Terra、Luna 价格，并加快 Sol 服务</td>
+<td>用分档服务不同任务的策略继续落实</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<h3 id="24">2.4 以前究竟怎么命名，有哪些可比先例</h3>
+<p>OpenAI 过去没有一直使用同一套规则。早期 GPT-3 用 ada、babbage、curie、davinci 等名字区分型号；后来 mini、nano 等标签突出小型号的成本与速度定位；到了 GPT-5.6，官方才明确提出“代际数字＋长期能力档位”的制度。<strong>新制度应当比旧习惯更有分量，但旧历史提醒我们，它仍可能被产品重组打断。</strong></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>时间与案例</th>
+<th>官方材料实际说明什么</th>
+<th>对 Sol 的启示与边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2023-08-22：GPT-4 已出现，仍推出 babbage-002、davinci-002</td>
+<td>更新旧 GPT-3 基础模型；原 ada／babbage 迁向 babbage-002，curie／davinci 迁向 davinci-002。<a href="https://openai.com/index/gpt-3-5-turbo-fine-tuning-and-api-updates/">发布公告</a> · <a href="https://openai.com/index/gpt-4-api-general-availability/">迁移表</a></td>
+<td>更强的新一代出现后，旧名字仍可更新；但四个名字也可以缩成两个。它们仍属 GPT-3，不能说已有“GPT-4 Davinci”的先例</td>
+</tr>
+<tr>
+<td>2024-07-18：GPT-4o mini 接替 ChatGPT 中的 GPT-3.5</td>
+<td>继续满足低成本使用需求，产品名字改变；不是 GPT-3.5 本体改名。<a href="https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/">官方公告</a></td>
+<td>“便宜型号会继续有”并不等于“旧名字会继续用”</td>
+</tr>
+<tr>
+<td>2025-01-31、2025-04-16：o1-mini → o3-mini，随后有 o4-mini</td>
+<td>o3-mini 明确接替选择器中的 o1-mini；o3 与 o4-mini 同日公布。<a href="https://openai.com/index/openai-o3-mini/">o3-mini 公告</a> · <a href="https://openai.com/index/o3-o4-mini-system-card/">o3／o4-mini 系统卡</a></td>
+<td>mini 可跨版本沿用，各档也不必同一数字齐步走。但 mini 一直代表小型号，没有经历旧顶档名变为新次高档</td>
+</tr>
+<tr>
+<td>2025-04-14：GPT-4.1 家族发布，并接替 API 中的 GPT-4.5 Preview</td>
+<td>公告说 4.1 在多项关键能力上相当或更好、成本更低；4.5 Preview 于 2025-07-14 退出 API。<a href="https://openai.com/index/gpt-4-1/">官方公告</a></td>
+<td>数字不是统一的能力排序，满足成本需求也未必沿用前一条产品线的名字；这不是所有任务的性能比较，更不等于 ChatGPT 当时也退役 4.5</td>
+</tr>
+<tr>
+<td>2026-03-17：GPT-5 mini／nano → GPT-5.4 mini／nano</td>
+<td>官方明确比较并称为旧 mini／nano 的升级。<a href="https://openai.com/index/introducing-gpt-5-4-mini-and-nano/">官方公告</a></td>
+<td>同一能力档位跨小版本保留名字，有直接先例；对 Sol 是支持，但不是相同情形</td>
+</tr>
+<tr>
+<td>2026-07-09：GPT-5.6 用 Sol／Terra／Luna</td>
+<td>文档把 Sol 对应此前不带后缀的主型号、Terra 对应 mini、Luna 对应 nano。<a href="https://openai.com/index/gpt-5-6/">发布公告</a> · <a href="https://developers.openai.com/api/docs/models/gpt-5.6-sol">Sol</a> · <a href="https://developers.openai.com/api/docs/models/gpt-5.6-terra">Terra</a> · <a href="https://developers.openai.com/api/docs/models/gpt-5.6-luna">Luna</a></td>
+<td>已有按名字长期分档的明确意图；同时，这次本身就是一次名称重组。官方只说大致对应，不能当作固定参数量或价格承诺</td>
+</tr>
+<tr>
+<td>当前目录：GPT-6 Astra 与 GPT-5.6 三档共存</td>
+<td>当前目录保留旧档位，尚无 GPT-6 Sol。<a href="https://developers.openai.com/api/docs/models">官方目录</a></td>
+<td>已证明跨代共存；还没证明 Astra／Sol／Terra／Luna 四档都会进入 6.0</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>最接近、但仍不完全相同的先例，是 davinci-002。</strong> 它说明公司可以在更强系列出现后继续更新旧名字；它也说明旧名字可能留在旧系列。尚未找到一个已核验、完全对应“旧代顶档专名，在下一代变成非旗舰档”的 OpenAI 先例，不能把上述案例凑成命中率。</p>
+<h3 id="25">2.5 管理层对命名的态度：有规则，也会随产品变化调整</h3>
+<p>🎙️ 2025-06-18 的 OpenAI Podcast 首期，在约 10:30 开始的命名讨论中，Altman 解释：以前训练完一个大模型再发布，代际更好区分；持续后训练使版本更新变得不那么清楚。他当时仍在讨论保留 GPT-5 名字，还是使用 5.1、5.2 等编号，并说新技术路线可能再次让产品分支增加。短句是 “bifurcate the model tree”。<a href="https://podcasts.apple.com/gb/podcast/sam-altman-on-agi-gpt-5-and-whats-next/id1820330260?i=1000713445270">官方播客节目页</a> · <a href="https://singjupost.com/transcript-sam-altman-on-agi-gpt-5-and-whats-next-the-openai-podcast-ep-1/">第三方文字转录</a></p>
+<p>这段旧访谈说明命名会服务产品组织，而非一套永不更改的技术编号。它发生在 Sol 制度之前，不能拿来推翻后来的官方规则；证据取自文字转录，未逐秒核听音频。它的作用是提醒我们给改名和重组留出空间。</p>
+<h2 id="3">3. 核心判断</h2>
+<h3 id="31-sol">3.1 保留 Sol 最强的理由，是公司刚承诺了长期档位</h3>
+<p>🏛️ <span class="tag">事实</span> 2026-07-09 的官方公告把数字解释为代际，将 Sol、Terra、Luna 称为 <u class="key">“durable capability tiers that can advance on their own cadence”</u>。6 月预览公告有同样的表述，两者合并看待。<a href="https://openai.com/index/gpt-5-6/">正式公告</a> · <a href="https://openai.com/index/previewing-gpt-5-6-sol/">预览公告</a></p>
+<p>这句话最自然的意思是：底层模型可以更新，档位名不必每次重取。如果下一代仍有与 Sol 类似的档位，继续叫 Sol 比突然废弃它更符合刚公布的制度。这比“太阳和星星听起来是一套”有力得多。</p>
+<p>沿用名字也让客户更容易理解不同型号。<span class="tag">分析判断</span> 这是商业上的便利，不是巨大的改名障碍：Sol 公开使用的时间还短，模型升级本来也需要重新测试，不能说换个名字就会造成高昂的接口迁移成本。保留判断主要依靠官方制度，而非想象中的品牌忠诚。</p>
+<h3 id="32-sol">3.2 Sol 曾是旗舰，不代表它永远只能排第一</h3>
+<p>🏛️ <span class="tag">事实</span> 官方模型页写的是 <u class="key">“a flagship model in the GPT-5.6 family”</u>，并说 Sol 大致对应旧 GPT-5 家族中不带后缀的主型号。<a href="https://developers.openai.com/api/docs/models/gpt-5.6-sol">Sol 模型页</a></p>
+<p>这里描述的是它在 5.6 家族里的位置，没有规定“任何叫 Sol 的模型必须永远最强”。如果 Astra 是新加的更高档，Sol 变成次高档并不矛盾。就像原来最贵的一款产品，上面出现更贵的型号后，可以继续卖，也可以继续升级。</p>
+<p>但反方向也不能过度推断。5.6 有三档，不代表 6.0 必须凑成四档；Astra 的出现本身也不证明它是第四档。<strong>需要核实的是产品组合，不是从“旗舰”这个词推导一条永久命名法律。</strong></p>
+<h3 id="33-sol">3.3 不用 Sol 最有力的理由，是它与上下两档之间可能没有足够不同的用途</h3>
+<p>🏛️ <span class="tag">来源陈述</span> OpenAI 的 Astra 发布文案显示，在部分指定任务与配置中，<u class="key">Astra 虽然每单位文本收费更高，完成整项任务的成本却可以低于旧 Sol</u>。这是官方测试结果，不能推及所有任务。<a href="https://openai.com/index/gpt-6-astra/">Astra 公告</a></p>
+<p>📚 <span class="tag">来源陈述</span> FUNDA 2026-09-08 的研究引用另一组测试，称 “at billed rates each task still costs about 75% more”。这个比较说明任务与配置不同，账单结论也不同，未取得其全部底层测试记录。<a href="https://fundaai.substack.com/p/deepllm-gpt-6-astra-opens-new-markets">FUNDA 原文</a></p>
+<p>🏛️ <span class="tag">事实</span> <a href="https://developers.openai.com/api/docs/models">官方选型建议</a>：不知道选什么时先用 Astra；平衡能力与成本选 Terra；大量低成本任务选 Luna。Sol 仍在同页目录中。<u class="minor">入门推荐已经可以不经过 Sol</u>，为产品重组提供了一个具体线索；但简短推荐不是完整产品路线图，也不是取消 Sol 的公告。</p>
+<p><span class="tag">分析判断</span> 如果 Astra 可以高效完成大部分原来交给 Sol 的工作，而 Terra 足以承接日常便宜任务，OpenAI 就可能选择 Astra／Terra／Luna，或以其他方式合并档位。这样少一档仍能满足客户。<strong>这才是“不用 Sol”有实质内容的解释。</strong></p>
+<p>反过来，如果很多任务确实不需要 Astra，而 Terra 在能力或可靠性上还不够，Sol 就有独立价值。现有材料证明不同任务的成本关系并不一致，尚未证明这个中间位置会消失。因此，产品重组是认真保留的反方，不能写成已经发生的事实。</p>
+<h3 id="34">3.4 命名历史说明公司会保留有用的名称，也会合并或替换名称</h3>
+<p>🏛️ <span class="tag">事实</span> GPT-3 的四个基础型号后来整合为两个；mini 曾跨版本沿用；GPT-5.6 又用 Terra、Luna 替换旧 mini、nano 的叫法。<u class="key">客户需求可以延续，服务它的名字和档位数量仍会改变</u>。<a href="https://openai.com/index/gpt-3-5-turbo-fine-tuning-and-api-updates/">GPT-3 更新</a> · <a href="https://openai.com/index/openai-o3-mini/">o3-mini</a> · <a href="https://openai.com/index/gpt-5-6/">GPT-5.6</a></p>
+<p>这些先例不能按“保留几次、改名几次”计算概率。mini 的延续没有经历旧旗舰变为次高档；davinci-002 保留了旧名，却仍属旧代际；4o mini 接替低成本用途时换了名字。它们告诉我们哪些情景可行，没有提供一个与 Sol 完全相同的历史样本。</p>
+<p>🎙️ <span class="tag">来源陈述</span> 2025-06-18 的 OpenAI Podcast 也说明，持续训练和技术路线变化会让命名调整。该段发生在 5.6 长期档位规则之前，分量应低于后来更直接的官方承诺，见第 2.5 节。</p>
+<h3 id="35">3.5 独立升级支持名字保留，却削弱同一代一次补齐的把握</h3>
+<p>🏛️ <span class="tag">事实</span> 研究日读取的目录是 GPT-6 Astra 与 GPT-5.6 Sol／Terra／Luna 共存。<u class="key">新旗舰先进入新代际，其余档位留在旧代际</u>，已经是当前产品结构。<a href="https://developers.openai.com/api/docs/models">官方模型目录</a></p>
+<p><span class="tag">分析判断</span> 只要旧 Sol 仍有用，OpenAI 可以继续优化或降价，而不立即推出 6.0 Sol。等它真正升级时，版本号也可能已经到了 6.1。这与“长期档位、各自升级”的表述完全相容，并不需要公司放弃 Sol。</p>
+<p>所以，名字、发布日期、版本号不是三个互不相干的开关。如果先升级 Terra、Luna，半年内虽有新较低档，仍未必赶上 Sol。六个月估计直接对应期限内可观察到的互斥结果，情景权重见附录。</p>
+<h2 id="4">4. 结算口径</h2>
+<h3 id="41-yes">4.1 什么算 YES</h3>
+<p>OpenAI 通过正式的产品公告、开发者文档或模型目录，明确公布至少一款 <strong>GPT-6 通用模型</strong>，它定位于 Astra 之下，且官方名或模型 ID 含独立名称 <strong>Sol</strong>。例如 <code>GPT-6 Sol</code> 或 <code>gpt-6-sol</code>。大小写不影响判断；Solar、Solstice 等词里的字母组合不算 Sol。</p>
+<p>只有 GPT-5.6 Sol 继续销售，或者纯粹为它增加一个别名，不算新 GPT-6 模型。社区传闻、第三方模型路由标签、内部研发代号也不作为官方命名证据。</p>
+<h3 id="42-gpt-6">4.2 什么算“官方公布”与“GPT-6”</h3>
+<p>官方已经明确介绍的预览版可计入，尚不要求所有用户能调用。未说明产品归属的路标、占位网页和拆包字符串不足以计入。</p>
+<p>本文主估计采用 <strong>GPT-6 即 6.0 代际</strong>的观察口径。GPT-6.1 Sol 或 GPT-6.5 Sol 可以证明 Sol 跨代延续，但不自动满足六个月的 GPT-6 Sol 事件。主判断也不要求 Sol 是下一款最先发布的型号。</p>
+<p><strong>若按整个 GPT-6.x 家族理解原题，</strong> 6.1 Sol 等也应计入。在相同截止日下，这一更宽的事件概率不会低于严格 6.0 事件；目前没有足够信息把差额估得很准，因此不给一个貌似精确的新百分比。严格 6.0 与整个 6.x 对应不同事件，概率不能直接比较。</p>
+<p>六个月观察到 2027-03-15 23:59 UTC。如果届时没有新增较低档位，六个月事件判 NO；条件命名问题仍未得到实际检验。</p>
+<h3 id="43">4.3 什么算“非旗舰”</h3>
+<p>指官方把该通用模型放在 Astra 以下的能力或产品档位。优先看官方比较与定位，价格作辅助。给同一个 Astra 降低推理强度、购买便宜套餐或切换速度模式，都不产生新的非旗舰模型。</p>
+<p>GPT-5.6 Sol 曾经是该代旗舰，是已知事实；它是否在下一代成为次高档，是本题需要预测的变化。</p>
+<h2 id="5">5. 情景与路径</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>情景</th>
+<th>截止日时会看到什么</th>
+<th>为什么可能发生</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>最可能的单一结果：严格事件成立</td>
+<td>新增 6.0 非旗舰通用模型，至少一档官方叫 Sol</td>
+<td>保留长期档位，Astra 位于它上方</td>
+</tr>
+<tr>
+<td>有新 6.0 较低档，但没有 Sol</td>
+<td>Terra、Luna 或其他较低档先出现</td>
+<td>Sol 被接替、被合并，或只是尚未轮到升级；这几种原因不能混为“永久弃名”</td>
+</tr>
+<tr>
+<td>没有新 6.0 较低档，但有后续 6.x 较低档</td>
+<td>直接进入 6.1 等版本，可能含 Sol</td>
+<td>独立升级让不同档位跳过某个版本号</td>
+</tr>
+<tr>
+<td>没有任何新 6.x 较低档</td>
+<td>Astra 与旧 5.6 系列继续共存</td>
+<td>旧系列继续满足成本与能力需求</td>
+</tr>
+</tbody>
+</table></div>
+<p>四行按截止日可见结果划分，互斥且穷尽；同一行内部的原因仍可能同时发生。权重仅在附录展示。</p>
+<p><strong>最强反方：Astra 接替主型号，而较低成本需求由 Terra、Luna 和旧 Sol 承接。</strong> 这能解释为什么会有便宜产品，却没有新的 GPT-6 Sol。我们仍倾向保留名称，因为刚公布的长期档位制度更直接，但产品用途重叠会给改组提供合理理由。</p>
+<p><strong>最容易误判的地方：把“截至某日没出现”说成“名字被取消”。</strong> 半年内没有 Sol，可能只是升级顺序；未来出现 6.1 Sol，也不能补算为先前严格 6.0 事件成功。另需避免用天体大小猜参数量、用促销截止日猜新品日期、用界面的推理强度代替官方型号。</p>
+<h2 id="6">6. 关键证据表</h2>
+<p>可靠性说明：A 为官方原文；B 为具名当事人发言的转录或会议纪要；C 为作者分析。等级用于说明证据到事实之间的距离，不替作者观点背书。</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>事实或说法</th>
+<th>倾向</th>
+<th>来源、日期、链接</th>
+<th>层级与限制</th>
+<th>支撑的路径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数字标代际，Sol／Terra／Luna 为可分别升级的长期能力档位</td>
+<td>支持沿用</td>
+<td>🏛️ OpenAI，2026-06-26、2026-07-09；<a href="https://openai.com/index/previewing-gpt-5-6-sol/">预览</a>／<a href="https://openai.com/index/gpt-5-6/">发布</a></td>
+<td>A；两次表述合并为一个证据簇</td>
+<td>名称保留</td>
+</tr>
+<tr>
+<td>当前目录为 6 Astra 与 5.6 三档共存</td>
+<td>对时间构成约束</td>
+<td>🏛️ <a href="https://developers.openai.com/api/docs/models">官方目录</a>，读取于 2026-09-15</td>
+<td>A；目录反映当前产品，不是完整未来路线图</td>
+<td>分档独立升级</td>
+</tr>
+<tr>
+<td>Sol 促销至少持续到 11 月下旬</td>
+<td>弱支持旧档继续承接需求</td>
+<td>🏛️ <a href="https://developers.openai.com/api/docs/models/gpt-5.6-sol">Sol 模型页</a>，读取于 2026-09-15</td>
+<td>A；价格期限不能当发布日</td>
+<td>延续旧版本</td>
+</tr>
+<tr>
+<td>在不同智能档位追求价格表现</td>
+<td>支持多档产品</td>
+<td>🎙️ <a href="https://pod.wave.co/podcast/bloomberg-talks-1/openai-ceo-sam-altman-talks-gpt-6-astra-debut-going-public">Altman／Bloomberg Talks</a>，2026-09-03，约 10:53</td>
+<td>B；第三方转录，未逐秒核听原音频</td>
+<td>较便宜产品继续发展</td>
+</tr>
+<tr>
+<td>前沿模型帮助训练较便宜子模型</td>
+<td>支持产品分层</td>
+<td>📚 <a href="https://geoscopeapp.com/api/v1/member/publishers/TMT%20Breakout/articles/2026.09.09-0132-tmtb-openai-cfo-sarah-friar-at-gs/markdown">TMT Breakout／Friar 高盛会议纪要</a>，目录日 2026-09-08</td>
+<td>B；纪要不是逐字稿；未取得该句原始录音</td>
+<td>低成本型号供给</td>
+</tr>
+<tr>
+<td>认为某些任务上 Astra 实际账单仍高于 Sol</td>
+<td>支持旧 Sol 仍有用途</td>
+<td>📚 <a href="https://fundaai.substack.com/p/deepllm-gpt-6-astra-opens-new-markets">FUNDA</a>，原页日期 2026-09-08</td>
+<td>C；测试选择与归因需复核，不直接预测名称</td>
+<td>旧档继续存在</td>
+</tr>
+<tr>
+<td>推理程度标签不能可靠说明底层型号</td>
+<td>限制观察口径</td>
+<td>📚 <a href="https://geoscopeapp.com/api/v1/member/publishers/Stratechery/articles/2026.07.14-1800-the-openai-super-app-chatgpt-codex-whither-chat/markdown">Stratechery</a>，目录日 2026-07-14</td>
+<td>C；历史实测，不冒充当前界面</td>
+<td>以官方型号为准</td>
+</tr>
+<tr>
+<td>主持人推测天体名对应更大模型，并承认不知道参数量</td>
+<td>很弱的旁证</td>
+<td>🎙️ <a href="https://www.superdatascience.com/podcast/sds-1026-openais-gpt-6-astra">SuperDataScience 第 1026 期</a>，2026-09-11，约 01:06</td>
+<td>C；主持人推断，没有内部消息</td>
+<td>仅说明外部如何理解名字</td>
+</tr>
+<tr>
+<td>mini／nano 曾跨版本沿用</td>
+<td>支持保留档位名</td>
+<td>🏛️ <a href="https://openai.com/index/introducing-gpt-5-4-mini-and-nano/">GPT-5.4 mini／nano</a>，2026-03-17</td>
+<td>A；低档延续不是旧顶档转为次高档的直接先例</td>
+<td>名称延续可行</td>
+</tr>
+<tr>
+<td>GPT-3 的四个基础型号缩成两个新型号</td>
+<td>支持名字可能被合并</td>
+<td>🏛️ <a href="https://openai.com/index/gpt-3-5-turbo-fine-tuning-and-api-updates/">GPT-3 更新</a>，2023-08-22</td>
+<td>A；不同年代、不同产品，不当作频率样本</td>
+<td>保留或删减名字都可发生</td>
+</tr>
+<tr>
+<td>Sol／Terra／Luna 与旧主型号／mini／nano 大致对应</td>
+<td>同时支持稳定档位与旗舰替换解释</td>
+<td>🏛️ <a href="https://developers.openai.com/api/docs/models/gpt-5.6-sol">Sol</a>／<a href="https://developers.openai.com/api/docs/models/gpt-5.6-terra">Terra</a>／<a href="https://developers.openai.com/api/docs/models/gpt-5.6-luna">Luna</a>，读取于 2026-09-15</td>
+<td>A；不是参数量或价格的一一对应</td>
+<td>Astra 是否接替 Sol</td>
+</tr>
+<tr>
+<td>持续训练与新技术路线会影响命名</td>
+<td>支持命名仍有弹性</td>
+<td>🎙️ <a href="https://singjupost.com/transcript-sam-altman-on-agi-gpt-5-and-whats-next-the-openai-podcast-ep-1/">Altman 访谈转录</a>，节目 2025-06-18</td>
+<td>B；旧访谈、第三方转录，不覆盖 5.6 后来的承诺</td>
+<td>对改名保留空间</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>同源合并。</strong> 对官方命名规则的媒体转述全部回归 OpenAI 原文，不重复增加权重。FUNDA 周报对其深度报告的复述也只算一次。CFO 在会议上的发言，无论出现在订阅纪要还是媒体报道，仍属于同一场发言。播客中的官方性能数字同样不作为新增独立验证。</p>
+<h2 id="7">7. 信息缺口树</h2>
+<p><strong>一、命名决定：适合询问模型产品、开发者平台或产品营销负责人。</strong></p>
+<ul>
+<li>Astra 是新增档位，还是 Sol 的继任名称？</li>
+<li>Sol／Terra／Luna 的长期档位规则是否覆盖 6.0 代际？</li>
+<li>已经完成命名审批，还是只有候选名称？</li>
+</ul>
+<p>这组答案直接改变主命名判断，价值高于再增加一篇性能解读。当前没有这类已核验的一手回答。</p>
+<p><strong>二、升级顺序：适合询问模型产品与发布负责人。</strong></p>
+<ul>
+<li>Astra 以下是否有新通用型号进入发布准备？</li>
+<li>是先补 Sol，还是先升级 Terra／Luna？</li>
+<li>对外版本号打算用 6.0、6.x，还是延续 5.x？</li>
+</ul>
+<p>这组答案主要改变推出时间和版本归属。现有安全、训练与成本材料无法替代产品时间表。</p>
+<p><strong>三、公开验证：直接跟踪官方材料。</strong></p>
+<ul>
+<li>官方模型目录是否新增独立型号？</li>
+<li>发布文档是否明确说明它和 Astra 的档位关系？</li>
+<li>新型号是否只是旧模型的别名？</li>
+</ul>
+<p>这些问题仍缺少直接的一手回答。</p>
+<h2 id="8">8. 信源覆盖与限制</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>信源层</th>
+<th>已覆盖内容</th>
+<th>有效信息与边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>公开互联网</td>
+<td>Exa 搜索及官网原文，包括命名公告、模型目录、型号页、价格更新和历史迁移说明</td>
+<td>官方材料支持长期档位制度；尚未取得直接宣布或否认 GPT-6 Sol 的材料</td>
+</tr>
+<tr>
+<td>公开播客</td>
+<td>Bloomberg Talks、OpenAI Podcast、TBPN／Brockman、SuperDataScience 的文字材料</td>
+<td>管理层表态解释产品分档与命名动机；第三方转录未经逐秒核听，主持人猜测不作为内部消息</td>
+</tr>
+<tr>
+<td>买方常用订阅研究与机构资料</td>
+<td>授权扩展资源库中的 FUNDA、TMT Breakout、Stratechery 等相关段落与实时目录</td>
+<td>主要价值是任务经济性和管理层分档动机；没有可核验的命名独家消息，也不能把所有作者统称为买方机构</td>
+</tr>
+<tr>
+<td>本地访谈与播客</td>
+<td>已配置来源的全文检索</td>
+<td>命中的腾讯材料与本题无关，未采用；19 个未下载的云占位文件不在正文覆盖内</td>
+</tr>
+</tbody>
+</table></div>
+<p>扩展资源库的可检索目录多于已索引正文，部分专区仍存在历史与未下载正文缺口。Sources／Altman 页面正文受订阅限制，只取得导语；卖方摘要不等于原始研报全文。上述限制意味着“没有搜到命名消息”不能证明消息不存在。</p>
+<p><strong>官网已经回答了命名制度，仍未回答 GPT-6 后续产品组合。</strong> 关于 Astra 与 Sol 的材料大多讨论性能、成本或旧型号共存，不能据此当作 GPT-6 Sol 发布预告。</p>
+<h2 id="9">9. 研究说明</h2>
+<ul>
+<li>概率是基于公开制度、产品结构与历史先例的主观估计，没有足够同类样本可用于统计校准。</li>
+<li>官方事实、管理层发言、纪要转述、作者判断与分析估计分别标注；同一底层信息的转述合并看待。</li>
+<li>任务成本比较只适用于来源所测任务与配置，不能推广到全部使用场景。</li>
+<li>截止日、产品档位与版本号按第 4 节统一定义；附录情景互斥且合计完整。</li>
+</ul>
+<h2 id="10">10. 最终预测声明</h2>
+<p><strong>条件于 GPT-6 增加 Astra 以下的通用模型，至少一档官方沿用 Sol：约 70%。截至 2027-03-15 已公布符合严格 6.0 口径的 GPT-6 Sol：约 50%。</strong></p>
+<h2 id="_1">附录：估计依据与情景权重</h2>
+<h3 id="_2">当前估计怎样理解</h3>
+<p>条件命名约七成，主要依据是官方刚公布的长期档位制度；产品用途重叠、档位合并与过去的命名调整限制了确信程度。六个月事件约五成，还包括发布节奏与版本归属的不确定性。</p>
+<p>主观合理范围为：条件命名 <strong>50%–85%</strong>，六个月事件 <strong>35%–75%</strong>。这些范围表达判断的不确定性，不是统计置信区间，也没有经过本题结果校准。</p>
+<h3 id="_3">六个月互斥情景</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>截止日时的结果</th>
+<th>主观权重</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新增较低档 6.0，至少一档叫 Sol</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>新增较低档 6.0，但截止日尚无 Sol</td>
+<td>20%</td>
+</tr>
+<tr>
+<td>没有新较低档 6.0，但已有后续小版本的较低档 6.x</td>
+<td>15%</td>
+</tr>
+<tr>
+<td>没有任何新较低档 6.x</td>
+<td>15%</td>
+</tr>
+<tr>
+<td>合计</td>
+<td><strong>100%</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>第一项权重最高，因为长期档位制度支持保留。第二项为产品档位调整和不同型号的升级顺序留出空间。后两项共同反映没有公开时间表、旧 5.6 可以继续供给，以及版本可能跳跃。第三与第四项各半是信息有限时的粗分，不是历史频率。</p>
+<p>这些权重是对联合结果的主观判断，没有从观测数据拟合。条件命名约七成回答另一个不限时条件问题，不能机械替代“截止日前已经叫 Sol”的概率。</p>
+<h3 id="_4">哪些信息会改变判断</h3>
+<ul>
+<li>官方明确 Astra／Sol／Terra／Luna 的后续产品关系，或将 Astra 定义为原档位的继任者。</li>
+<li>官方公布新较低档型号的版本号、发布日期和名称，并说明它属于新品还是旧型号别名。</li>
+<li>可复现的任务成本与能力比较显示，Sol 对应的中间位置有稳定用途，或已被上下档充分覆盖。它影响档位价值，但仍不是命名承诺。</li>
+</ul></main></div>
+</body></html>
