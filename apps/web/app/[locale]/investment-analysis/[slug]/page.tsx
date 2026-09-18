@@ -45,6 +45,12 @@ const REPORTS: Record<
     descriptionKey: "iaAbivaxMetaDescription",
     iframeTitleKey: "iaAbivaxFrameTitle",
     src: "/investment-analysis/reports/abivax-acquisition-6m.html"
+  },
+  "aws-operating-margin-5y": {
+    titleKey: "iaAwsMetaTitle",
+    descriptionKey: "iaAwsMetaDescription",
+    iframeTitleKey: "iaAwsFrameTitle",
+    src: "/investment-analysis/reports/aws-operating-margin-5y.html"
   }
 };
 

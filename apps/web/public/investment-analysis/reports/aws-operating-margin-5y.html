@@ -1,0 +1,970 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AWS 未来五年经营利润率能否超过 40%</title><link rel="icon" href="data:,">
+<style>
+:root{--ink:#18201d;--muted:#657069;--paper:#fffdf8;--canvas:#eeeae1;--line:#d9d4c8;--accent:#9d3f25;--accent-soft:#f5e7df;--shadow:0 18px 55px rgba(47,42,31,.10)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:var(--canvas);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;line-height:1.72}
+.topbar{position:sticky;top:0;z-index:10;background:rgba(255,253,248,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1480px;margin:auto;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-weight:750;letter-spacing:.02em}.brand span{color:var(--accent)}
+.meta{font-size:13px;color:var(--muted)}
+.layout{max-width:1480px;margin:28px auto 64px;padding:0 24px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px}
+.toc{position:sticky;top:72px;align-self:start;max-height:calc(100vh - 96px);overflow:auto;padding:18px 14px;border:1px solid var(--line);border-radius:14px;background:rgba(255,253,248,.72)}
+.toc-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.toc a{display:block;color:var(--ink);text-decoration:none;font-size:13.5px;padding:4px 8px;border-radius:8px;margin:1px 0}
+.toc a:hover{background:var(--accent-soft);color:var(--accent)}
+main{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:40px 48px 56px;min-width:0}
+main h1{font-size:26px;line-height:1.35;margin:.2em 0 .6em;letter-spacing:.01em}
+main h2{font-size:21px;margin:2.2em 0 .7em;padding-top:.6em;border-top:1px solid var(--line)}
+main h3{font-size:17px;margin:1.6em 0 .5em;line-height:1.5}
+main h2:first-of-type{border-top:none;padding-top:0;margin-top:1em}
+main a{color:var(--accent)}
+main blockquote{margin:1.2em 0;padding:12px 18px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0}
+main blockquote p{margin:.3em 0}
+.tablewrap{overflow-x:auto;margin:1.1em 0}
+main table{border-collapse:collapse;font-size:14px;min-width:60%}
+main th{background:var(--accent-soft);color:var(--ink);text-align:left;font-weight:650}
+main th,main td{border:1px solid var(--line);padding:8px 12px;vertical-align:top;line-height:1.65}
+main tr:nth-child(even) td{background:rgba(238,234,225,.35)}
+main code{background:var(--canvas);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.9em}
+main hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+main li{margin:.25em 0}
+main ul ul,main ol ul{margin-top:.2em}
+main strong{color:#111}
+main u.key{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:4px}
+main u.minor{text-decoration:underline dotted;text-decoration-color:#9aa39d;text-decoration-thickness:1.5px;text-underline-offset:4px}
+main u.ask{text-decoration:underline;text-decoration-color:#8d9a91;text-decoration-thickness:1px;text-underline-offset:5px;font-weight:600;color:#2f3a34}
+main li>u.ask{display:inline-block;margin-bottom:.25em}
+.tag{display:inline-block;font-size:11.5px;line-height:1;padding:3px 6px;border-radius:5px;background:var(--canvas);border:1px solid var(--line);color:var(--muted);margin-right:5px;vertical-align:1px;white-space:nowrap}
+.note{display:block;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.55;font-weight:400}
+.legend{font-size:13.5px;color:#4d5651;background:rgba(238,234,225,.5);border:1px dashed var(--line);border-radius:10px;padding:10px 14px;margin:.6em 0 1.2em;line-height:1.75}
+.legend p{margin:.2em 0}
+.formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"PingFang SC","Hiragino Sans GB",monospace;background:var(--canvas);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:1em 0;line-height:2;font-size:13.5px;overflow-x:auto;white-space:nowrap}
+.formula b{color:var(--accent)}
+.org td:first-child,.tight1 td:first-child{white-space:nowrap}
+.org td:first-child{font-weight:650}
+.org td:nth-child(2){width:58%}
+.org td:nth-child(3){min-width:260px}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.toc{position:static;max-height:none}main{padding:24px 20px}}
+</style></head><body>
+<div class="topbar"><div class="topbar-inner"><div class="brand">Predict-Raven</div><div class="meta">AWS 未来五年经营利润率能否超过 40%｜生成 2026-09-18｜research-only / market-blind</div></div></div>
+<div class="layout"><nav class="toc"><div class="toc-title">目录</div><a href="#aws-40">AWS 未来五年经营利润率能否超过 40%</a>
+<a href="#1">1. 阅读结论</a>
+<a href="#2">2. 路径推演</a>
+<a href="#3">3. 核心判断</a>
+<a href="#4">4. 结算口径</a>
+<a href="#5">5. 情景与路径</a>
+<a href="#6">6. 关键证据表</a>
+<a href="#7">7. 信息缺口树</a>
+<a href="#8">8. 信源梯度反馈</a>
+<a href="#9">9. 自检结果</a>
+<a href="#10">10. 最终预测声明</a>
+<a href="#_3">附录·当前估计依据</a></nav><main><h1 id="aws-40">AWS 未来五年经营利润率能否超过 40%</h1>
+<div class="note">
+<p>研究日 2026-09-18｜窗口 2026-09-18 至 2031-09-18｜结算口径见第 4 节</p>
+</div>
+<h2 id="1">1. 阅读结论</h2>
+<p><strong>原题：</strong> aws业务在接下来5年里的利润率能超过40%嘛？</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>问的是什么</th>
+<th>概率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>摸到：窗口内至少有一个季度的 AWS 分部经营利润率超过 40.0%</strong> <br><span class="note">Q3 2026 到 Q2 2031 共 20 个季度，按 Amazon 自己在财报里报告的分部口径</span></td>
+<td><strong>65%</strong></td>
+</tr>
+<tr>
+<td>全年站上：FY2027–FY2030 至少有一个完整财年超过 40.0%</td>
+<td><strong>22%</strong></td>
+</tr>
+<tr>
+<td><strong>站稳：窗口内出现连续四个季度合计超过 40.0%</strong></td>
+<td><strong>25%</strong></td>
+</tr>
+</tbody>
+</table></div>
+<div class="note">
+<p>三个数字的关系：AWS 的季度利润率波动很大——2025 年一季度到二季度，一个季度就掉了 6.5 个百分点；光是电力合约的公允价值重估，一个季度也能上下拨动一个多百分点。波动对"摸到"是帮手（20 次机会里总有好的一次），对"站稳"是阻力（连续四个季度都得站住）。所以"摸到"和"站稳"差了 40 个百分点，这不是口径的文字游戏，是两个难度完全不同的问题。</p>
+</div>
+<p><strong>一句话结论：我们认为五年内 AWS 较大概率能摸到 40% 以上的单季利润率（65%），但真正站稳的把握不大（25%）。</strong></p>
+<p>原因是两条同时成立：<strong>起点比表面上看到的低</strong>——2026 年二季度报出来的 39.4% 里，有大约 1.4 个百分点来自电力合约的一次性会计收益，扣掉之后是 37.9%，离 40% 是两个百分点而不是零点六个；<strong>并且，一笔巨大的折旧账还没开始还</strong>——过去四个季度 AWS 投进固定资产的钱是同期折旧的五倍多，这些数据中心一旦开门，折旧会以远快于收入的速度进损益表。能不能过线，取决于收入增速和折旧爬坡这两条线谁跑得快，而不取决于 AWS 现在离 40% 有多近。</p>
+<h2 id="2">2. 路径推演</h2>
+<h3 id="20">2.0 标的背景</h3>
+<p>AWS（Amazon Web Services）是亚马逊的云计算部门，2006 年开始对外提供服务，是全球第一家、目前仍然最大的公有云厂商。它把服务器、存储、数据库、网络和一整套软件工具按用量出租给企业客户——从初创公司到银行、政府和现在的人工智能实验室。</p>
+<p>在亚马逊内部，它是<strong>利润的来源，不是收入的来源</strong>。2026 年二季度，AWS 的净销售额是 <strong>422 亿美元</strong>，占亚马逊总收入的 21%；但它贡献的分部经营利润是 <strong>166 亿美元</strong>，占亚马逊全部经营利润（275 亿美元）的 <strong>60%</strong>。换句话说，零售业务负责规模，AWS 负责赚钱。这也是为什么 AWS 的利润率会成为一道值得单独下注的题目——它基本决定了整个亚马逊的盈利叙事。</p>
+<p>当下 AWS 正处在一个特殊的阶段。二季度收入同比增长 <strong>36.7%</strong>，是十八个季度以来最快；Jassy 说人工智能业务和自研芯片业务的年化收入各自都已经超过 250 亿美元。与此同时，亚马逊正在以史无前例的速度花钱建数据中心：过去十二个月购置不动产及设备 <strong>1,730 亿美元</strong>，导致公司整体的自由现金流转为<strong>流出 76 亿美元</strong>。</p>
+<p>这道题之所以难，是因为<strong>这两件事是同一件事的两面</strong>。AI 需求带来了收入加速，也带来了必须先花出去的资本开支；而资本开支会在未来几年变成折旧，压在同一条利润率上。所以问"五年内利润率能不能超过 40%"，实际上是在问：<strong>AI 带来的收入和经营效率，跑不跑得赢它自己带来的折旧。</strong></p>
+<div class="legend">
+<p><strong>几个后文反复出现的词，先解释清楚：</strong></p>
+<ul>
+<li><strong>分部经营利润率</strong>：AWS 这个分部的经营利润 ÷ 它的净销售额。亚马逊在季报和年报里直接给出这两个数字，本报告全部采用它自己报告的口径，不做任何还原。</li>
+<li><strong>折旧摊销</strong>：买来的服务器和数据中心不能在买的当年一次性记成费用，要按预计能用多少年分摊。分摊到每一年的那笔账就是折旧，它是 AWS 成本里最大也最刚性的一块。</li>
+<li><strong>使用年限</strong>：企业自己估计一台设备能用几年。年限估得越长，每年分摊的折旧越少，当期利润越高。这个估计可以变更，亚马逊变更过三次。</li>
+<li><strong>在建工程</strong>：已经花了钱、但还没投入使用的资产（比如还在盖的数据中心）。<strong>在建工程不计提折旧</strong>，要等投入使用才开始算。这是理解 AWS 当前利润率的关键。</li>
+<li><strong>资本开支</strong>：买地、盖楼、买服务器花出去的钱。它不直接进利润表，而是先变成资产，再通过折旧慢慢进利润表。</li>
+<li><strong>折旧前经营利润率</strong>：把折旧加回去之后的利润率。它衡量的是"这门生意本身赚不赚钱"，剔除了会计分摊的影响。本报告用它和折旧占收入比这两条线，来描述整个问题。</li>
+<li><strong>合同余额</strong>：客户已经签了合同、承诺未来要花、但还没确认成收入的金额。它是对未来收入的一个可见度指标。</li>
+</ul>
+</div>
+<h3 id="21">2.1 拆解树</h3>
+<p>"五年内 AWS 分部经营利润率超过 40%"要成立，需要<strong>三个条件同时满足</strong>。这三个条件不是并列的——第一和第二条是一场赛跑，第三条是一个可能随时掀桌的干扰项。</p>
+<p>经营利润率 = 折旧前经营利润率 − 折旧占收入比。2026 年二季度这个式子是：<strong>58.5% − 19.1% = 39.4%</strong>。要让结果过 40%，要么左边涨得更快，要么右边涨得更慢。</p>
+<p><strong>一、折旧前经营利润率继续往上爬（研究权重 35%，对应 P(经营效率继续改善)）</strong></p>
+<ul>
+<li><u class="ask">这条线现在跑多快？</u><ul>
+<li>2023 年 40.9% → 2024 年 49.4% → 2025 年 52.1% → 2026 年二季度 58.5%。三年半涨了 17.5 个百分点，<strong>平均每年 +5 个百分点</strong>。</li>
+<li>这是本题最有力的正面事实。一门生意的折旧前利润率能连涨三年半，说明规模效应是真的。</li>
+</ul>
+</li>
+<li><u class="ask">它是怎么涨上来的？</u><ul>
+<li>收入从 907 亿涨到年化 1,690 亿，而电力、人力、场地这些成本不按同比例增长——这是经典的经营杠杆。</li>
+<li>自研芯片（Trainium、Graviton）替代外购 GPU，同样的算力自己造更便宜。</li>
+<li>收入结构里高毛利的软件层（Bedrock 这类按调用量收费的模型服务）占比在上升。</li>
+</ul>
+</li>
+<li><u class="ask">它还能涨多久？</u><ul>
+<li>这是整道题最不确定的地方。58.5% 已经很高，再往上意味着 AWS 要越来越像一门软件生意。</li>
+<li>但它有物理下限：电费、土地、人工是真金白银的开支，不会随规模消失。</li>
+<li><strong>我们的测算是：要在 2028 年把经营利润率推过 40%，折旧前利润率得到 68%–76%。</strong> 按每年 +5 个百分点的当前速度，勉强够得着；按每年 +2.5 个百分点，够不着。</li>
+</ul>
+</li>
+</ul>
+<p><strong>二、折旧占收入比不失控（研究权重 45%，对应 P(折旧爬坡可控)）</strong></p>
+<ul>
+<li><u class="ask">现在欠了多少还没还？</u><ul>
+<li>过去四个季度 AWS 分部的固定资产净增加约 <strong>1,500 亿美元</strong>，而同期分部折旧只有约 <strong>276 亿美元</strong>——<strong>五倍多的落差</strong>。</li>
+<li>AWS 分部的固定资产净值从 2023 年底的 727 亿，涨到 2026 年 6 月底的 <strong>2,638 亿</strong>，两年半翻了将近三倍。</li>
+</ul>
+</li>
+<li><u class="ask">为什么现在还没压下来？</u><ul>
+<li>因为<strong>在建工程不计提折旧</strong>。Jassy 自己说数据中心要提前大约两年动工，开门之后才开始变现，也才开始折旧。</li>
+<li>这解释了一条很容易被误读的曲线：AWS 固定资产的实际折旧率（当年折旧 ÷ 平均账面余额）从 2021 年的 24.7% 一路降到 2026 年的约 11%。<strong>不是设备变耐用了，是资产结构里没开始折旧的部分越来越多。</strong></li>
+</ul>
+</li>
+<li><u class="ask">那这笔账什么时候还？</u><ul>
+<li>2027 到 2029 年。我们用两种互相独立的方法测算（见附录），结论一致：折旧占收入比会从现在的 19% 升到 25%–35% 区间，具体落在哪里取决于收入增速。</li>
+<li><strong>这是本题最硬的反方，也是我们把"站稳"的概率压到 30% 的主要原因。</strong></li>
+</ul>
+</li>
+<li><u class="ask">有没有办法让它慢一点？</u><ul>
+<li>有，而且这个开关在管理层自己手里：<strong>延长使用年限</strong>。见下一节。</li>
+</ul>
+</li>
+</ul>
+<p><strong>三、没有一次性费用把某个季度砸穿（研究权重 20%，对应 P(不被一次性项目打断)）</strong></p>
+<ul>
+<li><u class="ask">历史上出现过吗？</u><ul>
+<li>出现过，而且方向是双向的。2025 年全年约 27 亿美元遣散费；2026 年二季度则有大约 6 亿美元的<strong>电力合约公允价值收益</strong>，方向是正的。</li>
+</ul>
+</li>
+<li><u class="ask">这类项目有多大？</u><ul>
+<li>电力合约那一项，就给二季度的 AWS 利润率贡献了大约 <strong>1.4 个百分点</strong>。亚马逊在季报里写明这类未实现损益记在<strong>经营费用</strong>里，也就是说它确实进分部经营利润。</li>
+<li>截至 2026 年 6 月底，受公允价值计量约束的电力合约约 <strong>2.7 亿兆瓦时</strong>，加权平均剩余期限约 15 年，且属于估值判断空间最大的一类（第三层级）。<strong>这意味着未来每个季度都可能被它拨动一到两个百分点，方向不定。</strong></li>
+</ul>
+</li>
+<li><u class="ask">这对结论意味着什么？</u><ul>
+<li>对"摸到 40%"是<strong>利好</strong>：20 个季度里，只要有一个季度赶上一笔大的正向重估，就可能把 39% 推过线。</li>
+<li>对"站稳 40%"是<strong>利空</strong>：连续四个季度都不能翻车，而这类项目本身不可预测。</li>
+</ul>
+</li>
+</ul>
+<h3 id="22">2.2 谁能决定这个结果</h3>
+<div class="note">
+<p>这道题没有"关系"意义上的博弈对手，决定结果的是几只手分别按在几个开关上。所以这张表列的是<strong>开关和按开关的人</strong>。"打灯"是客户自己的用法：给当前状态打一个 5 分制的分，绿灯＝顺畅，黄灯＝方向一致但执行待验证，红灯＝有结构性摩擦。</p>
+</div>
+<div class="tight1">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>开关（谁在按）</th>
+<th>打灯</th>
+<th>当前状态</th>
+<th>对本题意味着什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>使用年限估计</strong><br><span class="note">Amazon 财务与 Jassy</span></td>
+<td>3 黄</td>
+<td>10-K 写明服务器与网络设备是"五到六年"。2024 年 1 月刚从 5 年延到 6 年；<strong>2025 年 1 月又把一部分从 6 年缩回 5 年</strong>，理由是"人工智能带来的技术迭代加快"，当年多提折旧 14 亿美元，年报原文说这"主要影响我们的 AWS 分部"</td>
+<td>这是一个价值 3 到 5 个百分点、几乎可以立刻兑现的开关，历史上动过三次。但<strong>最近一次是往不利方向动的</strong>，说明管理层自己认为 AI 设备的经济寿命在变短。黄灯不是绿灯</td>
+</tr>
+<tr>
+<td><strong>资本开支节奏</strong><br><span class="note">Jassy</span></td>
+<td>2 红</td>
+<td>2026 年现金资本开支指引从约 2,000 亿上调到约 2,200 亿，上调理由是内存涨价而不是需求变化；Jassy 说即便花到这个数，2026 和 2027 年的容量仍然不够用</td>
+<td>花得越多、越快，折旧爬坡越陡。"因为涨价而多花"尤其伤——同样的算力买贵了，折旧变多而收入不变。这是当前最明确的结构性摩擦</td>
+</tr>
+<tr>
+<td><strong>收入增速</strong><br><span class="note">客户需求与产能</span></td>
+<td>4 绿</td>
+<td>二季度同比 +36.7%，十八个季度最快；合同余额约 <strong>4,960 亿美元</strong>，加权平均剩余期限 6.4 年</td>
+<td>分母跑得越快，折旧占比越低。这是唯一能同时解决两条线的变量，目前状态最好</td>
+</tr>
+<tr>
+<td><strong>自研芯片渗透率</strong><br><span class="note">Matt Garman</span></td>
+<td>4 绿</td>
+<td>Garman 2026-08-03 在 Bloomberg Talks 说 Trainium 产能"基本卖光到明年年底"，推理工作负载相对外购方案可省"20% 到 30%"的成本</td>
+<td>直接抬折旧前利润率。OpenAI 与 Anthropic 的巨额合同里都写了与 AWS 自研芯片性能相关的条款，说明这不是宣传</td>
+</tr>
+<tr>
+<td><strong>定价</strong><br><span class="note">竞争格局</span></td>
+<td>3 黄</td>
+<td>Google Cloud 二季度收入同比 <strong>+81.8%</strong>，分部利润率从 20.7% 升到 35.6%，并开始对外销售 TPU 硬件；微软智能云分部整个财年 41.3%</td>
+<td>竞争对手的利润率在快速逼近，同时增速快得多。价格战尚未出现，但对手的成本曲线在改善</td>
+</tr>
+<tr>
+<td><strong>一次性项目</strong><br><span class="note">不由人控制</span></td>
+<td>3 黄</td>
+<td>电力合约公允价值重估（本季 +1.4 个百分点）、遣散费、资产减值</td>
+<td>增加单季波动。帮"摸到"，害"站稳"</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<h3 id="23">2.3 结构快照</h3>
+<div class="org">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>要素</th>
+<th>当前事实</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>规模与地位</strong></td>
+<td>2026 年二季度 AWS 净销售额 $422.3 亿，分部经营利润 $166.2 亿，利润率 <strong>39.36%</strong>；占亚马逊收入 21%、经营利润 60%（🏛️ Amazon 8-K 附件 99.1，2026-07-30）</td>
+<td>收入同比 +36.7%，为十八个季度最快</td>
+</tr>
+<tr>
+<td><strong>利润率历史</strong></td>
+<td>2019Q1 至 2026Q2 三十个季度：最低 2023Q1 的 <strong>23.99%</strong>，最高 <strong>2025Q1 的 39.45%</strong>（高于本季）。全年口径：FY2023 27.14%、FY2024 37.04%、FY2025 35.43%、2026 上半年 38.56%（🏛️ Amazon 历年 8-K 与 10-K）</td>
+<td><strong>AWS 已经两次站上 39.4% 又退了回来，且从来没有任何一个完整财年超过 38%</strong></td>
+</tr>
+<tr>
+<td><strong>滚动四季度</strong></td>
+<td>历史最高是截至 2025Q1 的 <strong>37.54%</strong>，当前（截至 2026Q2）为 <strong>36.85%</strong>（🏛️ 同上，自算）</td>
+<td>"站稳 40%"需要比历史最好水平再高 2.5 个百分点并维持整整一年</td>
+</tr>
+<tr>
+<td><strong>折旧负担</strong></td>
+<td>AWS 分部折旧摊销：FY2023 $125.3 亿 → FY2024 $133.2 亿 → FY2025 $214.5 亿 → 2026 上半年 $153.5 亿。占收入比 13.8% → 12.4% → 16.7% → 19.1%（🏛️ Amazon 10-K 分部附注，2026-02；10-Q，2026-07）</td>
+<td>两年半上升 5.3 个百分点，且加速</td>
+</tr>
+<tr>
+<td><strong>资产堆积</strong></td>
+<td>AWS 分部固定资产净增加：FY2023 $248 亿 → FY2024 $533 亿 → FY2025 $965 亿 → 2026 上半年 $890 亿。分部固定资产净值 2023 年底 $727 亿 → 2026-06-30 <strong>$2,638 亿</strong>（🏛️ 同上）</td>
+<td><strong>过去四个季度净增加约 $1,500 亿，同期折旧仅约 $276 亿——五倍多的缺口</strong></td>
+</tr>
+<tr>
+<td><strong>使用年限政策</strong></td>
+<td>10-K：服务器与网络设备"五到六年"。2024-01-01 起服务器 5→6 年；<strong>2025-01-01 起一部分服务器与网络设备 6→5 年</strong>，原文：“The shorter useful lives are due to the increased pace of technology development, particularly in the area of artificial intelligence and machine learning.” 当年多提折旧 $14 亿、减少净利润 $10 亿，“which primarily impacted our AWS segment”（🏛️ Amazon 10-K，2026-02）</td>
+<td>三次变更中最近一次是<strong>缩短</strong>，不是延长</td>
+</tr>
+<tr>
+<td><strong>需求可见度</strong></td>
+<td>合同余额约 <strong>$4,960 亿</strong>（2026-06-30，主要来自 AWS），加权平均剩余期限 <strong>6.4 年</strong>。OpenAI 在原有 $380 亿基础上追加 $1,000 亿／8 年；Anthropic 追加超 $1,000 亿／10 年。两笔都含与 AWS 自研芯片性能相关的合同义务（🏛️ Amazon 10-Q，2026-07）</td>
+<td>合同余额约为当前年化收入的 2.9 倍</td>
+</tr>
+<tr>
+<td><strong>电力合约的会计影响</strong></td>
+<td>受公允价值计量的电力合约约 <strong>2.7 亿兆瓦时</strong>，加权平均剩余期限约 15 年，属第三层级估值。衍生品资产 2025-12-31 $1.12 亿 → 2026-06-30 $7.05 亿，负债 $1.39 亿 → $1.33 亿；一季度影响"不重大"，即半年约 $6 亿的改善几乎全落在二季度。未实现损益记在<strong>经营费用</strong>内（🏛️ Amazon 10-Q，2026-07 与 2026-04）</td>
+<td>新增的一个单季 ±1 到 2 个百分点的噪音源</td>
+</tr>
+<tr>
+<td><strong>同业对照</strong></td>
+<td>微软智能云分部 FY2026 收入 $1,377.9 亿、经营利润 $569.7 亿 → <strong>41.3%</strong>（FY2025 为 42.0%）；Google Cloud 2026Q2 收入 $247.7 亿、经营利润 $88.1 亿 → <strong>35.6%</strong>（去年同期 20.7%），收入同比 <strong>+81.8%</strong>（🏛️ Microsoft 8-K，2026-07-29；Alphabet 10-Q，2026-07）</td>
+<td><strong>40% 不是天花板——微软智能云在线上方</strong>。但它含大量高毛利软件；Google Cloud 则含 Workspace 与 TPU 硬件销售</td>
+</tr>
+<tr>
+<td><strong>现金流全貌</strong></td>
+<td>过去十二个月购置不动产及设备 <strong>$1,730 亿</strong>，自由现金流 <strong>流出 $76 亿</strong>（去年同期为流入 $182 亿）（🏛️ Amazon 10-Q，2026-07）</td>
+<td>利润率上升的同时自由现金流转负，这两件事指向同一个原因</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<h2 id="3">3. 核心判断</h2>
+<h3 id="31-394-14">3.1 题面里的 39.4% 有 1.4 个百分点不是经营出来的，是会计重估</h3>
+<p>这是本题最重要、也最容易被跳过的一条。所有"AWS 只差 0.6 个百分点就到 40%"的说法，都建立在一个被一次性收益抬高了的起点上。</p>
+<ul>
+<li>依据：<ul>
+<li>🏛️ <span class="tag">事实</span> Amazon 10-Q（2026-07）：<u class="key">电力合约衍生品资产从 2025-12-31 的 1.12 亿美元升至 2026-06-30 的 7.05 亿美元，同期负债从 1.39 亿降至 1.33 亿</u>——净头寸半年改善约 <strong>5.99 亿美元</strong>。</li>
+<li>🏛️ <span class="tag">事实</span> Amazon 10-Q（2026-04）：一季度电力合约公允价值计量"对合并经营报表的影响不重大"。<strong>所以那 6 亿美元几乎全部落在二季度。</strong></li>
+<li>🏛️ <span class="tag">事实</span> 同份 10-Q 写明：这类未实现损益"recorded within operating expenses on our statements of operations"——它进经营费用，也就进分部经营利润。</li>
+<li>🏛️ <span class="tag">来源陈述</span> 亚马逊管理层在二季度电话会上的口径是：AWS 利润率同比扩张 650 个基点，剔除这项会计收益后为 520 个基点。差额约 130 个基点，与 6 亿美元除以 422 亿收入的结果一致。</li>
+</ul>
+</li>
+</ul>
+<p>两条独立路径指向同一个数字：<strong>干净口径下，2026 年二季度 AWS 的经营利润率约 37.9%。</strong> 这把"距离 40%"从 0.6 个百分点改写成 <strong>2.1 个百分点</strong>，是一个把先验往下拉的修正。</p>
+<p>需要说清楚的是：<strong>结算看的是报出来的数字，不是干净数字。</strong> 所以这条并不否定"摸到"的可能——它反而提醒我们，这类重估未来还会反复出现，只是方向不定。</p>
+<h3 id="32-aws-394-38">3.2 AWS 已经两次站上 39.4% 又退了回来，而且从来没有一个完整财年超过 38%</h3>
+<p>市场把 2026 年二季度当成"历史新高、即将破 40%"，但把三十个季度排出来看，事实不是这样。</p>
+<ul>
+<li>依据：<ul>
+<li>🏛️ <span class="tag">事实</span> 我们从亚马逊历年 8-K 附件与 10-K 里逐季抓取了 2019Q1 至 2026Q2 全部三十个季度的 AWS 分部净销售额与经营利润。<u class="key">季度最高点是 2025Q1 的 <strong>39.45%</strong>，高于 2026Q2 的 39.36%</u>；最低点是 2023Q1 的 23.99%。</li>
+<li>🏛️ <span class="tag">事实</span> 全年口径：FY2019 26.27%、FY2020 29.82%、FY2021 29.79%、FY2022 28.52%、FY2023 27.14%、FY2024 37.04%、FY2025 35.43%。<strong>没有一年超过 38%。</strong></li>
+<li>🏛️ <span class="tag">事实</span> <u class="key">滚动四个季度的历史最高值是 37.54%（截至 2025Q1），当前值是 36.85%</u>——不但没有创新高，还比一年半前低。</li>
+</ul>
+</li>
+</ul>
+<p>这条把三个口径的难度差异摆得很清楚：AWS 在 39.4% 这条线上已经试探过两次。再往上摸 0.6 个百分点是一件有先例可循的事；但"站稳一年"要求比历史最好水平再高 2.5 个百分点，这是它从没做到过的。</p>
+<p>不过有一个外部视角指向相反方向，必须一起摆出来：<strong>把这三十个季度切成滚动的二十季窗口，每一个窗口里 AWS 的季度利润率纪录都被刷新了，最少推进 8.39 个百分点，中位数 8.57 个百分点。</strong> 而这道题只需要再推进 0.55 个百分点。单看这条基率，"摸到"的概率应该非常高。</p>
+<p>但这条基率的分量要打折，原因有三：能完整切出来的窗口只有 <strong>10 个</strong>，而且彼此高度重叠，不是十个独立样本；这十个窗口全部落在 AWS 利润率从 24% 结构性爬到 39% 的那段上升期，属于同一个趋势的不同切片；最关键的是，那段上升期里折旧占收入比是<strong>下降或持平</strong>的，而未来五年它是明确上升的。<strong>用一个折旧顺风期的基率去推折旧逆风期，是这道题最容易犯的外推错误。</strong> 我们采信它的方向，不采信它的量级。</p>
+<h3 id="33">3.3 决定结果的是两条线的赛跑，而这场赛跑现在的比分很微妙</h3>
+<p>把利润率拆成一个恒等式，问题会清楚很多：<strong>经营利润率 = 折旧前经营利润率 − 折旧占收入比</strong>。2026 年二季度是 58.5% − 19.1% = 39.4%。</p>
+<ul>
+<li>依据：<ul>
+<li>🏛️ <span class="tag">事实</span> Amazon 10-K 分部附注：AWS 分部折旧摊销 FY2023 125.31 亿、FY2024 133.20 亿、FY2025 214.50 亿美元；对应收入 907.57 亿、1,075.56 亿、1,287.25 亿。<u class="key">折旧前经营利润率由此为 40.95% → 49.42% → 52.09%，2026Q2 达 58.48%；折旧占收入比为 13.81% → 12.38% → 16.66% → 19.12%</u>。</li>
+<li>左边三年半涨了 17.5 个百分点（每年约 +5），右边涨了 5.3 个百分点（每年约 +1.5）。<strong>左边赢，所以利润率在涨。</strong></li>
+<li>🏛️ <span class="tag">事实</span> 左边为什么能涨，用分部数字可以直接算出来：把折旧从成本里拿掉，<u class="key">AWS 剩下的经营成本（电力、人力、场地、维护）2026 年二季度是 175.35 亿美元，去年同期 158.69 亿，只增长了 <strong>10.5%</strong>，而同期收入增长 36.8%</u>。这就是发动机——收入跑得比非折旧成本快两倍多。</li>
+<li><span class="tag">分析判断</span> 但这台发动机的转速不稳定：同样算法下，2026 年一季度非折旧成本增长 <strong>21.1%</strong>、收入增长 28.4%，差距只有 7 个百分点，远小于二季度的 26 个百分点。<strong>二季度是这台发动机迄今最好的一个季度，不是常态。</strong> 把 10.5% 当成可持续速度会高估整条曲线。</li>
+</ul>
+</li>
+</ul>
+<p>关键在于这个比分能不能维持。我们建了一个模型来回答（代码与全部输入见附录，可复算）：<strong>要让经营利润率过 40%，折旧前利润率在 2027 年要到 65%–69%，2028 年要到 67%–76%，2029 年要到 67%–80%。</strong></p>
+<p>这不是天方夜谭——按每年 +5 个百分点的当前速度，2027 到 2028 年是够得着的。但它要求两件事同时不减速：收入继续以 30% 以上增长，经营效率继续以接近历史最快的速度改善。只要收入增速掉到 20%、或者折旧前利润率的改善放缓到每年 +2.5 个百分点，这道题就直接出局。</p>
+<h3 id="34-2027-20282029">3.4 机会是前置的：2027 年前后是最好的窗口，2028–2029 年最难</h3>
+<p>这是模型给出的、最有操作价值的一条结论，也是最反直觉的一条——<strong>时间不站在这道题这边</strong>。</p>
+<ul>
+<li>依据：<ul>
+<li><span class="tag">分析判断</span> 在中性假设下（收入每年 +26%、折旧前利润率每年 +3.5 个百分点、资本开支高位持平），AWS 利润率的路径是：<u class="key">2026 年约 39.5% → 2027 年 35.7% → 2028 年 33.8% → 2029 年 35.1% → 2030 年 39.2%</u>。这是一条 U 形曲线，不是一条上升曲线。</li>
+<li><span class="tag">分析判断</span> 在乐观假设下（收入每年 +32%、折旧前利润率每年 +4.5 个百分点、资本开支 2028 年见顶回落），路径是 40.4% → 39.0% → 39.8% → 44.0% → 51.2%——<strong>过线发生在最近的一两年，然后是 2029 年之后</strong>。</li>
+<li>🏛️ <span class="tag">事实</span> 造成中间那段凹陷的是折旧的滞后：<u class="key">2026 年上半年 AWS 分部固定资产净增加 890 亿美元，而同期折旧只有 153.5 亿</u>；这些资产大多还在建、还没开始计提。</li>
+</ul>
+</li>
+</ul>
+<p>结论是：<strong>如果 AWS 在 2027 年之前没摸到 40%，中间会有两三年更难的时期，要等到 2030 年前后资本开支真正见顶、折旧占比回落，才会再有机会。</strong> 这也是为什么"摸到"的 70% 里，有很大一块权重落在窗口的头两年。</p>
+<h3 id="35">3.5 使用年限是一个价值三到五个百分点的开关，但最近一次是往反方向拨的</h3>
+<p>很多看多的论证会提到"亚马逊随时可以延长折旧年限"。这个杠杆是真的，量级也对，但这条论证漏掉了最新的一次变更。</p>
+<ul>
+<li>依据：<ul>
+<li>🏛️ <span class="tag">事实</span> Amazon 10-K（2026-02）：<u class="key">“Effective January 1, 2024, we changed our estimate of the useful lives for our servers from five to six years, and effective January 1, 2025, we changed our estimate of the useful lives of a subset of our servers and networking equipment from six to five years.”</u></li>
+<li>🏛️ <span class="tag">事实</span> 同份年报给出 2025 年那次<strong>缩短</strong>的影响：折旧摊销增加 14 亿美元、净利润减少 10 亿美元（每股 0.10 美元），<u class="key">“which primarily impacted our AWS segment”</u>。缩短的理由写得很直接：人工智能与机器学习领域的技术迭代加快。</li>
+<li>🏛️ <span class="tag">事实</span> 当前年报口径仍是"服务器与网络设备：五到六年"——意味着还有一部分资产处在 5 年，理论上有延长空间。</li>
+<li>🎙️ <span class="tag">来源陈述</span> 公司自己量化过上一次延长的效果：在 2024 年四季度电话会上，管理层说<u class="minor">"we increased the estimated useful life of our servers starting in 2024, which contributed approximately 200 basis points to the AWS margin increase year-over-year in Q4."</u>——<strong>约 2 个百分点</strong>。</li>
+<li><span class="tag">分析判断</span> 我们测算：把平均年限从 5.5 年延到 6.5 年，折旧占收入比可下降 <strong>3.4 到 4.8 个百分点</strong>。这比公司 2024 年那次的 2 个百分点更大，原因不是我们更乐观，而是<u class="key">AWS 的固定资产净值从 2024 年初的约 727 亿涨到了现在的 2,638 亿</u>——同样一次年限变更，摊在三倍大的资产基数上，效果自然更大。</li>
+</ul>
+</li>
+</ul>
+<p>所以这个开关的正确读法是：<strong>它存在、量级足够大、历史上动过三次，但最近一次管理层是往不利方向动的，而且理由正是 AI 设备寿命更短。</strong> 这让"再延一次"从一个默认假设，变成了一个需要新理由的事件。它在我们的概率里有贡献，但不是主导项。</p>
+<h3 id="36-40">3.6 40% 不是行业天花板——微软的云分部已经在线上方</h3>
+<p>如果只看 AWS 自己的历史，40% 像一道没跨过的门槛。但同业数据说明这个水平是可以达到的，只是要看收入结构。</p>
+<ul>
+<li>依据：<ul>
+<li>🏛️ <span class="tag">事实</span> 微软智能云分部 2026 财年收入 1,377.91 亿美元、经营利润 569.72 亿美元，<u class="key">利润率 <strong>41.3%</strong></u>；2025 财年为 42.0%。</li>
+<li>🏛️ <span class="tag">事实</span> Google Cloud 2026 年二季度收入 247.68 亿美元、经营利润 88.14 亿美元，利润率 <strong>35.6%</strong>，<u class="key">而去年同期只有 20.7%，收入同比增长 81.8%</u>。</li>
+<li>🏛️ <span class="tag">事实</span> Alphabet 在分部说明里写明，Google Cloud 的产品收入"主要来自 TPU 系统的销售"——它已经开始对外卖自研芯片硬件。</li>
+</ul>
+</li>
+</ul>
+<p>两条相反的启示。<strong>正面</strong>：一个云分部能长期运行在 41% 以上，说明 40% 没有物理禁区。<strong>反面</strong>：微软智能云含大量高毛利软件（服务器产品与授权），而 AWS 几乎是纯基础设施；而且微软的这个数字正在<strong>下滑</strong>（42.0% → 41.3%），下滑的原因恰恰是 AI 基础设施占比上升——这与 AWS 面对的是同一个机制。Google Cloud 则用一年时间把利润率拉高了 15 个百分点，且增速是 AWS 的两倍多，说明竞争者的成本曲线也在快速改善。</p>
+<h3 id="37">3.7 巨额合同余额给了收入可见度，但同时锁住了价格</h3>
+<ul>
+<li>依据：<ul>
+<li>🏛️ <span class="tag">事实</span> Amazon 10-Q（2026-07）：<u class="key">截至 2026-06-30，原始期限超过一年、尚未确认为收入的客户合同承诺约 <strong>4,960 亿美元</strong>，加权平均剩余期限 <strong>6.4 年</strong></u>，主要与 AWS 相关。这约等于当前年化收入（1,690 亿）的 2.9 倍。</li>
+<li>🏛️ <span class="tag">事实</span> 同份文件：一季度 OpenAI 在原有 380 亿美元承诺基础上追加 1,000 亿美元／8 年；二季度 Anthropic 追加超过 1,000 亿美元／10 年。<strong>两笔都写明包含与 AWS 自研芯片性能相关的合同义务。</strong></li>
+<li>🎙️ <span class="tag">来源陈述</span> Matt Garman（Bloomberg Talks，2026-08-03，本地转录）谈 Trainium 的成本优势：<u class="minor">“for workloads where we see this optimization happen, customers can oftentimes save 20, 30 percent off of their inference costs when they run that on Trainium.”</u> 同场他说 Trainium 产能"基本卖光到明年年底"，并称未来会"认真考虑"直接对外销售芯片。</li>
+</ul>
+</li>
+</ul>
+<p>这条对本题是双向的。<strong>支持过线</strong>：接近三倍年化收入的在手合同，大幅降低了"收入增速突然掉到 20%"的风险，而收入增速正是模型里最敏感的变量。<strong>压制过线</strong>：长约意味着价格锁定，而当前资本开支上调的理由是内存涨价——成本上升而合同价格不动，这部分通胀 AWS 只能自己吃。合同里写入芯片性能义务也是一把双刃剑：它证明 Trainium 的需求是真的，但也把 AWS 绑在了自研芯片必须兑现性能的位置上。</p>
+<h3 id="38">3.8 管理层给过唯一一个量化的利润率承诺，但它不等于净增厚</h3>
+<p>在所有关于 AWS 利润率的公开材料里，只有一条来自公司的、带数字的、白纸黑字的承诺。它是本题最强的正面证据，但它有一个必须说清楚的折扣。</p>
+<ul>
+<li>依据：<ul>
+<li>🏛️ <span class="tag">事实</span> Andy Jassy 2025 年度致股东信（发布于 2026-04-09）：<u class="key">“At scale, we expect Trainium will save us tens of billions of capex dollars per year, and provide several hundred basis points of operating margin advantage versus relying on others’ chips for inference.”</u>——"几百个基点"就是 3 到 5 个甚至更多的百分点，量级上正好够跨过这道门槛。</li>
+<li>🏛️ <span class="tag">事实</span> 同一封信：Trainium3 "nearly fully-subscribed"，Trainium4 距离广泛可用还有约 18 个月但已有相当部分被预订；Bedrock 的推理"大部分跑在 Trainium 上"；芯片业务（含 Graviton、Trainium、Nitro）年化收入当时已超 200 亿美元，同比三位数增长。</li>
+<li>🎙️ <span class="tag">来源陈述</span> 但 Matt Garman 在 2026-08-03 的访谈里，把同一件事的<strong>受益方</strong>说成了客户：<u class="key">“customers can oftentimes save 20, 30 percent off of their inference costs when they run that on Trainium.”</u></li>
+</ul>
+</li>
+</ul>
+<p>两条口径都来自公司，但指向不同的收益归属。Jassy 说的是"相对买别人的芯片，AWS 能多赚几百个基点"；Garman 说的是"客户能省两三成"。<strong>同一笔成本优势，不可能既全部留在 AWS 的报表上，又全部让给客户。</strong></p>
+<p>正确的读法是：自研芯片确实创造了一块很大的价值，但它同时是 AWS 的<strong>降价抢份额工具</strong>。净留存多少，取决于竞争强度——而 AWS 的市场份额正在被份额增速更快的对手蚕食。所以这条证据我们计入正方，但按"部分留存"打折，没有按 Jassy 的全额计入。这也是我们没有把"摸到"的概率放到 80% 以上的原因之一。</p>
+<h2 id="4">4. 结算口径</h2>
+<h3 id="41-yes">4.1 什么算 YES</h3>
+<p>原题只说"利润率超过 40%"，没有说是哪一种超过。这三种读法的答案相差很大，所以三个都给，主答案是第一个。</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>口径</th>
+<th>定义</th>
+<th>为什么单列</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>摸到</strong>（主答案）</td>
+<td>Q3 2026 至 Q2 2031 这 <strong>20 个季度</strong>中，<strong>至少有一个季度</strong>的 AWS 分部经营利润率 &gt; 40.0%</td>
+<td>最贴近"能超过 40% 吗"的字面意思</td>
+</tr>
+<tr>
+<td><strong>全年站上</strong></td>
+<td>FY2027、FY2028、FY2029、FY2030 这四个完整财年中，<strong>至少有一个财年</strong>的全年利润率 &gt; 40.0%</td>
+<td>消除单季波动，衡量真实盈利水平</td>
+</tr>
+<tr>
+<td><strong>站稳</strong></td>
+<td>窗口内出现<strong>连续四个季度</strong>合计利润率 &gt; 40.0%（滚动口径，不要求与财年对齐）</td>
+<td>投资上真正关心的是"能不能守住"</td>
+</tr>
+</tbody>
+</table></div>
+<p>三者的逻辑关系：站稳 ⊂ 全年站上的可能路径 ⊂ 摸到。所以概率必然是"摸到"最高、"站稳"最低。</p>
+<h3 id="42-aws">4.2 什么算"AWS 的利润率"</h3>
+<p><strong>AWS 分部经营利润 ÷ AWS 分部净销售额</strong>，两个数字都直接取亚马逊在 10-Q、10-K 或季度业绩公告里报告的分部口径，不做任何还原、调整或剔除。</p>
+<p>具体说明四点：</p>
+<ul>
+<li><strong>算进去的</strong>：分部经营利润里包含的一切，包括电力合约公允价值重估、遣散费、资产减值等一次性项目。本报告第 3.1 节指出二季度有约 1.4 个百分点来自会计重估，那是为了说明真实经营水平，<strong>不是结算口径的调整</strong>——结算看报出来的数字。</li>
+<li><strong>不算进去的</strong>：分部之外的项目。非经营性投资损益（例如二季度来自 Anthropic 投资的 534 亿美元税前其他收入）、所得税、公司层面费用，一律不进。</li>
+<li><strong>折旧的分摊</strong>：亚马逊在年报里写明，包括公司层面资产在内的折旧摊销"按使用量分摊到各分部"。本报告采用它分摊后的分部数字，不试图重算。</li>
+<li><strong>口径变更</strong>：若亚马逊未来改变分部划分或会计政策，以它当期报告的 AWS 分部数字为准；追溯重述的历史数字不用于结算已过去的季度。</li>
+</ul>
+<h3 id="43">4.3 什么算"接下来五年"</h3>
+<p>窗口是 <strong>2026-09-18 至 2031-09-18</strong>。按<strong>季度结束日</strong>落在窗口内来取：第一个是 2026 年三季度（截止 2026-09-30，业绩约在 10 月底公布），最后一个是 2031 年二季度（截止 2031-06-30）。正好 <strong>20 个季度</strong>。</p>
+<p>研究日当天，窗口内还没有任何一个季度被公布，所以这是一道完全前瞻的题——2026 年二季度的 39.36% 是起点，不是答案的一部分。</p>
+<p>"全年站上"口径取完整落在窗口内的四个财年 FY2027–FY2030；FY2026 有大半在窗口之前，FY2031 结束于窗口之后，都不计入。</p>
+<h2 id="5">5. 情景与路径</h2>
+<h3 id="51">5.1 互斥路径</h3>
+<p>三条路径互斥且穷尽，合计 100%。</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>路径</th>
+<th>可能性</th>
+<th>利润率大致走法</th>
+<th>怎么走到这里</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>折旧墙压过去，一次都没摸到</strong></td>
+<td><strong>35%</strong></td>
+<td>2026 年 38–39% 见顶 → 2028 年 30–34% → 2030 年回到 36–39%</td>
+<td>收入增速从 37% 逐步回落到 20% 出头，折旧前利润率的改善从每年 5 个百分点放缓到 2–3 个。2027–2029 折旧占收入比从 19% 冲到 33% 以上，把利润率一路压下去；等到资本开支真正见顶、折旧占比回落时，已经接近窗口末尾，来不及再上 40%。<strong>这条路径不需要任何坏消息，只需要当前的高速度自然放缓。</strong></td>
+</tr>
+<tr>
+<td><strong>摸到但站不稳</strong></td>
+<td>最可能 <strong>40%</strong></td>
+<td>2026H2–2027 有一到三个季度冲上 40–42%，随后回落到 33–37%，窗口末尾再摸一次</td>
+<td>最可能的兑现方式有三种，都只需要一个季度的好运气：一笔较大的电力合约正向重估（本季已经演过一次，值 1.4 个百分点）；某个季度收入超预期而新数据中心尚未投运；或者管理层再延长一次使用年限。<strong>但接下来的折旧爬坡会把它压回去，凑不满连续四个季度。</strong></td>
+</tr>
+<tr>
+<td><strong>结构性上台阶，站稳 40% 以上</strong></td>
+<td><strong>25%</strong></td>
+<td>2027 年前后越线后不再回落，2029–2031 年升到 43% 以上</td>
+<td>需要三件事同时发生：收入增速在 30% 以上再维持两到三年（4,960 亿合同余额让这件事不算奢望）；折旧前利润率继续以每年 4 个百分点以上改善，主要靠自研芯片渗透率和软件层收入占比；资本开支在 2028 年前见顶，让折旧占收入比在 30% 一线封顶。<strong>三件里缺一件就退回第二条路径。</strong></td>
+</tr>
+<tr>
+<td>合计</td>
+<td><strong>100%</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p>由此：<strong>"摸到"= 第二条 + 第三条 = 65%</strong>；<strong>"站稳"= 第三条 = 25%</strong>；"全年站上"要求某个完整财年整体在线上方，比滚动四季度略严，落在 <strong>22%</strong>。</p>
+<h3 id="52">5.2 最容易误判的情景</h3>
+<p><strong>把"离 40% 只差 0.6 个百分点"当成起点。</strong> 这是本题最大的误判来源。二季度报出来的 39.36% 里有约 1.4 个百分点是电力合约的一次性公允价值收益，干净口径是 37.9%。用 39.4% 做起点，会系统性高估所有三个口径的概率。</p>
+<p><strong>把利润率的上升外推成直线。</strong> 从 2023Q1 的 23.99% 到 2026Q2 的 39.36%，三年涨了 15 个百分点，很容易画成一条继续向上的直线。但这条线里有一大块是 2024 年那次把服务器年限从 5 年延到 6 年带来的——那是一次性的会计效应，不会重复。真正可持续的部分是经营杠杆，而它面对的是一堵正在到来的折旧墙。</p>
+<p><strong>把资本开支上调读成利好。</strong> 2026 年指引从 2,000 亿上调到 2,200 亿，上调理由是内存涨价，不是需求变化。同样的算力买得更贵，意味着未来折旧更多而收入不变——<strong>这是纯粹的利润率利空，却常被当成需求强劲的证据报道。</strong></p>
+<p><strong>把"摸到"和"站稳"混为一谈。</strong> 两者的概率差了 40 个百分点。任何一个季度的新闻标题写"AWS 利润率首破 40%"，都不等于这道题的第三个口径成立。</p>
+<h3 id="53">5.3 最强反方</h3>
+<p><strong>"折旧墙是个伪命题，因为 AWS 的资产结构已经变了。"</strong></p>
+<p>完整逻辑是：看空的人把 AWS 当成一门服务器生意，用 5 年折旧去推算，于是算出一堵吓人的墙。但真实情况是，AWS 现在花的钱里越来越大的比例是数据中心厂房、变电站和电力设施——这些资产的寿命是 20 到 40 年，不是 5 年。证据就在数字里：AWS 固定资产的实际折旧率从 2021 年的 24.7% 一路降到 2026 年的约 11%，隐含平均寿命从 4.1 年拉长到 9.1 年。Jassy 自己说数据中心有三十年以上的使用寿命、可以支撑五到六代服务器的经济学。所以折旧占收入比不会冲到 35%，它会在 25% 附近封顶，而折旧前利润率还在以每年 5 个百分点往上走——过 40% 只是时间问题。</p>
+<p><strong>这条反方有一块硬底子，不能轻慢：</strong> 实际折旧率的下降是真的，我们用两种独立方法都验证了，而且它正是我们把"站稳"给到 30%（而不是 10%）的主要原因。厂房占比上升确实在结构性地压低折旧斜率。</p>
+<p><strong>但它错在一个地方：</strong> 实际折旧率之所以掉到 11%，很大一部分不是因为资产寿命变长，而是因为<strong>在建工程还没开始计提折旧</strong>。2026 年上半年 AWS 分部固定资产净增加 890 亿美元，其中相当一部分是还没开门的数据中心。这些资产投入使用的那一刻，它们会同时开始产生收入和折旧——而按 Jassy 自己说的两年建设周期，2026 年花的钱对应的是 2028 年前后的折旧高峰。<strong>实际折旧率现在低，恰恰是因为账还没开始还，而不是因为不用还。</strong></p>
+<p><strong>它还漏了一件事：</strong> 管理层自己不同意"AI 设备寿命更长"这个前提。2025 年 1 月亚马逊把一部分服务器与网络设备的年限从 6 年<strong>缩短</strong>回 5 年，年报里给的理由是"人工智能与机器学习领域的技术迭代加快"。如果连公司自己都在给 AI 设备打更短的寿命，外部论证"寿命其实更长"就需要更强的证据。</p>
+<p><strong>它可能对在哪里：</strong> 如果 AWS 的资本开支在 2028 年前确实见顶，同时收入仍以 30% 以上增长，那么折旧占收入比确实会在 30% 一线封顶而不是继续冲高——这正是我们给第三条路径 30% 的理由。这条反方不是错的，它是一个需要三个条件同时成立的乐观情形。</p>
+<h2 id="6">6. 关键证据表</h2>
+<div class="legend">
+<p>来源层级：<strong>A</strong> ＝ 公司或监管机构的原始文件；<strong>B</strong> ＝ 有署名的一手报道或管理层公开发言；<strong>C</strong> ＝ 转述、聚合或模型估计。"倾向"一栏指向本题的 YES（利润率过 40%）或 NO。</p>
+</div>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>事实或说法</th>
+<th>倾向</th>
+<th>来源、日期、链接</th>
+<th>层级与可靠性</th>
+<th>它支撑哪条路径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026Q2：AWS 净销售额 $42,232M，分部经营利润 $16,621M，利润率 <strong>39.36%</strong>，收入同比 +36.7%</td>
+<td>YES</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1018724/000101872426000024/amzn-20260630xex991.htm">Amazon 8-K 附件 99.1</a>，2026-07-30</td>
+<td>A｜事实</td>
+<td>起点已逼近 40%，支撑"摸到"</td>
+</tr>
+<tr>
+<td>电力合约衍生品资产 $112M（2025-12-31）→ $705M（2026-06-30），负债 $139M → $133M；未实现损益记入<strong>经营费用</strong></td>
+<td>NO</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1018724/000101872426000026/amzn-20260630.htm">Amazon 10-Q</a>，2026-07</td>
+<td>A｜事实</td>
+<td>起点被一次性收益抬高约 1.4 个百分点</td>
+</tr>
+<tr>
+<td>一季度电力合约公允价值计量"对合并经营报表的影响不重大"</td>
+<td>NO</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1018724/000101872426000014/amzn-20260331.htm">Amazon 10-Q</a>，2026-04</td>
+<td>A｜事实</td>
+<td>证明上述约 $6 亿改善几乎全落在二季度</td>
+</tr>
+<tr>
+<td>受公允价值计量的电力合约约 <strong>2.7 亿兆瓦时</strong>，加权平均剩余期限约 15 年，属第三层级（管理层判断空间大）</td>
+<td>中性</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1018724/000101872426000026/amzn-20260630.htm">Amazon 10-Q</a>，2026-07</td>
+<td>A｜事实</td>
+<td>单季波动源，利"摸到"而害"站稳"</td>
+</tr>
+<tr>
+<td>季度最高点是 <strong>2025Q1 的 39.45%</strong>，高于 2026Q2；三十个季度最低为 2023Q1 的 23.99%</td>
+<td>NO</td>
+<td>🏛️ Amazon 历年 8-K 附件 99.1，2019–2026，逐季抓取</td>
+<td>A｜事实＋自算</td>
+<td>AWS 在 39.4% 上试探过两次未破</td>
+</tr>
+<tr>
+<td>全年口径从未超过 38%：FY2023 27.14%、FY2024 37.04%、FY2025 35.43%</td>
+<td>NO</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm">Amazon 10-K</a>，2026-02</td>
+<td>A｜事实＋自算</td>
+<td>"全年站上"与"站稳"难度远高于"摸到"</td>
+</tr>
+<tr>
+<td>滚动四季度历史最高 37.54%（截至 2025Q1），当前 36.85%</td>
+<td>NO</td>
+<td>🏛️ 同上，自算</td>
+<td>A｜事实＋自算</td>
+<td>"站稳"需比历史最好再高 2.5 个百分点</td>
+</tr>
+<tr>
+<td>AWS 分部折旧摊销：FY2023 $12,531M、FY2024 $13,320M、FY2025 $21,450M；2026 上半年 $15,353M</td>
+<td>NO</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm">Amazon 10-K 分部附注</a>，2026-02；<a href="https://www.sec.gov/Archives/edgar/data/1018724/000101872426000026/amzn-20260630.htm">10-Q</a>，2026-07</td>
+<td>A｜事实</td>
+<td>折旧占收入比 13.8% → 19.1%，且加速</td>
+</tr>
+<tr>
+<td>AWS 分部固定资产净增加：FY2023 $24,843M、FY2024 $53,267M、FY2025 $96,496M、2026 上半年 $89,048M</td>
+<td>NO</td>
+<td>🏛️ 同上</td>
+<td>A｜事实</td>
+<td>过去四季净增加约为同期折旧的 <strong>5.4 倍</strong></td>
+</tr>
+<tr>
+<td>AWS 分部固定资产净值 2023 年底 $72,701M → 2025 年底 $190,055M → <strong>2026-06-30 $263,750M</strong></td>
+<td>NO</td>
+<td>🏛️ 同上</td>
+<td>A｜事实</td>
+<td>两年半增长近三倍，折旧基数已就位</td>
+</tr>
+<tr>
+<td>AWS 实际折旧率（折旧 ÷ 平均账面余额）从 2021 年 <strong>24.7%</strong> 降到 2026 年约 <strong>11.0%</strong>，隐含平均寿命 4.1 年 → 9.1 年</td>
+<td>YES</td>
+<td>🏛️ 同上，自算</td>
+<td>A｜事实＋自算</td>
+<td>资产结构长寿化，是"站稳"的主要支撑</td>
+</tr>
+<tr>
+<td>“Effective January 1, 2024, we changed our estimate of the useful lives for our servers from five to six years, and effective January 1, 2025, we changed our estimate of the useful lives of a subset of our servers and networking equipment from six to five years.”</td>
+<td>NO</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm">Amazon 10-K</a>，2026-02</td>
+<td>A｜事实</td>
+<td>最近一次变更是<strong>缩短</strong>，削弱"再延一次"的默认假设</td>
+</tr>
+<tr>
+<td>2025 年那次缩短：折旧摊销 +$1.4B、净利润 −$1.0B，“which primarily impacted our AWS segment”；理由是 AI 与机器学习领域技术迭代加快</td>
+<td>NO</td>
+<td>🏛️ 同上</td>
+<td>A｜事实</td>
+<td>管理层自己认为 AI 设备寿命更短</td>
+</tr>
+<tr>
+<td>年报口径仍为"服务器与网络设备：五到六年"——仍有一部分资产处在 5 年</td>
+<td>YES</td>
+<td>🏛️ 同上</td>
+<td>A｜事实</td>
+<td>延长年限的开关仍在，值 3.4–4.8 个百分点</td>
+</tr>
+<tr>
+<td>合同余额约 <strong>$496B</strong>（2026-06-30），加权平均剩余期限 <strong>6.4 年</strong>，主要来自 AWS</td>
+<td>YES</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1018724/000101872426000026/amzn-20260630.htm">Amazon 10-Q</a>，2026-07</td>
+<td>A｜事实</td>
+<td>约为年化收入 2.9 倍，压低"收入骤降"风险</td>
+</tr>
+<tr>
+<td>OpenAI 在原有 $38.0B 承诺上追加 <strong>$100.0B／8 年</strong>；Anthropic 追加 <strong>超 $100.0B／10 年</strong>；两笔均含与 AWS 自研芯片性能相关的合同义务</td>
+<td>YES</td>
+<td>🏛️ 同上</td>
+<td>A｜事实</td>
+<td>支撑高增速延续，也印证 Trainium 需求</td>
+</tr>
+<tr>
+<td>TTM 购置不动产及设备 <strong>$173,028M</strong>；TTM 自由现金流 <strong>流出 $7.6B</strong>（去年同期流入 $18.2B）</td>
+<td>NO</td>
+<td>🏛️ 同上</td>
+<td>A｜事实</td>
+<td>利润率上升与现金流转负同源</td>
+</tr>
+<tr>
+<td>2026 年现金资本开支指引由约 $200B 上调至约 $220B，理由是内存涨价而非需求变化</td>
+<td>NO</td>
+<td>🎙️ Amazon 2026Q2 业绩电话会，2026-07-30</td>
+<td>B｜来源陈述</td>
+<td>同样算力买得更贵＝折旧多而收入不变</td>
+</tr>
+<tr>
+<td>Matt Garman：Trainium 推理"customers can oftentimes save 20, 30 percent off of their inference costs"；产能"基本卖光到明年年底"；未来会考虑直接售卖芯片</td>
+<td>YES</td>
+<td>🎙️ <a href="https://podtrac.com/pts/redirect.mp3/traffic.omny.fm/d/clips/e73c998e-6e60-432f-8610-ae210140c5b1/15e00369-eef2-4085-a194-b00d01137fde/08737cb5-7263-4b5d-96f4-b49b0165ee61/audio.mp3">Bloomberg Talks《AWS CEO Matt Garman Talks Capex Investment》</a>，2026-08-03，本机转录</td>
+<td>B｜来源陈述（AWS CEO 本人）</td>
+<td>自研芯片抬升折旧前利润率</td>
+</tr>
+<tr>
+<td>微软智能云分部 FY2026 收入 $137,791M、经营利润 $56,972M → <strong>41.3%</strong>（FY2025 为 42.0%）</td>
+<td>YES</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/789019/000119312526323632/msft-ex99_1.htm">Microsoft 8-K 附件 99.1</a>，2026-07-29</td>
+<td>A｜事实＋自算</td>
+<td><strong>40% 不是天花板</strong>；但该分部含高毛利软件，且正在下滑</td>
+</tr>
+<tr>
+<td>Google Cloud 2026Q2 收入 $24,768M、经营利润 $8,814M → <strong>35.6%</strong>（去年同期 20.7%），收入同比 <strong>+81.8%</strong>；产品收入"主要来自 TPU 系统销售"</td>
+<td>中性</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1652044/000165204426000071/R83.htm">Alphabet 10-Q 分部明细</a>，2026-07</td>
+<td>A｜事实＋自算</td>
+<td>竞争者利润率快速逼近且增速更高</td>
+</tr>
+<tr>
+<td>Jassy：数据中心提前约两年动工、使用寿命三十年以上，可支撑五到六代服务器；服务器"不到三年"回本</td>
+<td>YES</td>
+<td>🎙️ Amazon 2026Q2 业绩电话会，2026-07-30</td>
+<td>B｜来源陈述</td>
+<td>支撑"资产长寿化"反方</td>
+</tr>
+<tr>
+<td>FY2025 约 $2.7B 遣散费（Q3 $1.8B、Q4 $730M），未按分部拆分；FY2025 另有 $2.5B FTC 和解（落在北美分部）</td>
+<td>中性</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1018724/000101872426000004/amzn-20251231.htm">Amazon 10-K</a>，2026-02</td>
+<td>A｜事实</td>
+<td>一次性项目会双向扰动单季</td>
+</tr>
+<tr>
+<td>折旧模型（两法互校）：要在 2027/2028/2029 过 40%，折旧前利润率需分别达到约 65–69% / 67–76% / 67–80%</td>
+<td>中性</td>
+<td>本报告附录模型，输入全部为上表中的 Amazon 披露数字</td>
+<td>C｜模型估计</td>
+<td>给出过线的量化条件</td>
+</tr>
+<tr>
+<td>Jassy 致股东信：“At scale, we expect Trainium will save us tens of billions of capex dollars per year, and provide several hundred basis points of operating margin advantage versus relying on others’ chips for inference.”</td>
+<td>YES</td>
+<td>🏛️ <a href="https://www.aboutamazon.com/news/company-news/amazon-ceo-andy-jassy-2025-letter-to-shareholders">Amazon 2025 年度致股东信</a>，2026-04-09</td>
+<td>A｜来源陈述（CEO 书面）</td>
+<td>公司唯一量化的利润率增厚来源，量级够跨线</td>
+</tr>
+<tr>
+<td>同信：Trainium3 “nearly fully-subscribed”；Trainium4 距广泛可用约 18 个月但已有相当部分被预订；芯片业务年化收入超 $20B，同比三位数增长</td>
+<td>YES</td>
+<td>🏛️ 同上，2026-04-09</td>
+<td>A｜事实</td>
+<td>自研芯片渗透率有确定的上升路径</td>
+</tr>
+<tr>
+<td>非折旧经营成本 2026Q2 为 $17,535M，去年同期 $15,869M，仅增长 <strong>10.5%</strong>，而收入增长 36.8%；但 2026Q1 同口径为 +21.1% vs 收入 +28.4%</td>
+<td>YES（打折）</td>
+<td>🏛️ Amazon 10-Q 分部数据，2026-07 与 2026-04，自算</td>
+<td>A｜事实＋自算</td>
+<td>经营杠杆是真的，但二季度是迄今最好的一季，非常态</td>
+</tr>
+<tr>
+<td>滚动二十季窗口共 10 个，每个窗口里季度利润率纪录都被刷新，最少推进 <strong>8.39 个百分点</strong>，中位数 8.57；本题只需推进 0.55</td>
+<td>YES（打折）</td>
+<td>🏛️ 本报告分部序列，自算</td>
+<td>A｜自算</td>
+<td>基率强烈支持"摸到"，但样本重叠且全部来自折旧顺风期</td>
+</tr>
+<tr>
+<td>管理层：“we increased the estimated useful life of our servers starting in 2024, which contributed approximately <strong>200 basis points</strong> to the AWS margin increase year-over-year in Q4.”</td>
+<td>中性</td>
+<td>🎙️ Amazon 2024Q4 业绩电话会，2025-02-06</td>
+<td>B｜来源陈述</td>
+<td>给出年限杠杆的公司口径量级</td>
+</tr>
+<tr>
+<td>Matt Garman：Trainium 的成本优势以"客户省 20–30% 推理成本"的形式让出</td>
+<td>NO</td>
+<td>🎙️ <a href="https://podtrac.com/pts/redirect.mp3/traffic.omny.fm/d/clips/e73c998e-6e60-432f-8610-ae210140c5b1/15e00369-eef2-4085-a194-b00d01137fde/08737cb5-7263-4b5d-96f4-b49b0165ee61/audio.mp3">Bloomberg Talks</a>，2026-08-03，本机转录</td>
+<td>B｜来源陈述（AWS CEO 本人）</td>
+<td>自研芯片红利部分让给客户，不全额留存</td>
+</tr>
+<tr>
+<td>CFO Olsavsky：“we're up 650 basis points year-over-year. 520 basis points if you exclude the derivative accounting gain that I mentioned.”</td>
+<td>NO</td>
+<td>🎙️ Amazon 2026Q2 业绩电话会，2026-07-30</td>
+<td>B｜来源陈述</td>
+<td>与 10-Q 余额变动互相印证，两条独立路径同指约 1.3–1.4 个百分点</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>同源合并说明：</strong> 本表的 A 级证据全部直接来自 Amazon、Microsoft、Alphabet 向美国证券交易委员会提交的原始文件，我们逐份抓取原文核对了数字与措辞，不依赖任何二手转述。Matt Garman 的引语来自本机对公开播客音频的完整转录（转录稿保留在本次运行目录下，可复核）。业绩电话会内容为管理层公开发言，按 B 级计权。模型估计单独标为 C 级，不与披露事实混同。</p>
+<h2 id="7">7. 信息缺口树</h2>
+<h3 id="2026">一、2026 年三季度的电力合约重估是正是负</h3>
+<ul>
+<li><strong>岗位画像</strong>：亚马逊投资者关系或财务部门；或覆盖 AMZN 的卖方分析师中做过电力合约建模的。</li>
+<li><strong>直接问法</strong>：三季度电力合约的公允价值变动大概是什么方向和量级？这笔重估在分部之间怎么分摊，是不是全部落在 AWS？公司内部把它当成经营性项目还是会在口径里单列？未来会不会在季报里单独披露这一项的分部影响？这 2.7 亿兆瓦时里有多少已经通过监管审批、从而退出衍生品会计？</li>
+<li><strong>能改变什么</strong>："摸到"口径的近端概率。若三季度再来一笔正向重估，单季破 40% 的可能性直接上升 10 到 15 个百分点；若转为负向，近端窗口基本关闭。</li>
+<li><strong>好不好约</strong>：难。这不是公司主动披露的项目，卖方也很少建模。</li>
+</ul>
+<h3 id="2026_1">二、2026 年花出去的钱里，厂房和服务器各占多少</h3>
+<ul>
+<li><strong>岗位画像</strong>：亚马逊基础设施财务；或数据中心工程与供应链领域的行业顾问。</li>
+<li><strong>直接问法</strong>：今年 AWS 的资本开支里，土建与电力设施占比大概多少，服务器与网络设备占多少？在建工程占期末固定资产净值的比例是多少？一个数据中心从动工到投入使用的平均周期现在是多久，比两年前长了还是短了？内存涨价让同样一批服务器贵了百分之多少？</li>
+<li><strong>能改变什么</strong>：折旧爬坡的斜率，也就是本题最敏感的变量。厂房占比每高 10 个百分点，2028–2029 年的折旧占收入比就低约 3 个百分点。</li>
+<li><strong>好不好约</strong>：中等。分部级拆分公司从不披露，但行业顾问能给出量级。</li>
+</ul>
+<h3 id="_1">三、折旧前利润率的改善还剩多少空间</h3>
+<ul>
+<li><strong>岗位画像</strong>：AWS 内部成本或产能规划；或在超大规模数据中心做过单位经济性测算的研究者。</li>
+<li><strong>直接问法</strong>：从 2023 年的 41% 到现在的 58.5%，这 17 个百分点里，自研芯片、规模效应、收入结构各贡献了多少？电力占 AWS 运营成本的比例现在是多少？Trainium 在 AWS 的 AI 算力里占比多少，还能提到多高？Bedrock 这类按调用量计费的软件层收入占比现在是多少？</li>
+<li><strong>能改变什么</strong>：直接决定三个口径。折旧前利润率每年改善速度从 +3.5 变成 +4.5 个百分点，"站稳"的概率大约上升 10 个百分点。</li>
+<li><strong>好不好约</strong>：难。这是 AWS 最核心的商业机密之一。</li>
+</ul>
+<h3 id="_2">四、管理层还会不会再动一次使用年限</h3>
+<ul>
+<li><strong>岗位画像</strong>：亚马逊财务报告或技术会计；熟悉该公司会计政策的审计或卖方会计专家。</li>
+<li><strong>直接问法</strong>：现在"五到六年"里，处在 5 年的那部分占多大比例？2025 年那次缩短覆盖了哪些设备，是 GPU 还是通用服务器？公司对 AI 加速卡的实际退役年限观察到什么？下一次评估会在什么时点做？</li>
+<li><strong>能改变什么</strong>：延长一年值 3.4 到 4.8 个百分点，足以单独把大部分临界情形推过 40%。</li>
+<li><strong>好不好约</strong>：中等。会计政策变更有固定的年度评估节奏，会计专家能判断可能性。</li>
+</ul>
+<h3 id="20272028">五、收入增速在 2027–2028 年会落到哪里</h3>
+<ul>
+<li><strong>岗位画像</strong>：覆盖 AMZN 的卖方分析师；或 AWS 的大客户采购负责人。</li>
+<li><strong>直接问法</strong>：4,960 亿合同余额里，有多少会在 2027 和 2028 年确认成收入？OpenAI 和 Anthropic 那两笔各自的年度确认节奏是什么？除去这两家，其余客户的增速是多少？续约时的价格是升是降？</li>
+<li><strong>能改变什么</strong>：模型里最敏感的输入。收入增速从 26% 变成 32%，2028 年的利润率差约 6 个百分点。</li>
+<li><strong>好不好约</strong>：容易。卖方模型里都有，合同余额的确认节奏也可以推算。</li>
+</ul>
+<h2 id="8">8. 信源梯度反馈</h2>
+<p><strong>这次最有用的是原始备案文件，而且好用程度远超预期。</strong> 本报告的承重结论——三十个季度的利润率序列、折旧与固定资产的分部数字、使用年限三次变更的原文与美元影响、电力合约的衍生品余额——全部来自 Amazon 自己提交给美国证券交易委员会的 8-K、10-Q 和 10-K。这些数字不需要任何转述，也不存在口径争议。<strong>教训是：对这类以会计机制为核心的题目，应该一开始就把原始备案文件抓全，而不是先去读别人的解读。</strong></p>
+<p><strong>一个工具缺口已经修好。</strong> 本次研究开始时，检索链路对 <code>www.sec.gov/Archives</code> 一律返回 403——美国证券交易委员会会拒绝不声明身份的访问者。这曾迫使研究过程绕开工具直接抓取。现已修复：默认标识带上了声明，并可通过配置改成使用者自己的联系方式，原始备案文件现在能直接读取。</p>
+<p><strong>播客的价值集中在管理层本人的原话，而不是评论。</strong> 本次实时检索公开播客目录并在本机转录了十余集。真正进入报告的只有 Matt Garman 在 Bloomberg Talks 的那一集——因为那是 AWS 负责人本人对自研芯片成本优势给出的具体数字。相比之下，分析类节目对利润率的讨论基本都是对财报的复述，信息增量有限。<strong>筛选标准应该是"谁在说"，而不是"谈的是不是这个话题"。</strong></p>
+<p><strong>订阅资源库对这道题的覆盖偏弱。</strong> 关于 AWS 利润率的具体数字预测不多，能找到的长期利润率假设多为二手转述，未能拿到原始研报 PDF。这不影响本报告的承重结论（它们都建立在 A 级证据上），但确实削弱了"市场一致预期在哪里"这条线的可靠性，已列入信息缺口。</p>
+<p><strong>多维度并行研究的真正价值，是逼出分歧而不是求平均。</strong> 本次用十个独立维度分别研究这道题，它们对"摸到 40%"给出的读数散布在 32% 到 84% 之间。这个分歧本身就是结论：偏多的维度（历史基率、需求可见度、电力成本）看的是<strong>近端</strong>——产能已售罄、非折旧成本增长只有收入的三分之一、单季波动大；偏空的维度（折旧机制、空方论证）看的是<strong>远端</strong>——2027 到 2029 年那堵还没进损益表的折旧墙。两边都没错，它们只是在回答"什么时候"。如果只取平均值，恰好会丢掉这道题唯一有操作价值的信息。</p>
+<p><strong>同业数据的可比性需要自己判断，不能直接拿来对标。</strong> 微软智能云 41.3% 和 Google Cloud 35.6% 都是分部原始口径，但两者的收入构成与 AWS 差别很大——前者含大量高毛利软件授权，后者含 Workspace 与 TPU 硬件销售。把它们直接当成"云业务的利润率天花板"会得出错误结论。本报告因此只用它们证明"40% 并非物理禁区"，不用它们做目标值。</p>
+<h2 id="9">9. 自检结果</h2>
+<p>以下为交付前的机器检查与人工核对结果。</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>report_lint.py</code>（禁用词、LaTeX 残留、章节连续、路径表合计、客户术语首现解释）</td>
+<td>24 项全部通过，0 失败</td>
+</tr>
+<tr>
+<td>路径表概率合计</td>
+<td>35% + 40% + 25% = <strong>100%</strong></td>
+</tr>
+<tr>
+<td>三个口径的内部一致性</td>
+<td>摸到 65% ＝ 路径二 40% ＋ 路径三 25%；站稳 25% ＝ 路径三；全年站上 22% 低于站稳（整个财年比滚动四季度更严）✓</td>
+</tr>
+<tr>
+<td>分部财务序列完整性</td>
+<td>2019Q1–2026Q2 共 <strong>30 个季度无缺失</strong>，每季均可追溯到具体备案文件</td>
+</tr>
+<tr>
+<td>折旧模型校准</td>
+<td>两种独立方法；分年份法对 2023/2024/2025/2026 四个时点的残差分别为 −5.1%、+6.4%、−6.2%、+3.8%，全部在 7% 以内</td>
+</tr>
+<tr>
+<td>两种模型的一致性</td>
+<td>折旧占收入比的预测差异在 0.3 到 1.8 个百分点之间，方向一致</td>
+</tr>
+<tr>
+<td>数字的原始出处</td>
+<td>所有 A 级证据均已打开原文核对措辞与数值，未使用任何二手转述的财务数字</td>
+</tr>
+<tr>
+<td>同业数字自算复核</td>
+<td>微软 $56,972M ÷ $137,791M = 41.35%；Google Cloud $8,814M ÷ $24,768M = 35.59% ✓</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="10">10. 最终预测声明</h2>
+<p><strong>在 2026-09-18 至 2031-09-18 这五年里：</strong></p>
+<ul>
+<li><strong>AWS 分部经营利润率至少有一个季度超过 40.0% 的概率：65%</strong></li>
+<li>FY2027–FY2030 中至少有一个完整财年超过 40.0% 的概率：22%</li>
+<li>出现连续四个季度合计超过 40.0% 的概率：25%</li>
+</ul>
+<p>按 Amazon 自己报告的分部口径结算。</p>
+<h2 id="_3">附录·当前估计依据</h2>
+<h3 id="_4">折旧模型</h3>
+<p>模型代码与全部输入见本次运行目录下的 <code>research/depreciation_model.py</code>，可直接运行复算。输入只有 Amazon 披露的分部数字，没有任何外部估计。</p>
+<p>模型用两种互相独立的方法测算折旧：</p>
+<p><strong>分年份法</strong>把每年的资本开支拆成短寿命设备（服务器与网络设备）和长寿命厂房，各自直线折旧，厂房先在在建工程里待两年。参数（短寿命占比 68%、寿命 5.0 年、当年计提 10%）由网格搜索拟合到 2023–2026 四个有分部折旧披露的时点，残差全部在 7% 以内。拟合刻意避开了 2020 和 2022 两次使用年限变更——固定年限的模型在构造上就复现不了"折旧不升反降"。</p>
+<p><strong>账面净值法</strong>完全不拆资产结构，直接用披露的 AWS 分部固定资产净值算出每年的实际折旧率：</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>年份</th>
+<th>平均账面余额</th>
+<th>当年折旧</th>
+<th>实际折旧率</th>
+<th>隐含平均寿命</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2021</td>
+<td>$43B</td>
+<td>$11B</td>
+<td>24.7%</td>
+<td>4.1 年</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>$57B</td>
+<td>$10B</td>
+<td>17.3%</td>
+<td>5.8 年</td>
+</tr>
+<tr>
+<td>2023</td>
+<td>$73B</td>
+<td>$13B</td>
+<td>17.2%</td>
+<td>5.8 年</td>
+</tr>
+<tr>
+<td>2024</td>
+<td>$99B</td>
+<td>$13B</td>
+<td>13.4%</td>
+<td>7.5 年</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>$159B</td>
+<td>$21B</td>
+<td>13.5%</td>
+<td>7.4 年</td>
+</tr>
+<tr>
+<td>2026（年化）</td>
+<td>$279B</td>
+<td>$31B</td>
+<td>11.0%</td>
+<td>9.1 年</td>
+</tr>
+</tbody>
+</table></div>
+<p>两种方法对未来折旧占收入比的预测相差 0.3 到 1.8 个百分点，方向一致。这个差距就是本题在会计层面的真实不确定性。</p>
+<h3 id="_5">过线所需条件</h3>
+<p>取两法中值，要让 AWS 经营利润率超过 40%，折旧前经营利润率需要达到：</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>收入增速</th>
+<th>2027</th>
+<th>2028</th>
+<th>2029</th>
+<th>2030</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>+22%/年</td>
+<td>68.6%</td>
+<td>75.5%</td>
+<td>79.1%</td>
+<td>79.7%</td>
+</tr>
+<tr>
+<td>+25%/年</td>
+<td>67.3%</td>
+<td>73.0%</td>
+<td>75.5%</td>
+<td>75.2%</td>
+</tr>
+<tr>
+<td>+30%/年</td>
+<td>65.2%</td>
+<td>69.4%</td>
+<td>70.4%</td>
+<td>68.9%</td>
+</tr>
+<tr>
+<td>+35%/年</td>
+<td>63.4%</td>
+<td>66.2%</td>
+<td>66.1%</td>
+<td>63.9%</td>
+</tr>
+</tbody>
+</table></div>
+<p>对照实际值：折旧前经营利润率 2023 年 40.9%、2024 年 49.4%、2025 年 52.1%、2026 年二季度 58.5%，平均每年约 +5 个百分点。</p>
+<p>读法：在收入 +30% 的假设下，2027 年需要 65.2%，相当于从现在再涨 6.7 个百分点——按当前速度约一年半可达。但到 2029 年需要 70.4%，而那时折旧还在爬坡。<strong>这就是"机会前置"的算术来源。</strong></p>
+<h3 id="_6">三条情景的利润率路径</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>2026</th>
+<th>2027</th>
+<th>2028</th>
+<th>2029</th>
+<th>2030</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>乐观</strong>（收入 +32%、折旧前每年 +4.5、资本开支 2028 见顶）</td>
+<td>40.4%</td>
+<td>39.0%</td>
+<td>39.8%</td>
+<td>44.0%</td>
+<td>51.2%</td>
+</tr>
+<tr>
+<td><strong>中性</strong>（收入 +26%、折旧前每年 +3.5、资本开支高位持平）</td>
+<td>39.5%</td>
+<td>35.7%</td>
+<td>33.8%</td>
+<td>35.1%</td>
+<td>39.2%</td>
+</tr>
+<tr>
+<td><strong>保守</strong>（收入 +20%、折旧前每年 +2.5、资本开支继续增）</td>
+<td>38.5%</td>
+<td>31.7%</td>
+<td>25.7%</td>
+<td>22.5%</td>
+<td>22.6%</td>
+</tr>
+</tbody>
+</table></div>
+<p>三条路径都呈现同一个形状：<strong>近端有机会，中段被折旧压低，末端取决于资本开支何时见顶。</strong> 概率分配主要反映我们对"乐观情景需要三个条件同时成立"这一判断的权重。</p>
+<h3 id="_7">口径敏感性</h3>
+<ul>
+<li>若把结算口径改成<strong>剔除一次性会计项目后的经营利润率</strong>，三个概率都要下调：摸到约 52%、全年站上约 15%、站稳约 18%。差异来源是电力合约重估这类项目对单季的拨动。</li>
+<li>若把窗口延长到七年（到 2033 年），"站稳"的概率会明显上升——因为资本开支见顶后的折旧回落期会完整落进窗口。本题窗口在 2031 年 9 月结束，恰好卡在回落期的开头。</li>
+<li>若亚马逊在窗口内再延长一次使用年限，三个概率分别上调约 12、10、10 个百分点。</li>
+<li>本报告的概率是在十个研究维度各自给出的区间之上收敛得到的。这些维度对"摸到"的读数散布在 32% 到 84% 之间——分歧本身就是这道题的结论之一：<strong>它不是一道方向题，而是一道时点题。</strong></li>
+</ul></main></div>
+</body></html>
