@@ -66,7 +66,7 @@
       "continue": true
     },
     {
-      "src": "^/investment-analysis/(tencent-hunyuan-workbuddy|google-hassabis|meta-capex-6m|openai-gpt6-sol|abivax-acquisition-6m)/(en|zh-CN|zh-TW)/?$",
+      "src": "^/investment-analysis/(?!reports/)([a-z0-9][a-z0-9-]*)/(en|zh-CN|zh-TW)/?$",
       "dest": "/$2/investment-analysis/$1",
       "continue": true
     },
@@ -76,7 +76,7 @@
       "continue": true
     },
     {
-      "src": "^/investment-analysis/(tencent-hunyuan-workbuddy|google-hassabis|meta-capex-6m|openai-gpt6-sol|abivax-acquisition-6m)/?$",
+      "src": "^/investment-analysis/(?!en/?$|zh-CN/?$|zh-TW/?$|reports/?$)([a-z0-9][a-z0-9-]*)/?$",
       "dest": "/zh-CN/investment-analysis/$1",
       "continue": true
     },
