@@ -1,7 +1,15 @@
 import { get, list, put } from "@vercel/blob";
 import { feedbackPath, parseFeedbackInput, type FeedbackRecord, type FeedbackStore } from "./feedback";
 
-export function feedbackStorageConfigured(env: NodeJS.ProcessEnv = process.env): boolean {
+/** Only the three credentials this check reads; a caller need not own a whole ProcessEnv. */
+export interface BlobCredentialsEnv {
+  BLOB_READ_WRITE_TOKEN?: string;
+  BLOB_STORE_ID?: string;
+  VERCEL_OIDC_TOKEN?: string;
+  [key: string]: string | undefined;
+}
+
+export function feedbackStorageConfigured(env: BlobCredentialsEnv = process.env): boolean {
   return Boolean(env.BLOB_READ_WRITE_TOKEN || (env.BLOB_STORE_ID && env.VERCEL_OIDC_TOKEN));
 }
 
