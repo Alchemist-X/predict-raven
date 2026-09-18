@@ -10,7 +10,8 @@ export const REPORT_QUESTIONS: Record<InvestmentCaseSlug, string> = {
   "google-hassabis": "Demis Hassabis 是否会彻底离开 Alphabet？",
   "meta-capex-6m": "Meta 会在半年内正式下调资本开支计划吗？",
   "openai-gpt6-sol": "GPT-6 的非旗舰模型采用官方名称 Sol 的概率是多少？",
-  "abivax-acquisition-6m": "Abivax 在接下来六个月内被收购的概率是多少？"
+  "abivax-acquisition-6m": "Abivax 在接下来六个月内被收购的概率是多少？",
+  "aws-operating-margin-5y": "AWS 的经营利润率会在接下来五年里超过 40% 吗？"
 };
 
 export interface FeedbackInput {

@@ -57,6 +57,15 @@ const CASES: ReadonlyArray<CaseStudy> = [
     summaryKey: "iaAbivaxSummary",
     signalLabelKey: "iaAbivaxSignalLabel",
     signalKey: "iaAbivaxSignal"
+  },
+  {
+    slug: "aws-operating-margin-5y",
+    index: "06",
+    companyKey: "iaAwsCompany",
+    titleKey: "iaAwsTitle",
+    summaryKey: "iaAwsSummary",
+    signalLabelKey: "iaAwsSignalLabel",
+    signalKey: "iaAwsSignal"
   }
 ];
 
