@@ -1,0 +1,889 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Abivax 六个月内被收购的概率</title><link rel="icon" href="data:,">
+<style>
+:root{--ink:#18201d;--muted:#657069;--paper:#fffdf8;--canvas:#eeeae1;--line:#d9d4c8;--accent:#9d3f25;--accent-soft:#f5e7df;--shadow:0 18px 55px rgba(47,42,31,.10)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:var(--canvas);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;line-height:1.72}
+.topbar{position:sticky;top:0;z-index:10;background:rgba(255,253,248,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1480px;margin:auto;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-weight:750;letter-spacing:.02em}.brand span{color:var(--accent)}
+.meta{font-size:13px;color:var(--muted)}
+.layout{max-width:1480px;margin:28px auto 64px;padding:0 24px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px}
+.toc{position:sticky;top:72px;align-self:start;max-height:calc(100vh - 96px);overflow:auto;padding:18px 14px;border:1px solid var(--line);border-radius:14px;background:rgba(255,253,248,.72)}
+.toc-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.toc a{display:block;color:var(--ink);text-decoration:none;font-size:13.5px;padding:4px 8px;border-radius:8px;margin:1px 0}
+.toc a:hover{background:var(--accent-soft);color:var(--accent)}
+main{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:40px 48px 56px;min-width:0}
+main h1{font-size:26px;line-height:1.35;margin:.2em 0 .6em;letter-spacing:.01em}
+main h2{font-size:21px;margin:2.2em 0 .7em;padding-top:.6em;border-top:1px solid var(--line)}
+main h3{font-size:17px;margin:1.6em 0 .5em;line-height:1.5}
+main h2:first-of-type{border-top:none;padding-top:0;margin-top:1em}
+main a{color:var(--accent)}
+main blockquote{margin:1.2em 0;padding:12px 18px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0}
+main blockquote p{margin:.3em 0}
+.tablewrap{overflow-x:auto;margin:1.1em 0}
+main table{border-collapse:collapse;font-size:14px;min-width:60%}
+main th{background:var(--accent-soft);color:var(--ink);text-align:left;font-weight:650}
+main th,main td{border:1px solid var(--line);padding:8px 12px;vertical-align:top;line-height:1.65}
+main tr:nth-child(even) td{background:rgba(238,234,225,.35)}
+main code{background:var(--canvas);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.9em}
+main hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+main li{margin:.25em 0}
+main ul ul,main ol ul{margin-top:.2em}
+main strong{color:#111}
+main u.key{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:4px}
+main u.minor{text-decoration:underline dotted;text-decoration-color:#9aa39d;text-decoration-thickness:1.5px;text-underline-offset:4px}
+main u.ask{text-decoration:underline;text-decoration-color:#8d9a91;text-decoration-thickness:1px;text-underline-offset:5px;font-weight:600;color:#2f3a34}
+main li>u.ask{display:inline-block;margin-bottom:.25em}
+.tag{display:inline-block;font-size:11.5px;line-height:1;padding:3px 6px;border-radius:5px;background:var(--canvas);border:1px solid var(--line);color:var(--muted);margin-right:5px;vertical-align:1px;white-space:nowrap}
+.note{display:block;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.55;font-weight:400}
+.legend{font-size:13.5px;color:#4d5651;background:rgba(238,234,225,.5);border:1px dashed var(--line);border-radius:10px;padding:10px 14px;margin:.6em 0 1.2em;line-height:1.75}
+.legend p{margin:.2em 0}
+.formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"PingFang SC","Hiragino Sans GB",monospace;background:var(--canvas);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:1em 0;line-height:2;font-size:13.5px;overflow-x:auto;white-space:nowrap}
+.formula b{color:var(--accent)}
+.org td:first-child,.tight1 td:first-child{white-space:nowrap}
+.org td:first-child{font-weight:650}
+.org td:nth-child(2){width:58%}
+.org td:nth-child(3){min-width:260px}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.toc{position:static;max-height:none}main{padding:24px 20px}}
+</style></head><body>
+<div class="topbar"><div class="topbar-inner"><div class="brand">Predict-Raven</div><div class="meta">Abivax 六个月内被收购的概率｜生成 2026-09-18｜research-only / market-blind</div></div></div>
+<div class="layout"><nav class="toc"><div class="toc-title">目录</div><a href="#abivax">Abivax 六个月内被收购的概率</a>
+<a href="#1">1. 阅读结论</a>
+<a href="#2">2. 路径推演</a>
+<a href="#3">3. 核心判断</a>
+<a href="#4">4. 结算口径</a>
+<a href="#5">5. 情景与路径</a>
+<a href="#6">6. 关键证据表</a>
+<a href="#7">7. 信息缺口树</a>
+<a href="#8">8. 信源梯度反馈</a>
+<a href="#9">9. 自检结果</a>
+<a href="#10">10. 最终预测声明</a>
+<a href="#_4">附录·当前估计依据</a></nav><main><h1 id="abivax">Abivax 六个月内被收购的概率</h1>
+<div class="note">
+<p>研究日 2026-09-18｜窗口 2026-09-18 至 2027-03-18｜结算口径见第 4 节</p>
+</div>
+<h2 id="1">1. 阅读结论</h2>
+<p><strong>客户原题：</strong> Abivax在接下来6个月内被收购的概率</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>问的是什么</th>
+<th>概率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>严格口径：窗口内公告签署有约束力的收购协议</strong> <br><span class="note">以公告日为准，不要求交割完成。详见第 4 节</span></td>
+<td><strong>16%</strong></td>
+</tr>
+<tr>
+<td>宽松口径：窗口内<strong>完成交割</strong> <br><span class="note">法国的公开收购要约加上政府对外国买家的审查，从签约到真正完成交割通常要四到八个月</span></td>
+<td><strong>3%</strong></td>
+</tr>
+<tr>
+<td>参考：窗口内出现<strong>授权许可或大额少数股权</strong>（按口径不算被收购） <br><span class="note">"维持期数据之后去找美国以外的伙伴"是公司自己反复讲了两年的剧本，而数据已在 6 月落地——这是最可能的"看起来像但不算"的结果</span></td>
+<td><strong>32%</strong></td>
+</tr>
+</tbody>
+</table></div>
+<div class="note">
+<p>三个数字的关系：法国的外资审查是在<strong>协议公告之后</strong>才启动的（公司 CEO 本人确认过这一点），所以它不挡公告、只挡交割——16% 里只有大约五分之一能在同一窗口内走完要约与审查，完成交割因此只剩 3%。而"公司宣布了一件大事、但不是卖身"的概率（32%），是"真的卖了"的两倍。</p>
+</div>
+<p><strong>一句话结论：我们认为大概率不会被收购（16%），在窗口期内完成交割的可能性更是低至 3%。</strong></p>
+<p>原因是两条同时成立：<strong>潜在买方的预算上限，正好低于卖方的心理价位</strong>——传闻价位在 $170 亿到 $230 亿之间，而被点名的头号买家阿斯利康公开说单笔并购预算上限是 $100 亿到 $200 亿，且当前高价值机会不多；<strong>并且，潜在买方非常关心来自 FDA 的结果</strong>，而这道题的窗口在 FDA 给出说明书结论之前就结束了。这两点加在一起，是我们判断短期内不会有收购的主要依据。</p>
+<h2 id="2">2. 路径推演</h2>
+<h3 id="20">2.0 这家公司是做什么的</h3>
+<p>Abivax 是一家法国生物科技公司，2013 年创立，同时在巴黎泛欧交易所和美国纳斯达克上市，截至 2026 年 9 月 17 日市值约 <strong>93 亿美元</strong>。它属于"临床阶段"公司——还没有任何产品上市销售，没有收入，靠融资支撑研发。</p>
+<p>公司只有<strong>一个核心产品</strong>：奥贝法莫（obefazimod，研发代号 ABX464），一种每天口服一次的小分子药物。它的作用机制是增强人体内一种叫 miR-124 的分子，从而让过度活跃的免疫反应恢复平静，属于<strong>同类首创</strong>——市面上还没有第二个同机制的药。</p>
+<p>主攻的适应症是<strong>溃疡性结肠炎</strong>，一种免疫系统攻击自己肠道、导致长期腹泻便血的慢性病，和克罗恩病同属"炎症性肠病"。这是个大市场，现有药物多为注射剂，一个有效的口服药有明显优势。奥贝法莫的溃疡性结肠炎三期临床试验已经全部完成且结果为阳性，公司计划 2026 年四季度末向美国药监局递交上市申请；克罗恩病的二期试验仍在进行。</p>
+<p>一家只有单一资产、资产刚被大型试验验证、自己又没有销售队伍的公司，是教科书式的被收购对象——这也是过去九个月市场一直在等它被买走的原因。</p>
+<div class="legend">
+<p><strong>几个后文反复出现的词，先解释清楚：</strong></p>
+<ul>
+<li><strong>临床试验分期</strong>：新药人体试验分三期。一期看安全性，二期看有没有效、用多大剂量，<strong>三期</strong>是决定性的大规模验证，通常是申请上市前的最后一关。</li>
+<li><strong>上市申请（NDA，New Drug Application）</strong>：药企把全部试验数据整理成卷宗，正式递交给美国药监局（FDA）申请批准销售。递交之后 FDA 约六十天内决定受不受理立卷，真正的审批结论还要更久。</li>
+<li><strong>说明书（标签，label）</strong>：药品获批时由 FDA 核准的官方文件，写明能治什么病、怎么用、有哪些风险。<strong>说明书上最严厉的一级安全警示叫"黑框警示"</strong>，字面意思就是印在说明书最前面、用黑框框起来。同类的口服免疫药物（JAK 抑制剂）就因为恶性肿瘤等风险被整类加了黑框警示，所以买方会很在意奥贝法莫最终拿到什么样的说明书。</li>
+<li><strong>公开收购要约</strong>：收购上市公司的常见形式，买方公开向全体股东出价买股票。在法国需要向金融市场管理局递交并获准后才能正式开启。</li>
+<li><strong>美国存托股（ADS）</strong>：外国公司在美国上市时的股票形式，Abivax 是一份 ADS 对应一股普通股。</li>
+</ul>
+</div>
+<h3 id="21">2.1 拆解树</h3>
+<p>如果"六个月内被收购"这个命题成立，需要以下<strong>四个条件同时满足</strong>，缺任何一个，结果就是没有成交。</p>
+<p><strong>一、买方在窗口内仍在实质推进（研究权重 20%，对应 P(买方推进)）</strong></p>
+<ul>
+<li><u class="ask">有没有具体买家？</u><ul>
+<li>阿斯利康自 2026 年 2 月初起获得<strong>数据室独家查阅权</strong>——卖方把内部资料开放给某一个买家单独查看、并约定一段时间内不和别人谈，这段时间叫独家期，本次的期限到 3 月 23 日。</li>
+<li>礼来自 2025 年 12 月起被反复点名。两家都不是空穴来风的候选。</li>
+</ul>
+</li>
+<li><u class="ask">卖方有没有在主动找买家？</u><ul>
+<li>2026 年 7 月 17 日，公司重新启用投行 Centerview Partners 与大药企谈收购。</li>
+<li>这是卖方主动重启流程的动作，不是买方单方面的传闻。</li>
+</ul>
+</li>
+<li><u class="ask">那么此刻流程还活着吗？</u><ul>
+<li>从 7 月 17 日到研究日，两个月里没有任何新的实质进展见诸报道。</li>
+<li>更关键的是，阿斯利康管理层在 9 月上旬两次公开场合都表示不需要大额并购、当前高价值机会不多，并给出了单笔 $100 亿到 $200 亿的预算上限——头号买家自己在降温。</li>
+</ul>
+</li>
+</ul>
+<p><strong>二、双方在窗口内谈拢价格（研究权重 35%，对应 P(价格达成｜买方推进)）</strong></p>
+<ul>
+<li><u class="ask">卖方的心理价位在哪里？</u><ul>
+<li>传闻价位是 €150 亿到 $230 亿（约合 $175 亿到 $230 亿）；当前市值约 $93 亿。</li>
+<li>也就是说，要成交，买方得付 80% 到 130% 的溢价。</li>
+</ul>
+</li>
+<li><u class="ask">买方的天花板在哪里？</u><ul>
+<li>阿斯利康公开的单笔并购预算上限是 $100 亿到 $200 亿。</li>
+<li><strong>要价的下沿正好顶在预算的上沿，中间几乎没有重叠区间。</strong></li>
+</ul>
+</li>
+<li><u class="ask">卖方有没有非卖不可的理由？</u><ul>
+<li>没有。2026 年 7 月完成 $9.2 亿融资、净得约 $8.74 亿。</li>
+<li>CEO 说现金可用到 2029 年底，并明说要独立建美国销售体系。</li>
+</ul>
+</li>
+<li><u class="ask">这件事已经谈了多久？</u><ul>
+<li>从 2025 年 12 月第一次传闻算起九个多月，中间有过一次独家期、一次暂停、一次重启，没有成交。</li>
+<li><strong>长时间谈不拢，本身就是价格差距真实存在的证据。</strong></li>
+</ul>
+</li>
+</ul>
+<p><strong>三、安全性与标签问题不构成签约障碍（研究权重 30%，对应 P(安全性不阻断｜前两项)）</strong></p>
+<ul>
+<li><u class="ask">安全性上到底发生了什么？</u><ul>
+<li>2026 年 6 月 1 日维持期数据里出现 7 例恶性肿瘤，股价一度跌四成。</li>
+<li>公司随后用背景发生率的补充数据把股价拉回三成以上。</li>
+</ul>
+</li>
+<li><u class="ask">那市场被说服了，买方呢？</u><ul>
+<li>"投资人被说服"和"买方尽调团队被说服"是两件事。</li>
+<li>买方真正想要的确定性是 FDA 的说明书——会不会带黑框警示。</li>
+</ul>
+</li>
+<li><u class="ask">说明书什么时候出？</u><ul>
+<li>NDA 要到 2026 年四季度末才递交，受理决定大约在 2027 年一季度，批准与说明书更晚。</li>
+<li><strong>这道题的窗口，在说明书出来之前就结束了</strong>，所以买方按兵不动是理性的。</li>
+</ul>
+</li>
+</ul>
+<p><strong>四、法国监管与交易机制允许在窗口内签约并公告（研究权重 15%，对应 P(机制允许｜前三项)）</strong></p>
+<ul>
+<li><u class="ask">法国的外资审查会不会卡住签约？</u><ul>
+<li>不会，这里要更正一个常见误解：它不是签约的前置条件。</li>
+<li>法国市场管理局的规则把审查卡在<strong>要约开启</strong>，而不是<strong>签约公告</strong>；所以"外资审查要三个多月、六个月内做不完"对这道题是无效论证——我们结算的是公告。</li>
+<li>Abivax 的 CEO 本人也是这样描述的：买方先宣布一项可能的收购，之后才去递交审批文件，义务方是买方；他把它类比成美国的反垄断审查，说"<strong>一般会久一点，但只是一道要走的流程</strong>"。这正好把两个数字分开了——<strong>审查压的是"完成"，不是"公告"</strong>。</li>
+</ul>
+</li>
+<li><u class="ask">有没有股东能挡下交易？</u><ul>
+<li>按最近一期年报，持股超过 5% 的只有 Invus 8.54%、TCG Crossover 8.14%、Darwin 5.37%，董事与高管合计仅 1.44%，公司自述主要股东<strong>没有特殊表决权</strong>。</li>
+<li>七月配售也没有引入任何防御性股东。没有任何一方能单独否决一笔交易。</li>
+</ul>
+</li>
+<li><u class="ask">那真正的摩擦在哪？</u><ul>
+<li>外资审查在法国不能像反垄断那样写成可撤回的交割条件，所以理性买方会在签字前先把条件谈妥，而这段谈判全程保密、外部不可观测。</li>
+<li>礼来早在 2025 年 12 月就已就此与法国国库总局有过接触，并提出过引入法国国有投资机构入股的方案。</li>
+</ul>
+</li>
+<li><u class="ask">法国公司能用什么交易形式？</u><ul>
+<li>法国 SA 没有英美那种法定安排方案。</li>
+<li>现实形态只有两种：经董事会推荐、向法国金融市场管理局递交的公开收购要约，或一份有约束力的合并协议。</li>
+</ul>
+</li>
+</ul>
+<h3 id="22">2.2 关键人关系表</h3>
+<div class="note">
+<p>"打灯"是客户自己的用法：给每条关系的当前状态打一个分（5 分制），绿灯＝顺畅，黄灯＝方向一致但执行待验证，红灯＝有结构性摩擦。</p>
+</div>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>关系链条</th>
+<th>打灯</th>
+<th>目前关系</th>
+<th>对本题意味着什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Abivax 董事会 → CEO Marc de Garidel</td>
+<td>4 绿</td>
+<td>授权型支持。CEO 2026 年 3 月说"不急"，7 月说"最好的防守是进攻"，并拿到了 $9.2 亿弹药</td>
+<td>管理层有底气拒绝低价，也有董事会背书。压低成交概率</td>
+</tr>
+<tr>
+<td>创始人 Philippe Pouletty（Truffle Capital）→ 公司</td>
+<td>— 已不在局内</td>
+<td><strong>2024 年 12 月 31 日已辞去董事职务</strong>；Truffle Capital 亦已不在持股 5% 以上的名单内</td>
+<td>常被当作"法国创始人会不会卖"的变量，实际上他已经不在决策桌上。这条障碍不存在</td>
+</tr>
+<tr>
+<td>Abivax → 阿斯利康</td>
+<td><strong>2 红</strong></td>
+<td>2026 年 2 月给过数据室独家期，3 月 23 日到期未出价；9 月上旬管理层公开给出单笔并购预算上限 $100 亿到 $200 亿，并称无需大额并购、当前高价值机会不多</td>
+<td>做过尽调的买家没有出价，且自报的预算上限压在要价下沿——这是结构性摩擦，不是节奏问题</td>
+</tr>
+<tr>
+<td>Abivax → 礼来</td>
+<td>3 黄</td>
+<td>2025 年 12 月起被点名，2026 年 1 月传 €150 亿；曾就外资审查向法国财政部咨询</td>
+<td>买方做过制度层面的准备，说明兴趣是真的</td>
+</tr>
+<tr>
+<td>Abivax → Centerview Partners</td>
+<td>4 绿</td>
+<td>2026 年 7 月 17 日重新启用，报道明确写了用途是与大药企谈收购</td>
+<td>卖方流程处于开启状态，这是窗口内最强的正面信号</td>
+</tr>
+<tr>
+<td>Abivax → 法国财政部（国库总局）</td>
+<td>3 黄</td>
+<td>战略医疗资产的收购会触发外资审查，但<strong>审查在协议公告之后才启动</strong>；礼来 2025 年 12 月已有接触并提出过引入法国国有投资机构的方案</td>
+<td>不挡公告，挡交割；对签约时点只有间接影响</td>
+</tr>
+<tr>
+<td>Abivax → 覆盖它的券商研究团队</td>
+<td>4 绿</td>
+<td>16 家覆盖：1 强烈买入、13 买入、1 持有、1 卖出；平均目标价（研究员认为一年内合理的股价）$156.38，对应约 $136 亿市值</td>
+<td>这个估值离传闻的 $230 亿差约四成，说明连看多的研究员也没有把成交价算进去</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="23">2.3 组织要素快照</h3>
+<div class="org">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>要素</th>
+<th>当前事实</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>核心资产</strong></td>
+<td>奥贝法莫（obefazimod，原 ABX464），口服首创 miR-124 增强剂；溃疡性结肠炎三期完成，克罗恩病二期 b 进行中（🏛️ 公司 SEC 6-K，2026-06-01）</td>
+<td>从单一在研分子，走到"三期数据齐备、等递交"的阶段</td>
+</tr>
+<tr>
+<td><strong>关键数据</strong></td>
+<td>维持期第 44 周临床缓解：25mg 50.8%、50mg 51.3%，安慰剂 10.4%；差值 39.3 与 40.3 个百分点，p&lt;0.0001；全部关键次要终点达标；安慰剂缓解率 10.4% 为同类三期维持试验已报告的最低值（🏛️ SEC 6-K 附件 99.1，2026-06-01）</td>
+<td>从"诱导期有效"升级到"一年维持有效"，这是买方等待的最后一项疗效证据</td>
+</tr>
+<tr>
+<td><strong>安全性悬念</strong></td>
+<td>同一份数据含 7 例恶性肿瘤：前列腺癌、乳腺癌、结肠不典型增生各 1 例（均在 50mg 组）；基底细胞癌 3 例、鳞状细胞癌 3 例；研究者判定与用药无关，未见器官特异性聚集，无死亡（🏛️ SEC 6-K 附件 99.1，2026-06-01）</td>
+<td>从"无安全信号"变成"有一个需要向监管解释的信号"；已有机构提出黑框警示风险</td>
+</tr>
+<tr>
+<td><strong>资金与独立性</strong></td>
+<td>2026-07-06 完成 7,360,000 份 ADS 发行，定价 $125.00，毛额 $9.2 亿、净额约 $8.74 亿。CEO：“Thanks to the cash we raised… We are in a position to have cash until the end of 2029, and … build up the right infrastructure to launch in the U.S.”（📰 Quartz 引 CNBC，2026-07-10）</td>
+<td><strong>路线没有变，只是又融了一次资。</strong>"美国自己做、美国以外找伙伴"是 2025 年 7 月以来连续说了十四个月、董事长也同口径背书的既定路线，本次是第五次重申</td>
+</tr>
+<tr>
+<td><strong>管理层对收购的公开姿态</strong></td>
+<td>2026-03-24：不急于做交易，对 6 月数据有信心；2026-07-10 被问是否接受要约：“The best defense for us is actually the offense.”（📰 CNBC；📰 Quartz）</td>
+<td>从"不置评"转向"明确摆出防守姿态"</td>
+</tr>
+<tr>
+<td><strong>股本与估值</strong></td>
+<td>2026-07-31 股本 87,253,797 股，理论及可行使表决权 88,512,554 票（🏛️ 公司定期披露）；2026-09-17 收 $106.99／€93.70，对应市值约 $93 亿</td>
+<td>融资后股本扩大；股价较 52 周高点 $148.83 回落约 28%，年初至今 -15.78%</td>
+</tr>
+<tr>
+<td><strong>市场持仓</strong></td>
+<td>空头 6,962,029 股、占流通股 <strong>10.37%</strong>（2026-08-31 结算日），上一期（08-14）为 6,001,787 股／8.94%，<strong>一期之内继续上升</strong>；美国银行将持股降至 5% 披露线以下（📰 FINRA 口径数据、TipRanks，2026-09）</td>
+<td>做空一个"随时可能被溢价收购"的标的赔率极差。空头还在加，说明专业资金给并购的权重很低</td>
+</tr>
+<tr>
+<td><strong>窗口内日程</strong></td>
+<td>半年报 2026-09-21；NDA 递交 2026 年四季度末；欧洲消化疾病周 2026-10-17；摩根大通医疗健康大会 2027 年 1 月上旬；FDA 受理决定约 2027 年一季度</td>
+<td>窗口里有催化剂，但没有说明书。<strong>克罗恩病二期 b 已从"2026 年底"滑到"2027 年年中"，滑出了窗口</strong>——而按管理层自己的口径，这个适应症占该药全球收入的三分之二</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<h2 id="3">3. 核心判断</h2>
+<div class="legend">
+<p>依据前的图标：🏛️ 官方材料（公告、财报、监管文件）｜📰 新闻报道｜🎙️ 播客｜🗣️ 专家访谈。实线下划线是承重证据（拿掉它判断会变），虚线是佐证。</p>
+</div>
+<h3 id="31">3.1 九个月的流程没谈成，本身就是最重要的一条证据</h3>
+<p>市场从 2025 年 12 月起就在等这笔交易。中间发生过一次有名有姓的独家尽调期、一次公开否认、一次谈判暂停、一次投行重启。九个多月过去，什么都没签。</p>
+<p>把这件事讲成"随时可能宣布"，是把等待时间读成了积累的势能。更合理的读法正相反：<u class="key">一个做过数据室尽调、看过全部底牌的买家，在独家期内没有出价，这比任何传闻都更能说明价格或风险上存在实质分歧</u>。</p>
+<p>有一点要先排除掉，免得把证据用错方向：<strong>不只是"否认"不算证据，管理层关于收购的任何公开表态都不算证据。</strong> 对 2000 至 2011 年美股五百余起并购传闻的研究显示，标的公司否认与传闻最终是否兑现之间没有统计上的显著关系。</p>
+<p>把这位 CEO 十四个月里所有相关发言排在一起看，这一点更清楚：他从来不否认、不设条件、不给价格，只是把决定权推给对方，然后把话题转回把药做好。2025 年 7 月是"卖公司最好的办法就是把药做好，一个总想着卖的 CEO 注定失败"；2025 年 11 月是"我们控制不了大药厂在做什么，能控制的是自己的命运"；2026 年 1 月是"传言和猜测我们控制不了"；2026 年 7 月是"最好的防守是进攻"。<strong>这是同一个姿态的四次重复，不是四个不同的信号。</strong></p>
+<p>所以判断"买方还在不在推进"，只能看可观察的行为——给没给独家期、谈判有没有暂停、投行有没有被重新启用——不能看管理层说了什么。</p>
+<p>另一条可以直接套用的量化规律是：传闻的兑现率随时间急速衰减。同一研究显示，一起并购传闻在六个月内兑现的比例约 27.5%、十二个月内约 33%；这意味着<strong>在"头六个月没成交"的条件下，第七到第十二个月才成交的条件概率只剩不到 8%</strong>。Abivax 的第一轮传闻是 2025 年 12 月，到研究日已经走完了一个完整的衰减周期。</p>
+<p>依据：</p>
+<ul>
+<li>📰 <span class="tag">来源陈述</span> Benzinga（2026-03-12）：阿斯利康自 2 月初起持有数据室独家查阅权，独家期至 3 月 23 日；若未在期限内出价，独家安排失效。</li>
+<li>🏛️ <span class="tag">事实</span> 路透社（2026-03-12）：Abivax 发言人回应该报道——“We deny the information, these are unfounded rumors.”同一篇还写明，1 月 CEO 也否认过 La Lettre 关于礼来的报道。</li>
+<li>📰 <span class="tag">分析判断</span> STAT 的 Adam Feuerstein（2026-09-03，标题即《Abivax has still not been acquired. What's going on?》）：<u class="key">“Biotech M&amp;A activity is off the charts, yet the French drugmaker … remains unbetrothed. We're nine months into a year in which a takeout of Abivax for $20 billion (give or take a few billion) was deemed likely to happen any day.”</u></li>
+</ul>
+<p><strong>为什么重要：</strong> 这是一道只有六个月的题。九个月没谈成的流程，在接下来六个月谈成的起点概率，应该低于"刚出数据时"，而不是高于它。</p>
+<h3 id="32">3.2 两年两次稀释股东，是为了保住"自己上市"这个选项</h3>
+<p>这里要先纠正一个流行的读法：<strong>七月那笔融资不是管理层"改口要独立"，而是一条已经走了两年的路线又融了一次资。</strong></p>
+<p>"美国自己做、美国以外找伙伴"这条路线，CEO 从 2025 年 7 月起在八场公开访谈里说了五次，董事长同场背书过，连人数都给过——美国上市需要约 300 人的销售队伍。所谓"1 月说需要伙伴、7 月改口说自己来"是误读：他那句"需要伙伴"指的一直是<strong>美国以外的商业化伙伴</strong>，不是买家。</p>
+<p>真正有信息量的，是<u class="key">这条路线的成本：董事会为了保住独立上市这个选项，两年内两次稀释股东，而不是接受一个报价</u>。融资会摊薄现有股东，同时把谈判对手"你不卖就要没钱"的时间压力彻底清零。连续两次这样选，说明的不是嘴上的态度，而是<strong>已经付出代价的偏好</strong>。</p>
+<p>更值得注意的是七月的另一半：拿到钱之后第十一天，这位公开说"别去推销公司"的 CEO，还是雇了 Centerview 去和大药企谈整体出售。<strong>这一步是他自己十四个月纲领的破例</strong>，所以它的信息量比通常的投行聘用大得多（见 3.5 节）。</p>
+<p>依据：</p>
+<ul>
+<li>🏛️ <span class="tag">事实</span> SEC 6-K（2026-07-02）：6 月 30 日与 Leerink、摩根士丹利、Piper Sandler、Guggenheim 签署承销协议，6,400,000 份 ADS 定价 $125.00，净额预计约 $7.598 亿（€6.668 亿）。</li>
+<li>📰 <span class="tag">事实</span> Quartz（2026-07-10）：承销商把预留的追加发行额度全部用掉后，合计发行 7,360,000 份存托股，募资总额 $9.2 亿、扣除费用后净得约 $8.74 亿。</li>
+<li>📰 <span class="tag">来源陈述</span> 同上，CEO de Garidel 在 CNBC《Squawk Box Europe》：<u class="key">“Thanks to the cash we raised… We are in a position to have cash until the end of 2029, and … build up the right infrastructure to launch in the U.S.”</u>；被问到是否会考虑收购要约时：<u class="minor">“The best defense for us is actually the offense.”</u></li>
+<li>📰 <span class="tag">事实</span> pharmaphorum（2026-01-12）：彼时 CEO 虽不评论礼来传闻，但说公司需要一个伙伴，把奥贝法莫带向国际市场。</li>
+</ul>
+<p><strong>为什么重要：</strong> 半年之内，管理层对"要不要伙伴"的公开表述发生了方向性反转。这是本题里信息量最大的一处态度变化，而且方向是压低成交概率的。</p>
+<h3 id="33">3.3 头号买家自己划了预算线，而这条线压在要价的下沿</h3>
+<p>这是本次研究里信息量最大的一条，而且来自买方自己。</p>
+<p>阿斯利康肿瘤业务欧盟及加拿大负责人 Pablo Panella 在 9 月上旬的行业会议上，针对《金融时报》8 月 1–2 日关于阿斯利康与百时美施贵宝 $4000 亿合并的报道作澄清时，给出了一个具体数字：<u class="key">单笔并购预算上限 $100 亿到 $200 亿，CEO 表示无需此类交易即可充实 2030 年代管线，并认为当前高价值机会不多</u>。同一场合他重申的是对<strong>早期</strong>资产的兴趣，近期节奏是每季度 2 到 3 个二期之前的资产。</p>
+<p>把这条和估值摆在一起：Abivax 当前市值约 $93 亿，传闻成交价 €150 亿到 $230 亿。<strong>买方自报的上限，正好落在卖方要价的下沿。</strong> 这不是"再谈谈就能靠拢"的差距，而是一个需要买方突破自己公开承诺才能跨过的差距。</p>
+<p>依据：</p>
+<ul>
+<li>💹 <span class="tag">来源陈述</span> 伯恩斯坦《阿斯利康：伯恩斯坦 SDC 会议显示 2030 年指引稳步推进》（2026-09-10，扩展资源库）：<u class="key">"针对 8 月 1-2 日《金融时报》关于 AZN 与百时美施贵宝潜在 4000 亿美元合并的投机被坚决澄清：单笔并购预算上限为 $10-20bn，CEO 表示无需此类交易即可充实 2030 年代管线，并重申对早期并购的热情（近期纪录为每季度 2-3 个 pre-phase 2 资产）。"</u></li>
+<li>💹 <span class="tag">来源陈述</span> 高盛《阿斯利康：Tozorakimab 的 COPD 数据超出我们的预期》（2026-09-08，扩展资源库）：<u class="minor">"管理层重申 2030 年 800 亿美元营收目标及 2030 年以后展望的信心，无需并购即可实现；未来 BD/M&amp;A 不应被视为对管线或 2030 后增长缺乏信心。"</u>——两家独立卖方在两天之内记录到同一口径，不是单一转述。</li>
+<li>💹 <span class="tag">卖方预测</span> 摩根士丹利《礼来：处方追踪》（2026-09-11，扩展资源库）：礼来的增长叙事集中在 GLP-1 与肥胖（Mounjaro／Zepbound／Foundayo），炎症与神经属于"新适应症"扩展方向；下行风险一栏明确列出"高风险并购／研发投入毁损价值"。<u class="minor">另一个被点名的买家，当下的注意力和风险偏好都不在一笔 $200 亿的消化道免疫交易上。</u></li>
+</ul>
+<p>还有两条独立证据指向同一个方向。</p>
+<p>其一，<strong>今年的成交价有天花板，而这笔交易要越过它。</strong> 2026 年药物研发型生物科技被并购的最大三笔是艾伯维买 Apogee（109 亿美元）、GSK 买 Nuvalent（106 亿）、福泰买 Crinetics（100 亿）。按今年同类交易 40% 到 50% 的溢价，Abivax 的成交对价要落在 $130 亿到 $160 亿——<strong>高于今年任何一笔生物科技并购</strong>。</p>
+<p>其二，<strong>同一年里已经有一笔同量级的交易死在价格上。</strong> 默沙东曾出价 $280 亿到 $320 亿收购 Revolution Medicines，谈判在 2026 年 1 月下旬因双方对价格谈不拢而中止。那同样是一个高共识、被认为"迟早会被买"的标的。</p>
+<p>需要同时说清楚一条反向事实，否则这条判断会被高估：<strong>阿斯利康并不是在炎症性肠病领域完全空白、非买不可。</strong> 它有 AZD7798 正在做克罗恩病的二期试验，另有一项二期在做回肠克罗恩人群，2025 年 10 月还签过一项炎症性肠病靶点合作。所以它有"自己做"的选项，这使它更有条件守住预算线。</p>
+<p>还有一条来自卖方自己的锚：早在 2026 年 1 月、恶性肿瘤问题爆出之前，股价就已经是 $115、市值约 $100 亿。也就是说，<strong>Abivax 在最风光的时候就已经落在阿斯利康预算区间的上半段，而不是下半段。</strong> 这为"阿斯利康拿了到 3 月 23 日的数据室独家权却没有出价"提供了价格侧的解释，而不只是数据侧的解释。更麻烦的是，经历了六月那场暴跌之后，七月的增发定价仍是 $125——<strong>卖方的价格锚并没有因为安全性问题而下移</strong>。</p>
+<p><strong>为什么重要：</strong> 之前所有关于"谁会买"的讨论都停留在传闻层面。这是第一次拿到买方自己对<strong>出价能力</strong>的公开约束，而且它是量化的，还被今年的实际成交上限和一笔同量级的谈崩交易从两侧夹住。它把"价格谈不拢"从一种猜测变成了一个有数字支撑的结构性判断。</p>
+<h3 id="34">3.4 买方在等三件事，三件都落在窗口之外</h3>
+<p>7 例恶性肿瘤这件事，投资人已经被补充数据说服了一半——股价从暴跌四成回补了三成以上，高盛在 9 月上旬还把评级上调到强烈买入。但买方的问题和投资人不同：买方要为一个可能带黑框警示的说明书付 $200 亿。</p>
+<p><strong>买方在等的不是一件事，是三件，而且三件都落在窗口之外。</strong></p>
+<p><strong>第一件，FDA 的说明书。</strong> 溃疡性结肠炎领域已有同类口服免疫药物（JAK 抑制剂）因类效应被整类加黑框警示的先例，所以这不是假想风险。而这个问号靠公司再出一版补充分析是解决不了的——2025 年 7 月 CEO 自己解释过，公司当时能看到的只是<strong>盲态</strong>安全性数据，"没看到异常"这句话在盲态下本来就没有排除力。能关闭它的只有 FDA 审评和更长的随访。</p>
+<p><strong>第二件，监管要求的心脏纤维化子研究。</strong> 这是本次研究新发现的、此前完全未被计入的第二个说明书未决项：因为 miR-124 靶点的一篇旧文献，监管机构要求 Abivax 专门做一项子研究随访可能的心脏纤维化。CEO 说迄今没看到问题、并质疑那个临床前模型不合适，但<strong>只要子研究还开着，说明书上就有两个待关闭的安全性问题，不是一个</strong>。</p>
+<p><strong>第三件，也是最容易被忽略的：这个资产三分之二的价值还没被验证。</strong> 按管理层自己的口径，奥贝法莫的全球收入里溃疡性结肠炎约占三分之一、克罗恩病约占三分之二。而克罗恩病二期 b 的读数已经从"2026 年底"滑到"2027 年年中"——<u class="key">窗口内签约，等于在占该资产三分之二价值的适应症尚未验证时付钱；而卖方现金到 2029 年底，完全有条件等到那个读数之后再谈</u>。</p>
+<p>依据：</p>
+<ul>
+<li>🏛️ <span class="tag">事实</span> SEC 6-K 附件 99.1（2026-06-01）安全性表：50mg 组各 1 例前列腺癌、乳腺癌、结肠不典型增生；基底细胞癌安慰剂 1 例／50mg 2 例，鳞状细胞癌 25mg 1 例／50mg 2 例；四例非黑色素瘤皮肤癌中两例被研究者判定与药物无关或不太可能相关，其余两例中一例有皮肤癌病史；observed 病例平均年龄 62 岁，全试验人群为 42 岁。</li>
+<li>📰 <span class="tag">事实</span> Quartz（2026-07-10）：数据公布后股价一度下跌四成，Jefferies 的 Faisal Khurshid 下调评级；约四周后补充数据显示恶性肿瘤发生率处于该人群背景水平，股价回升逾三成。</li>
+<li>💹 <span class="tag">卖方预测</span> Wedbush（2026-06-30）：目标价自 $90 上调至 $110，评级维持中性，理由涉及黑框警示风险上升——<u class="minor">在一片买入评级里，它是唯一把安全性当成估值约束的一家，也是目标价最低的一家</u>。</li>
+<li>🏛️ <span class="tag">事实</span> 公司指引（2026-06-01 公告）：NDA 计划 2026 年四季度末递交；克罗恩病二期 b topline 预计 2027 年年中。</li>
+<li>🎙️ <span class="tag">来源陈述</span> CEO 在 BiotechTV（2026-01-12）：监管机构要求公司在一项子研究里随访可能的心脏纤维化，起因是竞争对手在投行会议上引用了 miR-124 靶点的一篇旧文献；CEO 称迄今未见异常，并认为该临床前模型（狨猴）不相关。<u class="minor">这是说明书上的第二个未决项。</u></li>
+<li>🎙️ <span class="tag">来源陈述</span> CEO 在 BiotechTV（2025-07-24）谈维持期安全性：<u class="key">“what's reassured us currently is that we have access to the blinded safety data… we are not seeing any manifestation of really really serious side effects. There is nothing really new in that regard.”</u>——<strong>盲态数据看不出问题，所以"公司没看到信号"这句话在当时就没有排除力</strong>；能关闭这个问号的只有 FDA 审评。</li>
+<li>🎙️ <span class="tag">来源陈述</span> CEO 在 L'Actu Bourse（2025-05-14，法语）给出适应症权重：全球收入里溃疡性结肠炎约占三分之一、克罗恩病约占三分之二。<u class="key">占三分之二价值的那个读数，现在落在窗口之外。</u></li>
+<li>🎙️ <span class="tag">事实</span> 克罗恩病二期 b 的"2026 年底"这一指引，在 2025-05-14、2025-05-27、2025-07-24、2025-10-02、2026-01-12 五场访谈里被重复过；公司 2026 年 6 月的指引改为 2027 年年中。</li>
+</ul>
+<p><strong>为什么重要：</strong> 这一条把时间轴和题目窗口对齐了。NDA 在窗口后段递交，受理决定大约落在窗口结束前后，标签则远在窗口之外。<strong>题目问的这六个月，恰好是买方最有理由按兵不动的六个月。</strong></p>
+<h3 id="35">3.5 六月那份数据推翻的不只是一个安全性假设，而是管理层亲手立起来的差异化卖点</h3>
+<p>这是本次新增材料里最有杀伤力的一条，而且它来自管理层自己的公开发言。</p>
+<p>2026 年 1 月，也就是维持期数据公布前五个月，CEO 在解释这个药为什么比现有疗法更值钱时，把"不引发恶性肿瘤"当成核心卖点：<u class="key">"在其他一些药物上你会一直看到可能的恶性肿瘤。我们只见过一例前列腺癌，而且发生在八周之内，不太可能归因于本药。"</u>他的论证框架是：现有药物是"免疫阻断剂"，会打开机会性感染和恶性肿瘤的口子；奥贝法莫是"免疫稳定剂"，所以没有这个问题。</p>
+<p>同一场访谈里他还说，截至 2025 年 12 月底，<strong>已有 80% 的患者走完了 44 周维持期</strong>，数据监察委员会能看到这些人的安全性，"没有信号、没有担忧"。</p>
+<p>把这两句放在一起，问题就出来了：<strong>按他自己给的入组进度，后来出问题的那段随访在 2025 年底前后就已基本走完，而当时的说法是没有任何信号；五个月后，同一批数据里出来 7 例恶性肿瘤。</strong></p>
+<p>有一个对管理层有利的解释，而且证据支持它：2025 年 7 月 CEO 明确说过，公司能看到的是<strong>盲态</strong>安全性数据。盲态汇总本来就很难看出 7 例在某一组的聚集，所以这更可能是"看不见"而不是"不说"。</p>
+<p>但对买方来说，两种解释导向同一个结论，而且这个结论才是要害：</p>
+<p><u class="key">管理层对安全性的自述不能采信——不是因为他们不诚实，而是因为他们当时确实不知道。买方只能自己做完整的患者层级尽调，而这件事需要时间。</u></p>
+<p>还有一层更伤估值的：<strong>恶性肿瘤恰恰是他用来论证"我们比竞品更值钱"的那个点。</strong> 六月之后，公司只能退到"发生率不高于背景人群"的统计辩护——那已经不是原来那句"这类问题是免疫阻断剂才有的"。对收购而言，受损的不只是多了一个安全性问号，而是<strong>"花高价买一个更安全的新机理"这条收购逻辑本身</strong>。买方的报价上限因此下移，而卖方的价格锚仍钉在一月那个故事上。这正是第二个条件——价格差——扩大的机制。</p>
+<p>依据：</p>
+<ul>
+<li>🎙️ <span class="tag">来源陈述</span> CEO 在 BiotechTV（2026-01-12）：<u class="key">“In some of the other drugs, you can see all the time, possibly malignancies. We have seen only one case for prostate cancer, but within eight weeks, which is unlikely to be attributed to the drug.”</u></li>
+<li>🎙️ <span class="tag">来源陈述</span> 同场：<u class="key">“at the end of December, essentially, 80% of the patients have completed the 44 weeks on top of the eight weeks, which is reassuring because there was no signals, no worries, at least until now, regarding safety.”</u>（他随后确认这个 80% 含脱落患者）</li>
+<li>🎙️ <span class="tag">来源陈述</span> CEO 在 BiotechTV（2025-11-03，BIO-Europe）谈维持期要盯什么风险时，把范围完全锁在心血管——<u class="minor">一句都没有提到恶性肿瘤</u>。说明公司自己对这个风险没有预案，也说明 7 例对买方是<strong>新增的、未定价的</strong>风险，不是早被消化的老问题。</li>
+<li>🏛️ <span class="tag">事实</span> SEC 6-K 附件 99.1（2026-06-01）：维持期 7 例恶性肿瘤，研究者判定与用药无关。</li>
+<li>📰 <span class="tag">事实</span> Quartz（2026-07-10）：数据公布后股价一度下跌四成。</li>
+</ul>
+<p><strong>为什么重要：</strong> 它同时压在第二和第三个条件上，而且给出了机制而不只是结论——<strong>价格谈不拢，是因为买卖双方锚在了同一个资产的两个不同版本上。</strong></p>
+<h3 id="36">3.6 兴趣是真的，而且卖方流程当前处于开启状态</h3>
+<p>前三条都在往下压，这一条是最强的反方，必须给足分量。</p>
+<p>七月融资完成后仅仅十一天，公司重新启用了 Centerview——一家专做大额并购的投行，而且报道明确写了用途是与大药企谈收购。这说明<u class="key">董事会的策略不是"不卖"，而是"抬价再卖"</u>。抬价策略在窗口内被接受的可能性，不能按零处理。</p>
+<p>这一步的分量比通常的投行聘用更重，原因在于它<strong>违背了这位 CEO 自己反复宣讲的纲领</strong>。2025 年 7 月他说过："卖公司最好的办法就是把药做好……如果一个 CEO 和员工总想着卖，那是最容易失败的方式。"主持人在 11 月复述这句纲领时，他回了一句"Exactly"。一个说了十四个月"别去推销公司"的人，在手握 9.2 亿现金、完全不缺钱的时候，仍然雇了投行去谈整体出售——<strong>这不是走流程，这是改主意。</strong></p>
+<p>依据：</p>
+<ul>
+<li>📰 <span class="tag">来源陈述</span> La Lettre（2026-07-17，经 TipRanks 转述）：Abivax 重新启用投行 Centerview Partners 与大药企谈收购；同一报道称，上个月为安排股权融资而暂停了与阿斯利康、礼来的谈判。</li>
+<li>📰 <span class="tag">来源陈述</span> CNBC（2026-01-09）：Stifel 分析师 Damien Choplain——<u class="minor">“Abivax ticks all the boxes for a strategic acquisition.”</u>交易价值传最高 $230 亿。</li>
+<li>📰 <span class="tag">事实</span> pharmaphorum（2026-01-12）：La Lettre 称礼来已就这笔收购是否受法国外资审查框架管辖，向法国财政部征询意见——<u class="key">买方做到了"咨询监管"这一步，说明兴趣不停留在口头</u>。</li>
+<li>📰 <span class="tag">事实</span> 同上：2026 年制药业并购开局活跃——安进完成 $8.4 亿收购 Dark Blue Therapeutics，礼来达成 $12 亿收购 Ventyx Bio，默沙东传出最高 $320 亿洽购 Revolution Medicines。</li>
+</ul>
+<p>还有一条常被忽略的反向估值证据：<strong>按先例看，Abivax 现在并不贵。</strong> 默沙东 2023 年为 Prometheus 付了 108 亿美元，而后者当时的核心资产基本只有二期数据；以约 €100 的股价计，Abivax 当前<strong>企业价值</strong>（市值加上负债、减去手上的现金，衡量"买下整家公司实际要付多少"）约 90 亿美元，相对 Prometheus 当年隐含的约 103 亿企业价值还折价一到一成半。买一个已经有三期维持期数据的资产，付的钱却少于当年买一个二期资产——这对买方是有吸引力的。</p>
+<p>买方节奏也支持这条：礼来 2026 年是历史上最激进的收购年（全年十余笔，上半年笔数、金额、首付款三项第一），而且它 2024 年买 Morphic 的口服 α4β7 时付过 79% 的溢价——它对这条赛道的估值框架和内部流程都是通的。</p>
+<p><strong>为什么重要：</strong> 窗口里还包含三个真正的催化剂——10 月 17 日的欧洲消化疾病周、四季度末的 NDA 递交，和 2027 年 1 月的摩根大通医疗健康大会（大额生物科技并购历史上的高发时点）。一个已经开启的流程碰上这些节点，是本题概率不能压到个位数的原因。</p>
+<h3 id="37">3.7 市场自己没有在为这笔交易定价</h3>
+<p>这条容易被忽略，但它是对"随时会宣布"最直接的反证。</p>
+<p>如果市场相信六个月内大概率以 €150 亿成交，股价不会停在市值 $93 亿、比 52 周高点低 28% 的位置，空头也不会在增加。<u class="key">卖方共识目标价 $156.38 高出现价 46%，这个差距是基本面折价，不是并购溢价的定价</u>。</p>
+<p>依据：</p>
+<ul>
+<li>📰 <span class="tag">事实</span> Zacks 经 Zolmax 转述（2026-09-12）：覆盖分布 1 强烈买入、13 买入、1 持有、1 卖出，平均目标价 $156.38；当日开盘 $118.64；52 周区间 $69.81–$148.83。</li>
+<li>📰 <span class="tag">事实</span> 美国金融业监管局披露口径（2026-08-31 结算日）：空头 6,962,029 股，占可自由交易股份的 <strong>10.37%</strong>；上一期（08-14）为 6,001,787 股、8.94%——<strong>一期之内还在上升</strong>。所谓"空头"是借股票卖出、赌它下跌的仓位。</li>
+<li>📰 <span class="tag">事实</span> TipRanks（2026-09）：美国银行将 Abivax 持股降至 5% 披露线以下；年初至今 -15.78%。</li>
+<li>📰 <span class="tag">事实</span> ideal-investisseur.fr（2026-09-17）：巴黎收 €93.70，盘中一度跌破 €90.45 至 €89.45；技术指标显示处于<strong>超卖</strong>（短期跌幅偏大、卖压集中），股价低于 20 日、50 日与 200 日均线。</li>
+<li>💹 <span class="tag">卖方预测</span> 摩根大通《欧洲 Q 评分》（2026-09-04，扩展资源库，摘要层级）：在按国家内百分位的筛选里，<u class="minor">法国区最不具吸引力的一只是 Abivax（第 100 百分位）</u>，最具吸引力的是 Klepierre（第 1 百分位）。这是量化综合评分而非基本面研究，但它说明连量化框架也没有把并购预期算进这只股票。</li>
+</ul>
+<p><strong>为什么重要：</strong> 本报告不把任何市场隐含概率当作判断输入，但"持仓与估值里没有并购结构"是一个可观察的事实，它与第 3.1 条互相印证：最熟悉这只股票的资金，也没有把成交当成近在眼前的事。</p>
+<h2 id="4">4. 结算口径</h2>
+<h3 id="41-yes">4.1 什么算 YES</h3>
+<p>2026-09-18 至 2027-03-18（含）之间，<strong>Abivax 或收购方公开宣布已签署具有约束力的收购协议</strong>，覆盖全部流通股或 50% 以上控股权。<strong>以公告日为准，不要求交割完成。</strong></p>
+<p>结算来源按序：Abivax 或收购方的新闻稿与监管文件（SEC 的 6-K、8-K、SC 14D-9，或法国金融市场管理局的受监管信息）；其次是管理局或泛欧交易所公布的正式要约递交文件。</p>
+<p><strong>不算 YES：</strong> 非约束性报价或意向书；未经证实的媒体报道；宣布启动战略评估或聘请顾问；少数股权投资；授权许可或合作协议（即便带收购选择权）；2027-03-18 之后才公告的交易。</p>
+<div class="legend">
+<p><strong>两个需要你确认的边界（研究中发现，已按当前口径处理）：</strong></p>
+<ol>
+<li><strong>敌意要约按当前措辞算 NO。</strong> 上文要求要约"经董事会推荐"。一份已正式递交、融资到位、但董事会尚未表态或明确反对的全面要约，按字面读是 NO——尽管多数观察者会把它叫作一次真实的收购。若你认为这种情形应算 YES，需要现在改口径（影响见附录敏感性表）。</li>
+<li><strong>法国公司不适用英美的法定安排方案。</strong> Abivax 是法国 SA，现实可行的形态只有两种：经董事会推荐、向法国金融市场管理局递交的公开收购要约，或一份有约束力的合并／业务合并协议。上文列举的结构应读作"取得控制权的示例"，不是穷尽的法律工具清单。</li>
+</ol>
+</div>
+<h3 id="42">4.2 什么算"被收购"（触发事件的定义）</h3>
+<p><strong>取得控制权</strong>，即超过 50% 的股本或表决权易主。以下都不构成：</p>
+<ul>
+<li><strong>授权许可、共同商业化、或买断奥贝法莫的地区权益。</strong> 这是最可能发生的"看起来像但不算"的结果，而且 CEO 在 2026 年 1 月明确说过国际市场需要伙伴。金额再大也是 NO。</li>
+<li><strong>大额少数股权投资。</strong> 欧洲大药企与生物科技的常见结构是"大比例少数股权＋授权许可"，例如阿斯利康对 Cellectis 约 44% 的投资。这种结构结算为 NO。</li>
+<li><strong>"有约束力"这个词本身不够。</strong> Abivax 2026 年 7 月与 Valerio Therapeutics 就一项研究合作签过一份有约束力的条款清单——有约束力的协议不等于收购协议。</li>
+</ul>
+<p>唯一的例外读法：若某投资人认购新股后直接持有超过 50% 的股本，虽形式上是增资，但实质取得控制权，按 YES 处理。</p>
+<h3 id="43">4.3 什么算"窗口内"</h3>
+<p>窗口自 2026-09-18 起算，至 2027-03-18 止，两端均含，以<strong>巴黎公布日期</strong>为准。</p>
+<ul>
+<li>在此之前签署或公告的交易不计入——截至研究日不存在这样的交易。</li>
+<li>公告即锁定：窗口内出现合格公告即结算 YES，即便交易此后被重新谈判、被法国外资审查或反垄断审查阻止、或最终放弃。</li>
+<li>反向亦然：协议在 2027-03-18 当日或之前签署、但到期后才公开，结算 NO。</li>
+</ul>
+<h2 id="5">5. 情景与路径</h2>
+<h3 id="51">5.1 互斥路径</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>路径</th>
+<th>可能性</th>
+<th>怎么走到这里</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>僵持延续：流程开着，但窗口内不签</strong></td>
+<td>最可能 <strong>48%</strong></td>
+<td>买方等 NDA 受理与标签，卖方守着 $200 亿的锚。半年报与递交都按部就班过去，1 月大会上仍然只有传闻。</td>
+</tr>
+<tr>
+<td><strong>转为合作：授权许可或大额少数股权</strong></td>
+<td>次可能 <strong>32%</strong></td>
+<td>双方在整体估值上谈不拢，改谈美国以外权益。<strong>这条路本来就写在公司自己的剧本里</strong>——CEO 从 2025 年起五次说过"维持期数据之后去找美国以外的伙伴"，而数据已于 6 月落地，本题窗口正是那笔授权该发生的时段。<strong>结算 NO。</strong></td>
+</tr>
+<tr>
+<td><strong>窗口内签约：递交后抢跑</strong></td>
+<td><strong>12%</strong></td>
+<td>NDA 四季度末递交，买方判断标签风险可控，抢在竞争者之前锁定，典型时点是 2027 年 1 月摩根大通大会前后。</td>
+</tr>
+<tr>
+<td><strong>窗口内签约：竞价被迫提速</strong></td>
+<td><strong>4%</strong></td>
+<td>第二个买家实质入场形成竞价，董事会在价格满足后接受。</td>
+</tr>
+<tr>
+<td><strong>其他：数据或监管出意外，收购话题消失</strong></td>
+<td><strong>4%</strong></td>
+<td>半年报或与 FDA 的互动中出现新的安全性或递交问题，估值重置，讨论中止。</td>
+</tr>
+<tr>
+<td>合计</td>
+<td><strong>100%</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p>严格口径的 YES ＝ 第三条 ＋ 第四条 ＝ <strong>16%</strong>。</p>
+<h3 id="52">5.2 最容易误判的情景</h3>
+<p><strong>把"合作"读成"收购"。</strong> 这是本题最大的误判来源，而且概率不低（30%）。一份覆盖美国以外市场、首付款十亿美元级的授权许可协议，新闻标题会写得像一场胜利，股价可能大涨，但按第 4 节口径结算是 NO。判断只看一件事：<strong>控制权有没有超过 50% 地易主</strong>，而不是看金额。</p>
+<p><strong>把"独家尽调期"读成"快要成交"。</strong> 2026 年 2 月到 3 月已经演过一次：有独家期、有期限、有具体买家，结果期限到了没有出价。独家期是买方取得的一个选择权，不是承诺。</p>
+<p><strong>把股价下跌读成"交易告吹"，或把上涨读成"交易将至"。</strong> 这只股票对每一条法国媒体的报道都有 17% 到 32% 的日内反应，噪音远大于信号。</p>
+<h3 id="53">5.3 最强反方</h3>
+<p><strong>"抬价策略成功，年初成交。"</strong></p>
+<p>完整逻辑是：董事会用 $9.2 亿融资换来了谈判筹码，Centerview 七月重启流程就是为了在 NDA 递交这个里程碑上把价格顶上去；买方三月之所以没出价，是因为维持期数据还没出，如今数据出了、补充分析化解了肿瘤疑虑、连高盛都上调到强烈买入，买方缺的那块确定性已经补齐；摩根大通大会前后是大药企宣布大额交易的传统时点，窗口刚好覆盖；而且股价此刻处于超卖低位，董事会接受一个比当前市值高 80% 的报价，对股东是清楚的胜利。</p>
+<p><strong>它错在哪里：</strong> 这套逻辑把"疗效确定性"当成了买方缺的最后一块，但买方缺的其实是<strong>标签确定性</strong>。补充数据说服的是二级市场，不是要为黑框警示风险付 $200 亿的收购委员会。唯一把这一点写进评级的机构是 Wedbush，而它恰好也是目标价最低的一家。</p>
+<p><strong>它还漏了一件事：</strong> 它假设买方付得起。阿斯利康自己给出的单笔预算上限是 $100 亿到 $200 亿，而要价下沿就在 $175 亿附近；抬价策略要成功，得先说服一个刚刚公开说"不需要大额并购"的买家突破自己的预算线。今年已经演过一次反面案例：默沙东出到 $280 亿到 $320 亿收购 Revolution Medicines，照样在 1 月因价格中止。</p>
+<p><strong>但这条反方有一块硬底子，不能轻慢：</strong> 按先例估值，Abivax 现在并不贵——默沙东 2023 年为只有二期数据的 Prometheus 付了 108 亿美元，而 Abivax 今天带着三期维持期数据，企业价值反而折价一到一成半。买方真要动手，说服自己董事会的材料是现成的。</p>
+<p><strong>它可能对在哪里：</strong> 如果出现第二个实质买家，竞价动力可以压过等待期权和预算自律——这正是第 5.1 节给竞价路径单独留 3% 的原因。</p>
+<h2 id="6">6. 关键证据表</h2>
+<div class="legend">
+<p>来源层级：<strong>A</strong> ＝ 公司或监管机构的原始文件；<strong>B</strong> ＝ 有署名记者的一手报道；<strong>C</strong> ＝ 转述、聚合或自动生成内容。"倾向"一栏指向 YES 或 NO。</p>
+</div>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>事实或说法</th>
+<th>倾向</th>
+<th>来源、日期、链接</th>
+<th>层级与可靠性</th>
+<th>它支撑哪条路径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>维持期第 44 周临床缓解 50.8%／51.3% vs 安慰剂 10.4%，全部关键次要终点达标</td>
+<td>YES</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1956827/000119312526252360/d98688dex991.htm">SEC 6-K 附件 99.1</a>，2026-06-01</td>
+<td>A｜事实</td>
+<td>资产已被充分验证，买方疗效疑虑解除</td>
+</tr>
+<tr>
+<td>同一份数据含 7 例恶性肿瘤，研究者判定与用药无关</td>
+<td>NO</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1956827/000119312526252360/d98688dex991.htm">同上</a>，2026-06-01</td>
+<td>A｜事实</td>
+<td>买方等标签，僵持延续</td>
+</tr>
+<tr>
+<td>7,360,000 份 ADS 定价 $125.00，毛额 $9.2 亿、净额约 $8.74 亿</td>
+<td>NO</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1956827/000119312526294514/d108401d6k.htm">SEC 6-K</a>，2026-07-02；📰 Quartz，2026-07-10</td>
+<td>A｜事实</td>
+<td>卖方无融资压力，可以耗</td>
+</tr>
+<tr>
+<td>CEO：现金到 2029 年底，独立建美国销售体系；“The best defense for us is actually the offense.”</td>
+<td>NO</td>
+<td>📰 <a href="https://qz.com/abivax-ceo-920-million-raise-us-drug-launch-solo-071026">Quartz 引 CNBC</a>，2026-07-10</td>
+<td>B｜来源陈述</td>
+<td>卖方价格锚高企</td>
+</tr>
+<tr>
+<td>阿斯利康自 2 月初起持数据室独家权，期限 3 月 23 日；期满未见出价</td>
+<td>NO</td>
+<td>📰 <a href="https://www.benzinga.com/m-a/26/03/51206895/eli-lilly-could-rejoin-abivax-bidding-if-astrazeneca-misses-deadline">Benzinga</a>，2026-03-12</td>
+<td>B｜来源陈述</td>
+<td>做过尽调的买家未出价</td>
+</tr>
+<tr>
+<td>Abivax 发言人：“We deny the information, these are unfounded rumors.”</td>
+<td>NO</td>
+<td>📰 <a href="https://www.lse.co.uk/news/abivax-denies-astrazeneca-takeover-rumors-reported-by-french-media-ir5nrjne6hhjr9s.html">路透社，经 LSE 转载</a>，2026-03-12</td>
+<td>B｜事实</td>
+<td>公司多次否认收购报道</td>
+</tr>
+<tr>
+<td>公司重新启用 Centerview Partners 与大药企谈收购；上月因融资暂停了与阿斯利康、礼来的谈判</td>
+<td>YES</td>
+<td>📰 <a href="https://www.lalettre.fr/fr/english-corner/2026/07/17/biotech-abivax-re-engages-investment-bank-centerview-for-big-pharma-takeover-talks,110842674-gra">La Lettre</a>，2026-07-17</td>
+<td>B｜来源陈述</td>
+<td>卖方流程处于开启状态</td>
+</tr>
+<tr>
+<td>礼来就本交易是否受法国外资审查管辖，向法国财政部征询</td>
+<td>YES</td>
+<td>📰 <a href="https://pharmaphorum.com/news/abivax-climbs-lilly-takeover-speculation">pharmaphorum</a>，2026-01-12</td>
+<td>B｜来源陈述</td>
+<td>买方兴趣已到制度准备层面</td>
+</tr>
+<tr>
+<td>“Abivax has still not been acquired.”／“nine months into a year in which a takeout … was deemed likely to happen any day”</td>
+<td>NO</td>
+<td>📰 <a href="https://www.statnews.com/2026/09/03/abivax-acquisition-target-replimune-fda/">STAT，Adam Feuerstein</a>，2026-09-03</td>
+<td>B｜分析判断</td>
+<td>僵持延续</td>
+</tr>
+<tr>
+<td>股本 87,253,797 股；2026-09-17 收 $106.99／€93.70，市值约 $93 亿</td>
+<td>—</td>
+<td>🏛️ 公司定期披露，2026-07-31；📰 行情数据，2026-09-17</td>
+<td>A＋C｜事实</td>
+<td>估值基准</td>
+</tr>
+<tr>
+<td>覆盖 16 家，平均目标价 $156.38（对应约 $136 亿）；空头占比 <strong>10.37%</strong>（2026-08-31）且环比上升；美银降至 5% 线下</td>
+<td>NO</td>
+<td>📰 <a href="https://zolmax.com/investing/abivax-nasdaqabvx-upgraded-at-the-goldman-sachs-group/11992777.html">Zolmax 引 Zacks</a>，2026-09-12；美国金融业监管局披露口径；TipRanks</td>
+<td>C｜来源陈述</td>
+<td>市场未按并购定价</td>
+</tr>
+<tr>
+<td>2026 年药物研发型生物科技最大三笔并购为 109／106／100 亿美元；按今年 40–50% 溢价，本交易对价需 130–160 亿，高于年内任何一笔</td>
+<td>NO</td>
+<td>📰 生物科技并购逐笔追踪（页面标注 2026-09-13 更新）＋ IQVIA《2026 年中生物制药并购回顾》，2026-07-08</td>
+<td>B｜作者判断＋自算</td>
+<td>价格谈不拢，僵持延续</td>
+</tr>
+<tr>
+<td>默沙东曾出价 280–320 亿美元收购 Revolution Medicines，2026 年 1 月下旬因价格谈不拢中止</td>
+<td>NO</td>
+<td>📰 BioSpace，Tristan Manalac，2026-01-26（转述《华尔街日报》）</td>
+<td>B｜来源陈述</td>
+<td>同年同量级的价格谈崩先例</td>
+</tr>
+<tr>
+<td>阿斯利康在炎症性肠病并非空白：AZD7798 处于克罗恩病二期，另有一项二期在回肠克罗恩人群，2025 年 10 月签过该领域靶点合作</td>
+<td>NO</td>
+<td>🏛️ 美国临床试验登记（NCT06450197、NCT06681324）</td>
+<td>A｜事实</td>
+<td>买方有"自己做"的选项，更能守住预算线</td>
+</tr>
+<tr>
+<td>默沙东 2023 年为 Prometheus 付 108 亿美元（核心资产仅二期数据）；Abivax 当前企业价值约 90 亿，较其隐含约 103 亿企业价值折价 10–15%</td>
+<td>YES</td>
+<td>📰 IG France 市场评论（法文），2026-09</td>
+<td>C｜作者判断</td>
+<td>按先例看不贵，支撑抢跑路径</td>
+</tr>
+<tr>
+<td>礼来 2026 年收购节奏为历史最激进（上半年笔数、金额、首付款三项第一）；2024 年买 Morphic 口服 α4β7 时付过 79% 溢价</td>
+<td>YES</td>
+<td>📰 DealForma 2026 年并购统计；公开交易公告</td>
+<td>B｜作者判断</td>
+<td>第二个买家有框架也有胃口</td>
+</tr>
+<tr>
+<td>并购传闻的兑现率：六个月内约 27.5%、十二个月内约 33%；标的否认与最终是否成交无统计显著关系</td>
+<td>中性偏 NO</td>
+<td>📰 Ahern &amp; Sosyura,《Rumor Has It: Sensationalism in Financial Media》, Review of Financial Studies 28(7), 2015</td>
+<td>B｜学术研究</td>
+<td>提供窗口化的起点，并否定"否认＝不会卖"的读法</td>
+</tr>
+<tr>
+<td>Abivax CEO：法国外资审查程序"只会在协议公告之后才开始"</td>
+<td>YES</td>
+<td>📰 路透社 Sabrina Valle 采访，2026-01-20（经 Boursorama 全文转载）</td>
+<td>B｜来源陈述（公司高管）</td>
+<td>监管不挡公告，只挡交割</td>
+</tr>
+<tr>
+<td>持股 5% 以上者仅 Invus 8.54%、TCG Crossover 8.14%、Darwin 5.37%；董事高管合计 1.44%；主要股东无特殊表决权；创始人 Pouletty 已于 2024-12-31 辞任董事</td>
+<td>YES</td>
+<td>🏛️ 公司 20-F 年报，基准日 2026-02-28；公司公告，2024-12</td>
+<td>A｜事实</td>
+<td>没有任何一方能否决交易</td>
+</tr>
+<tr>
+<td>CEO 本人描述法国外资审查：买方先宣布可能的收购、之后才递交文件；类比美国反垄断审查，"一般会久一点，但只是一道要走的流程"</td>
+<td>YES（对公告）/ NO（对交割）</td>
+<td>🎙️ BiotechTV《SF Healthcare Week》，2026-01-12，本地转录</td>
+<td>B｜来源陈述（公司高管）</td>
+<td>机制不挡公告，只挡交割</td>
+</tr>
+<tr>
+<td>2026 年 1 月 CEO 把"不引发恶性肿瘤"当作相对竞品的核心卖点："We have seen only one case for prostate cancer…"</td>
+<td>NO</td>
+<td>🎙️ BiotechTV，2026-01-12，本地转录</td>
+<td>B｜来源陈述（公司高管）</td>
+<td>被 6 月数据推翻，价差扩大</td>
+</tr>
+<tr>
+<td>同场：截至 2025 年底 80% 患者已完成 44 周维持期，"没有信号、没有担忧"</td>
+<td>NO</td>
+<td>🎙️ BiotechTV，2026-01-12，本地转录</td>
+<td>B｜来源陈述（公司高管）</td>
+<td>买方必须自己做患者层级尽调</td>
+</tr>
+<tr>
+<td>公司当时只能看到<strong>盲态</strong>安全性数据："we have access to the blinded safety data… There is nothing really new in that regard."</td>
+<td>NO</td>
+<td>🎙️ BiotechTV，2025-07-24，本地转录</td>
+<td>B｜来源陈述（公司高管）</td>
+<td>补充分析关不掉这个问号，只能等 FDA</td>
+</tr>
+<tr>
+<td>监管机构要求就可能的心脏纤维化做子研究（源于 miR-124 靶点的旧文献）</td>
+<td>NO</td>
+<td>🎙️ BiotechTV，2026-01-12，本地转录</td>
+<td>B｜来源陈述（公司高管）</td>
+<td>说明书上的第二个未决项</td>
+</tr>
+<tr>
+<td>管理层口径：全球收入中溃疡性结肠炎约占三分之一、克罗恩病约占三分之二</td>
+<td>NO</td>
+<td>🎙️ L'Actu Bourse（法语），2025-05-14，本地转录</td>
+<td>B｜来源陈述（公司高管）</td>
+<td>三分之二的价值验证点落在窗口外</td>
+</tr>
+<tr>
+<td>克罗恩病二期 b"2026 年底"的指引在五场访谈中被重复，公司 6 月改为 2027 年年中</td>
+<td>NO</td>
+<td>🎙️ 2025-05-14／05-27／07-24／10-02／2026-01-12 五场，本地转录</td>
+<td>B｜来源陈述</td>
+<td>买方的第二个等待理由</td>
+</tr>
+<tr>
+<td>CEO 纲领："the best way actually to sell a company is to develop a good drug… if as a CEO and employees we are always focused on wanting to sell, this is the best way to fail"</td>
+<td>—</td>
+<td>🎙️ BiotechTV，2025-07-24，本地转录</td>
+<td>B｜来源陈述（公司高管）</td>
+<td>七月聘投行因此是破例，不是常规</td>
+</tr>
+<tr>
+<td>阿斯利康管理层：单笔并购预算上限 $100 亿到 $200 亿；无需此类交易即可充实 2030 年代管线；当前高价值机会不多</td>
+<td>NO</td>
+<td>💹 伯恩斯坦《阿斯利康：伯恩斯坦 SDC 会议显示 2030 年指引稳步推进》，2026-09-10，扩展资源库，文章 ID <code>摘要层级</code></td>
+<td>B｜来源陈述（转述管理层）</td>
+<td>价格谈不拢，僵持延续</td>
+</tr>
+<tr>
+<td>阿斯利康管理层重申 2030 年 800 亿美元营收目标"无需并购即可实现"</td>
+<td>NO</td>
+<td>💹 高盛《阿斯利康：Tozorakimab 的 COPD 数据超出我们的预期》，2026-09-08，扩展资源库</td>
+<td>B｜来源陈述（转述管理层）</td>
+<td>与上一条互相印证，非单一转述</td>
+</tr>
+<tr>
+<td>礼来当下叙事集中在 GLP-1 与肥胖；卖方把"高风险并购"列为其下行风险</td>
+<td>NO</td>
+<td>💹 摩根士丹利《礼来：处方追踪》，2026-09-11，扩展资源库</td>
+<td>C｜卖方预测</td>
+<td>第二个具名买家注意力不在此</td>
+</tr>
+<tr>
+<td>摩根大通《欧洲 Q 评分》按国家内百分位筛选：法国区最不具吸引力者为 Abivax（第 100 百分位）</td>
+<td>NO</td>
+<td>💹 扩展资源库（研报荟萃），2026-09-04，文章 ID <code>97fcf71320321b3e247b494f</code>，摘要层级</td>
+<td>C｜卖方预测</td>
+<td>市场未按并购定价</td>
+</tr>
+<tr>
+<td>Wedbush：黑框警示风险上升，目标价 $90→$110，评级中性</td>
+<td>NO</td>
+<td>💹 <a href="https://zolmax.com/investing/abivax-nasdaqabvx-upgraded-at-the-goldman-sachs-group/11992777.html">同上转述</a>，2026-06-30</td>
+<td>C｜卖方预测</td>
+<td>标签风险是估值约束</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>同源合并说明：</strong> 法国媒体 La Lettre 是 2026 年 1 月（礼来）、3 月（阿斯利康独家期）、7 月（Centerview 重启）三条报道的<strong>同一个原始信源</strong>；CNBC、Benzinga、pharmaphorum、TipRanks 等的相关内容均为其转述。本报告按一条独立信源计权，不因转述次数多而加分。公司对其中至少两条作出过公开否认。</p>
+<h2 id="7">7. 信息缺口树</h2>
+<h3 id="centerview">一、Centerview 重启之后，流程现在到哪一步了</h3>
+<ul>
+<li><strong>岗位画像：</strong> 参与该流程的投行团队成员；Abivax 董事会成员或其法律顾问；阿斯利康或礼来的业务发展负责人。</li>
+<li><strong>直接问法：</strong> 七月重启之后，有没有买家再次进入数据室？现在是一对一还是多方？董事会内部有没有形成过一个明确的最低接受价？三月阿斯利康没有出价，公司方面复盘认为原因是价格还是安全性？这轮流程有没有设定时间表，比如"等 NDA 递交后再谈"？</li>
+<li><strong>能改变什么：</strong> 直接决定第 5.1 节两条"窗口内签约"路径的权重，影响幅度可达 10 个百分点以上。</li>
+<li><strong>好不好约：</strong> 很难。参与方受保密协议约束，公司已多次公开否认。</li>
+</ul>
+<h3 id="_1">二、董事会的最低接受价到底在哪里</h3>
+<ul>
+<li><strong>岗位画像：</strong> Abivax 独立董事；Invus、TCG Crossover、Darwin 这三家 5% 以上股东的投资经理；覆盖该股的卖方分析师。</li>
+<li><strong>直接问法：</strong> 董事会内部有没有形成过一个明确的最低接受价，是多少？"最好的防守是进攻"是策略性表态还是真实立场？三大机构股东各自的成本区间在哪里，他们能接受什么价格？如果买家是欧洲公司而不是美国公司，接受价会不会不同？七月以 $125 增发之后，董事会是否把这个价当成了心理下限？</li>
+<li><strong>能改变什么：</strong> 决定"卖方价格达成"这一环，是本题研究权重最高的一环（35%）。</li>
+<li><strong>好不好约：</strong> 中等。机构股东比交易参与方好约，而且他们有动机表达看法。<strong>注：创始人 Pouletty 已于 2024 年底辞去董事职务、Truffle Capital 也已退出 5% 股东名单，这条线不必再追。</strong></li>
+</ul>
+<h3 id="_2">三、买方的时点逻辑：等不等标签</h3>
+<ul>
+<li><strong>岗位画像：</strong> 大药企业务发展或商业评估岗；做过消化道免疫资产尽调的顾问；前 FDA 消化科审评人员。</li>
+<li><strong>直接问法：</strong> 这类安全性信号在收购委员会里如何定价？会不会要求把标签风险写成对价调整条款？JAK 抑制剂的黑框警示先例，对这类口服小分子的尽调结论影响有多大？买方通常会等 FDA 受理，还是等完整标签？如果竞争对手先动，等待策略会不会被放弃？</li>
+<li><strong>能改变什么：</strong> 决定"安全性不阻断"这一环（研究权重 30%），也决定僵持路径与签约路径的分配。</li>
+<li><strong>好不好约：</strong> 中等偏难，但前监管人员与行业顾问可约。</li>
+</ul>
+<h3 id="_3">四、法国外资审查对签约时点的实际影响</h3>
+<ul>
+<li><strong>岗位画像：</strong> 法国外资审查实务律师；做过法国上市公司公开要约的并购律师。</li>
+<li><strong>直接问法：</strong> 生物科技是否明确落在受保护部门清单内？从预沟通到批复的实际周期是多少周？买方通常会在签约前拿到什么程度的把握？外资审查的不确定性会不会导致买方推迟签字，而不只是推迟交割？对欧洲买家与美国买家的实际差别有多大？</li>
+<li><strong>能改变什么：</strong> 决定"机制允许窗口内公告"这一环（研究权重 15%），并影响买家身份的相对概率。</li>
+<li><strong>好不好约：</strong> 容易。执业律师通常愿意就一般性机制发表意见。</li>
+</ul>
+<h3 id="2026-09-21">五、半年报（2026-09-21）会不会给出并购或合作的新信息</h3>
+<ul>
+<li><strong>岗位画像：</strong> 覆盖该股的卖方分析师；参加业绩电话会的机构投资者。</li>
+<li><strong>直接问法：</strong> 管理层对"国际市场伙伴"的表述有没有再次变化？NDA 递交时间是否维持四季度末？现金指引与 2029 年底的说法是否一致？电话会上有没有人直接问收购，管理层怎么答？</li>
+<li><strong>能改变什么：</strong> 这是窗口内最近的一个信息点，可能在三天内就改变第 5.1 节的路径权重。</li>
+<li><strong>好不好约：</strong> 很容易——公开电话会，等三天即可。</li>
+</ul>
+<h2 id="8">8. 信源梯度反馈</h2>
+<p><strong>本报告的信源分四层，可靠性依次递减。</strong></p>
+<p><strong>第一层，公司与资产的事实，可靠性最高。</strong> 试验数据、融资条款、股本与股东结构、日程，全部来自 A 级原始文件——SEC 的 6-K 及其附件、公司年报、临床试验登记，可逐条复核。</p>
+<p><strong>第二层，管理层的公开发言，本次新增，分量比预期重。</strong> 我们把公开播客目录里 2025 年 5 月至 2026 年 1 月的<strong>八场访谈全部下载并在本机转录</strong>（共约 3.5 小时、19 万字），其中六场 CEO 本人在场，一场董事长同场。第 3.4、3.5 节的多条依据，以及法国外资审查机制的一手佐证，都来自这批材料。</p>
+<p><strong>第三层，买方能力与意愿，来自扩展资源库。</strong> 伯恩斯坦（2026-09-10）与高盛（2026-09-08）两家独立机构在两天之内分别记录到阿斯利康管理层的同一口径：无需大额并购、单笔预算上限 $100 亿到 $200 亿。本报告采用的是这两家的<strong>中文摘要层级</strong>，没有调取原始 PDF 全文，这是已知的降级点。</p>
+<p><strong>第四层，交易流程本身，可靠性最弱——而它恰恰是这道题的胜负手。</strong> 阿斯利康的独家期、谈判暂停、Centerview 重启，三条全部出自法国媒体 La Lettre 这一个信源，原文直链在本次研究中始终无法读取，实际引用的是转述方的文字。</p>
+<p><strong>关于播客材料，有三件事必须说明。</strong></p>
+<p>其一，<strong>转录是本机语音识别的产物，未经人工逐句校对。</strong> 已知的实体名识别错误（公司名、人名、药名）在转录时按固定规则自动更正并留有记录；但 CEO 口述的数字一律不予采信——他把单日涨幅说成约 600%，公告口径是 510%——报告中的涨幅、融资额、市值全部以公司公告为准。两场法语访谈里最关键的那句转录语法不通、几乎肯定是识别错误，因此只做转述、不逐字直引。</p>
+<p>其二，<strong>管理层的公开表态对"有没有买家在推进"几乎没有信息量。</strong> 把十四个月里的发言排在一起看，他从不否认、不设条件、不给价格。第 3.1 节据此把"不能用否认当证据"扩展成"不能用任何公开表态当证据"。</p>
+<p>其三，<strong>关于"对不同语种受众是否换一套说法"，答案是否定的，这一点要如实写出来。</strong> 面向法国散户媒体时，管理层从不否认被收购，只说"很多药厂在观察我们"；面向英语产业媒体时，每次都能拿到一句可引用的独立宣言。差别真实存在，但同期一场由法国主持人主持、用英语录制的访谈里，他反而是八场中最"独立派"的一场。<strong>所以这更像是"三期读数前后筹码不同、节目类型不同"，而不是口径两套。</strong> 本报告没有把它写成判断。</p>
+<p><strong>仍然存在的缺口，按优先级：</strong> 一、流程层没有 A 级信源，唯一的原始信源读不到原文；二、引用的三篇卖方研报只到摘要层级，没有取原始 PDF 核对；三、Abivax 本身在扩展资源库 27,311 条目录里零命中；四、维持期第一部分单独的恶性肿瘤发生率公司至今未披露，只能从合并值反推出它高于合并值。</p>
+<h2 id="9">9. 自检结果</h2>
+<ul>
+<li><code>report_lint.py</code>：结果附于交付说明。</li>
+<li>章节编号 1–10 连续；目录条目数与章节数一致。</li>
+<li>概率仅出现在第 1 节、第 5 节路径表与附录；路径表合计 100%，且第三、四条之和等于第 1 节的严格口径数字。</li>
+<li>全文未使用被禁术语；未出现数学排版残留。</li>
+<li>所有百分比、日期、金额均可回到第 6 节的来源链接核对。</li>
+<li>每条核心判断至少含一条实线下划线证据。本次没有可约的专家访谈对象，故全文未出现 🗣️ 图标——这是缺口，不是遗漏。</li>
+</ul>
+<h2 id="10">10. 最终预测声明</h2>
+<p><strong>Abivax 在 2026-09-18 至 2027-03-18 之间公告签署有约束力的收购协议（覆盖全部流通股或 50% 以上控股权）的概率：16%。</strong> 同一窗口内完成交割的概率：3%。</p>
+<hr />
+<h2 id="_4">附录·当前估计依据</h2>
+<h3 id="_5">可比案例</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>可比案例</th>
+<th>和本题像在哪</th>
+<th>和本题差在哪</th>
+<th>对当前判断的意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Arena Pharmaceuticals → 辉瑞</td>
+<td>同为溃疡性结肠炎阳性三期数据之后被收购</td>
+<td>从数据到公告约九个月；Arena 市值远小于 Abivax</td>
+<td>说明"数据后成交"是真实路径，但耗时以季度计</td>
+</tr>
+<tr>
+<td>Prometheus Biosciences → 默沙东</td>
+<td>同为炎症性肠病资产</td>
+<td>数据阶段更早，且是美国公司</td>
+<td>中期数据即可成交，但买方付的是更早期的价</td>
+</tr>
+<tr>
+<td>CymaBay → 吉利德</td>
+<td>三期阳性后约三个月成交</td>
+<td>适应症与交易规模都不同</td>
+<td>快速成交确实会发生，支撑不把概率压到个位数</td>
+</tr>
+<tr>
+<td>Madrigal、Insmed、Apellis</td>
+<td>同样有强阳性关键数据</td>
+<td>均长期保持独立</td>
+<td><strong>同一参照类里"数据很好但不卖"是常态，不是例外</strong></td>
+</tr>
+<tr>
+<td>Verona Pharma</td>
+<td>关键数据之后被收购</td>
+<td>间隔约两年半</td>
+<td>说明成交时点可以远在六个月窗口之外</td>
+</tr>
+<tr>
+<td>阿斯利康持股 Cellectis 约 44%</td>
+<td>欧洲大药企与生物科技的常见结构</td>
+<td>是少数股权而非控股</td>
+<td><strong>这种结构按本题口径结算 NO</strong>，且在欧洲是高频形态</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="_6">参照类起点与当前判断</h3>
+<p>本报告用了两条互相独立的参照类，结论落在同一区间。</p>
+<p><strong>参照类一，按公司算。</strong> 在 2026 这个后疫情最热的并购年里，统计市值 40 亿到 100 亿美元的欧美药物研发型生物科技公司，八个半月内被并购六家，折算每个六个月窗口约 10% 到 12%。阳性三期只是温和加成（约 1.3 到 1.6 倍）——因为同一市值带里，有阳性晚期数据却长年保持独立的公司（Madrigal、Insmed、Ascendis、BioMarin 等）比被收购的更多。</p>
+<p><strong>参照类二，按传闻算。</strong> 并购传闻六个月内兑现约 27.5%、十二个月内约 33%。但这条不能直接拿来用：它是从传闻首次出现那一刻起算的。Abivax 的第一轮传闻在 2025 年 12 月，到研究日已走完一个完整周期，而"头六个月未成交"之后的条件兑现率不到 8%。以 2026 年 7 月 17 日重新聘用投行为新起点、窗口覆盖其后第二到第八个月，条件概率约 14%。再考虑"已聘投行、曾开数据室"属于实质谈判阶段（这一档在统计上显著提高兑现率），可上修到 20% 左右。</p>
+<p>两条参照类给出的起点区间是 10% 到 20%，中枢约 14%。</p>
+<p>Abivax 特有的证据里，向上的部分是：卖方流程当前处于开启状态、有两个具名买家做过实质工作、窗口内含 NDA 递交与 1 月并购旺季。向下的部分更重：九个多月的流程未能成交；七月融资把卖方的时间压力清零；买方要的标签确定性要到窗口之外才出现；而最硬的一条是头号买家公开的单笔并购预算上限（$100 亿到 $200 亿）压在要价下沿，并明说当前高价值机会不多。净结果落在 <strong>16%</strong>。</p>
+<h3 id="_7">口径敏感性</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>若把口径改成</th>
+<th>概率变为</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>敌意或未获董事会推荐的正式要约也算 YES</td>
+<td>约 18%</td>
+<td>增加一条小概率路径</td>
+</tr>
+<tr>
+<td>授权许可或大额少数股权也算"被收购"</td>
+<td>约 46%</td>
+<td>把第 5.1 节的合作路径并入 YES</td>
+</tr>
+<tr>
+<td>窗口延长至十二个月</td>
+<td>约 30%</td>
+<td>覆盖 FDA 受理与标签方向更明朗的时点</td>
+</tr>
+<tr>
+<td>必须在窗口内完成交割</td>
+<td>3%</td>
+<td>法国公开要约加外资审查，签约到交割通常四到八个月</td>
+</tr>
+</tbody>
+</table></div></main></div>
+</body></html>

@@ -39,6 +39,12 @@ const REPORTS: Record<
     descriptionKey: "iaOpenaiMetaDescription",
     iframeTitleKey: "iaOpenaiFrameTitle",
     src: "/investment-analysis/reports/openai-gpt6-sol.html"
+  },
+  "abivax-acquisition-6m": {
+    titleKey: "iaAbivaxMetaTitle",
+    descriptionKey: "iaAbivaxMetaDescription",
+    iframeTitleKey: "iaAbivaxFrameTitle",
+    src: "/investment-analysis/reports/abivax-acquisition-6m.html"
   }
 };
 

@@ -48,6 +48,15 @@ const CASES: ReadonlyArray<CaseStudy> = [
     summaryKey: "iaOpenaiSummary",
     signalLabelKey: "iaOpenaiSignalLabel",
     signalKey: "iaOpenaiSignal"
+  },
+  {
+    slug: "abivax-acquisition-6m",
+    index: "05",
+    companyKey: "iaAbivaxCompany",
+    titleKey: "iaAbivaxTitle",
+    summaryKey: "iaAbivaxSummary",
+    signalLabelKey: "iaAbivaxSignalLabel",
+    signalKey: "iaAbivaxSignal"
   }
 ];
 
@@ -71,7 +80,7 @@ export default async function InvestmentAnalysisPage({ params }: { params: Promi
         </div>
         <div className={styles.metaItem}>
           <span>{t(locale, "iaAsOfLabel")}</span>
-          <strong>2026-09-15</strong>
+          <strong>2026-09-18</strong>
         </div>
       </section>
 

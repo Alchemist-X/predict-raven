@@ -9,7 +9,8 @@ export const REPORT_QUESTIONS: Record<InvestmentCaseSlug, string> = {
   "tencent-hunyuan-workbuddy": "混元的新一代能力，是否真的传导到 WorkBuddy？",
   "google-hassabis": "Demis Hassabis 是否会彻底离开 Alphabet？",
   "meta-capex-6m": "Meta 会在半年内正式下调资本开支计划吗？",
-  "openai-gpt6-sol": "GPT-6 的非旗舰模型采用官方名称 Sol 的概率是多少？"
+  "openai-gpt6-sol": "GPT-6 的非旗舰模型采用官方名称 Sol 的概率是多少？",
+  "abivax-acquisition-6m": "Abivax 在接下来六个月内被收购的概率是多少？"
 };
 
 export interface FeedbackInput {
