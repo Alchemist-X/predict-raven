@@ -1,20 +1,16 @@
 import { createHash, timingSafeEqual } from "node:crypto";
+import { findInvestmentReport } from "./reports";
 import { isInvestmentCaseSlug, type InvestmentCaseSlug } from "./routes";
 
 export const FEEDBACK_MAX_LENGTH = 600;
 export const FEEDBACK_MAX_BODY_BYTES = 8_192;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export const REPORT_QUESTIONS: Record<InvestmentCaseSlug, string> = {
-  "tencent-hunyuan-workbuddy": "混元的新一代能力，是否真的传导到 WorkBuddy？",
-  "google-hassabis": "Demis Hassabis 是否会彻底离开 Alphabet？",
-  "meta-capex-6m": "Meta 会在半年内正式下调资本开支计划吗？",
-  "openai-gpt6-sol": "GPT-6 的非旗舰模型采用官方名称 Sol 的概率是多少？",
-  "abivax-acquisition-6m": "Abivax 在接下来六个月内被收购的概率是多少？",
-  "aws-operating-margin-5y": "AWS 的经营利润率会在接下来五年里超过 40% 吗？",
-  "uniswap-ath-12m": "未来 12 个月 Uniswap 破前高的概率是多少？",
-  "global-datacenter-capacity": "全球和各家大厂分别有多少 GW 数据中心，分别向谁租用？"
-};
+function reportQuestion(reportSlug: InvestmentCaseSlug): string {
+  const report = findInvestmentReport(reportSlug);
+  if (!report) throw new FeedbackRequestError("unknown_report", 404);
+  return report.question;
+}
 
 export interface FeedbackInput {
   id: string;
@@ -99,7 +95,7 @@ export async function saveFeedback(store: FeedbackStore, input: FeedbackInput, n
   const record: FeedbackRecord = {
     ...input,
     schemaVersion: 1,
-    question: REPORT_QUESTIONS[input.reportSlug],
+    question: reportQuestion(input.reportSlug),
     createdAtUtc: now.toISOString(),
     status: "pending",
     source: "public-report"
@@ -120,7 +116,7 @@ export function feedbackExport(reportSlug: InvestmentCaseSlug, page: Awaited<Ret
   return {
     schemaVersion: 1,
     reportSlug,
-    question: REPORT_QUESTIONS[reportSlug],
+    question: reportQuestion(reportSlug),
     // Human submissions are research leads; the engine must verify them as evidence.
     notes: page.records.map(({ id, text, createdAtUtc }) => ({
       id,

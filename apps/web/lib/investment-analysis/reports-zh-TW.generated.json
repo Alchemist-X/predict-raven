@@ -1,0 +1,82 @@
+{
+  "tencent-hunyuan-workbuddy": {
+    "company": "騰訊 · 混元 × WorkBuddy",
+    "title": "混元的新一代能力，是否真的傳導到 WorkBuddy？",
+    "summary": "把模型發佈、組織傳導、跨系統可靠性、競品位次與可復現證據五道門檻放進同一個可結算判斷。",
+    "signalLabel": "嚴格口徑 YES 概率",
+    "signal": "18% · NO 82%",
+    "metaTitle": "騰訊混元 × WorkBuddy｜Predict Raven",
+    "metaDescription": "完整分析報告：混元的新一代能力能否在 2027 年 6 月前真正傳導到 WorkBuddy。",
+    "frameTitle": "騰訊混元與 WorkBuddy 完整投資分析報告"
+  },
+  "google-hassabis": {
+    "company": "Alphabet · Google DeepMind",
+    "title": "Demis Hassabis 是否會徹底離開 Alphabet？",
+    "summary": "按不同時間窗口，追蹤職位設計、決策權、Isomorphic Labs 控制關係與可執行退出路徑。",
+    "signalLabel": "兩年內 YES 概率",
+    "signal": "29% · NO 71%",
+    "metaTitle": "Demis Hassabis 與 Alphabet｜Predict Raven",
+    "metaDescription": "完整分析報告：Demis Hassabis 在四個時間窗口內徹底離開 Alphabet 的概率。",
+    "frameTitle": "Demis Hassabis 與 Alphabet 完整投資分析報告"
+  },
+  "meta-capex-6m": {
+    "company": "Meta Platforms · 資本開支",
+    "title": "Meta 會在半年內正式下調資本開支計劃嗎？",
+    "summary": "我們判斷，Meta 更可能維持或上調資本開支。報告以多個內部業務需求、資源重配與融資緩衝解釋預算支撐，逐項列出業務產出，並說明交付與付款跨年如何導致下調。",
+    "signalLabel": "半年內正式下調概率",
+    "signal": "34% · NO 66%",
+    "metaTitle": "Meta 半年資本開支預測｜Predict Raven",
+    "metaDescription": "以 2026-09-06 為基線的 Meta 半年資本開支預測：YES 34%，合理範圍 20–45%。含明確立場、業務產出與預算申請、資產分項及交付付款情形。",
+    "frameTitle": "Meta 六個月資本開支完整投資分析報告"
+  },
+  "openai-gpt6-sol": {
+    "company": "OpenAI · 模型命名",
+    "title": "GPT-6 的非旗艦模型會繼續叫 Sol 嗎？",
+    "summary": "從長期能力檔位、歷史命名先例，以及保留或更換 Sol 的理由，估計官方命名的概率。",
+    "signalLabel": "採用 Sol 名稱 · 條件概率",
+    "signal": "70% · 截至 2027-03-15 為 50%",
+    "metaTitle": "GPT-6 Sol 命名預測 — Predict Raven",
+    "metaDescription": "截至 2026 年 9 月 15 日，若推出新的較低檔 GPT-6.0 模型，採用官方名稱 Sol 的條件概率為 70%；截至 2027 年 3 月 15 日兌現的概率為 50%。",
+    "frameTitle": "GPT-6 Sol 命名預測完整中文報告"
+  },
+  "abivax-acquisition-6m": {
+    "company": "Abivax · 併購",
+    "title": "Abivax 會在六個月內被收購嗎？",
+    "summary": "從買方公開的併購預算上限、賣方的價格錨、說明書上的未決安全性問題，以及法國外資審查的時點機制，估計窗口內簽約與完成交割的概率。",
+    "signalLabel": "公告簽署收購協議 · 概率",
+    "signal": "16% · 窗口內完成交割 3%",
+    "metaTitle": "Abivax 六個月被收購概率 — Predict Raven",
+    "metaDescription": "截至 2026 年 9 月 18 日，Abivax 在 2027 年 3 月 18 日前公告簽署有約束力收購協議的概率為 16%，同一窗口內完成交割的概率為 3%。",
+    "frameTitle": "Abivax 六個月被收購概率完整中文報告"
+  },
+  "aws-operating-margin-5y": {
+    "company": "Amazon · AWS 利潤率",
+    "title": "AWS 的利潤率會在五年內超過 40% 嗎？",
+    "summary": "三個口徑分開回答，因為它們是難度完全不同的三道題。重建了三十個季度的分部序列，用兩種互相獨立的方法測算折舊，並發現報出來的利潤率裡有 1.4 個百分點來自電力合約的會計收益。",
+    "signalLabel": "單季超過 40% · 概率",
+    "signal": "65% · 連續四季站穩 25%",
+    "metaTitle": "AWS 五年經營利潤率能否超過 40% — Predict Raven",
+    "metaDescription": "截至 2026 年 9 月 18 日，AWS 分部經營利潤率在未來二十個季度中至少一個季度超過 40% 的概率為 65%，某個完整財年超過 40% 的概率為 22%，連續四個季度站穩 40% 以上的概率為 25%。",
+    "frameTitle": "AWS 五年經營利潤率完整中文報告"
+  },
+  "uniswap-ath-12m": {
+    "company": "Uniswap · UNI 代幣",
+    "title": "UNI 會在 12 個月內突破歷史最高價嗎？",
+    "summary": "從 UNI 的手續費銷燬能撐起多少估值、美聯儲加息與比特幣週期下的流動性、Robinhood Chain 這波成交的質量，以及 CME 期貨通向現貨 ETF 的時間表，估計 45 美元歷史高點被重新碰到的概率。",
+    "signalLabel": "12 個月內觸及 45 美元 · 概率",
+    "signal": "4% · 碰到 30 美元 10%",
+    "metaTitle": "UNI 12 個月破前高概率 — Predict Raven",
+    "metaDescription": "截至 2026 年 9 月 29 日，幣安 UNI/USDT 在 2027 年 9 月 29 日前觸及 45 美元歷史最高價的概率為 4%；碰到 30 美元約 10%，碰到上一輪高點 19.47 美元約 25%。",
+    "frameTitle": "UNI 12 個月破前高概率完整中文報告"
+  },
+  "global-datacenter-capacity": {
+    "company": "全球數據中心 · 雲廠商 × 房東 × AI 公司",
+    "title": "全球數據中心數據容量調研-26.9",
+    "summary": "自下而上統計全球在運的數據中心容量：先按樓查清業主，再看微軟、亞馬遜、谷歌、Meta、甲骨文、字節跳動、OpenAI、Anthropic 等各用了多少、分別向誰租，最後彙總總量與地區分佈。",
+    "signalLabel": "全球在運 IT 容量 · 2026 年 9 月",
+    "signal": "約 110GW · 年底約 120GW",
+    "metaTitle": "全球數據中心數據容量調研-26.9 — Predict Raven",
+    "metaDescription": "截至 2026 年 9 月 29 日，全球在運數據中心 IT 容量約 110GW（區間 100–125GW），年底約 120GW；美國約 50GW，中國約 27GW。樓的業主中雲廠商約佔 35%、第三方房東約 53%，並列出各家分別向誰租用。",
+    "frameTitle": "全球數據中心數據容量調研完整中文報告"
+  }
+}

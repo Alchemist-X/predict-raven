@@ -1,20 +1,15 @@
 import type { Locale } from "../world-cup/i18n";
+import { INVESTMENT_REPORTS } from "./reports";
 
-export const INVESTMENT_CASE_SLUGS = [
-  "tencent-hunyuan-workbuddy",
-  "google-hassabis",
-  "meta-capex-6m",
-  "openai-gpt6-sol",
-  "abivax-acquisition-6m",
-  "aws-operating-margin-5y",
-  "uniswap-ath-12m",
-  "global-datacenter-capacity"
-] as const;
+// Derived from reports.json; see reports.ts.
+export const INVESTMENT_CASE_SLUGS: ReadonlyArray<string> = INVESTMENT_REPORTS.map((report) => report.slug);
 
-export type InvestmentCaseSlug = (typeof INVESTMENT_CASE_SLUGS)[number];
+export type InvestmentCaseSlug = string;
+
+const SLUGS = new Set(INVESTMENT_CASE_SLUGS);
 
 export function isInvestmentCaseSlug(value: string): value is InvestmentCaseSlug {
-  return INVESTMENT_CASE_SLUGS.includes(value as InvestmentCaseSlug);
+  return SLUGS.has(value);
 }
 
 export function investmentHref(path: string, locale: Locale): string {

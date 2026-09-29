@@ -1,0 +1,197 @@
+{
+  "asOf": "2026-09-29",
+  "reports": [
+    {
+      "slug": "tencent-hunyuan-workbuddy",
+      "question": "混元的新一代能力，是否真的传导到 WorkBuddy？",
+      "en": {
+        "company": "Tencent · Hunyuan × WorkBuddy",
+        "title": "Will Hunyuan's next-generation capability really transfer into WorkBuddy?",
+        "summary": "A conjunctive forecast across model release, organizational transfer, cross-system reliability, competitive standing and reproducible evidence.",
+        "signalLabel": "Strict YES probability",
+        "signal": "18% · NO 82%",
+        "metaTitle": "Tencent Hunyuan × WorkBuddy — Predict Raven",
+        "metaDescription": "A complete analysis of whether Hunyuan's next-generation capabilities will transfer into WorkBuddy by June 2027.",
+        "frameTitle": "Full Tencent Hunyuan and WorkBuddy investment analysis report in Chinese"
+      },
+      "zh-CN": {
+        "company": "腾讯 · 混元 × WorkBuddy",
+        "title": "混元的新一代能力，是否真的传导到 WorkBuddy？",
+        "summary": "把模型发布、组织传导、跨系统可靠性、竞品位次与可复现证据五道门槛放进同一个可结算判断。",
+        "signalLabel": "严格口径 YES 概率",
+        "signal": "18% · NO 82%",
+        "metaTitle": "腾讯混元 × WorkBuddy｜Predict Raven",
+        "metaDescription": "完整分析报告：混元的新一代能力能否在 2027 年 6 月前真正传导到 WorkBuddy。",
+        "frameTitle": "腾讯混元与 WorkBuddy 完整投资分析报告"
+      }
+    },
+    {
+      "slug": "google-hassabis",
+      "question": "Demis Hassabis 是否会彻底离开 Alphabet？",
+      "en": {
+        "company": "Alphabet · Google DeepMind",
+        "title": "Will Demis Hassabis completely leave Alphabet?",
+        "summary": "A time-horizon forecast grounded in role design, decision rights, Isomorphic Labs control and credible exit paths.",
+        "signalLabel": "YES probability · 2 years",
+        "signal": "29% · NO 71%",
+        "metaTitle": "Demis Hassabis and Alphabet — Predict Raven",
+        "metaDescription": "A complete analysis of whether Demis Hassabis will fully leave Alphabet across four time horizons.",
+        "frameTitle": "Full Demis Hassabis and Alphabet investment analysis report in Chinese"
+      },
+      "zh-CN": {
+        "company": "Alphabet · Google DeepMind",
+        "title": "Demis Hassabis 是否会彻底离开 Alphabet？",
+        "summary": "按不同时间窗口，追踪职位设计、决策权、Isomorphic Labs 控制关系与可执行退出路径。",
+        "signalLabel": "两年内 YES 概率",
+        "signal": "29% · NO 71%",
+        "metaTitle": "Demis Hassabis 与 Alphabet｜Predict Raven",
+        "metaDescription": "完整分析报告：Demis Hassabis 在四个时间窗口内彻底离开 Alphabet 的概率。",
+        "frameTitle": "Demis Hassabis 与 Alphabet 完整投资分析报告"
+      }
+    },
+    {
+      "slug": "meta-capex-6m",
+      "question": "Meta 会在半年内正式下调资本开支计划吗？",
+      "en": {
+        "company": "Meta Platforms · Capital expenditure",
+        "title": "Will Meta formally lower its capex plan within six months?",
+        "summary": "Our judgment: Meta is more likely to maintain or raise capex. The report connects business demand, resource reallocation and financing to the budget, with product evidence and explanations of year-end delivery and payment shifts.",
+        "signalLabel": "Formal cut probability · 6 months",
+        "signal": "34% · NO 66%",
+        "metaTitle": "Meta six-month capex forecast — Predict Raven",
+        "metaDescription": "Meta six-month capex forecast as of September 6, 2026: YES 34%, subjective range 20–45%. Explicit stance, business evidence, asset forecasts and delivery/payment scenarios.",
+        "frameTitle": "Full Meta six-month capital expenditure report in Chinese"
+      },
+      "zh-CN": {
+        "company": "Meta Platforms · 资本开支",
+        "title": "Meta 会在半年内正式下调资本开支计划吗？",
+        "summary": "我们判断，Meta 更可能维持或上调资本开支。报告以多个内部业务需求、资源重配与融资缓冲解释预算支撑，逐项列出业务产出，并说明交付与付款跨年如何导致下调。",
+        "signalLabel": "半年内正式下调概率",
+        "signal": "34% · NO 66%",
+        "metaTitle": "Meta 半年资本开支预测｜Predict Raven",
+        "metaDescription": "以 2026-09-06 为基线的 Meta 半年资本开支预测：YES 34%，合理范围 20–45%。含明确立场、业务产出与预算申请、资产分项及交付付款情形。",
+        "frameTitle": "Meta 六个月资本开支完整投资分析报告"
+      }
+    },
+    {
+      "slug": "openai-gpt6-sol",
+      "question": "GPT-6 的非旗舰模型采用官方名称 Sol 的概率是多少？",
+      "en": {
+        "company": "OpenAI · Model naming",
+        "title": "Will a non-flagship GPT-6 model be called Sol?",
+        "summary": "A forecast of official naming based on durable capability tiers, earlier naming decisions and reasons to retain or replace Sol.",
+        "signalLabel": "Sol name · conditional probability",
+        "signal": "70% · 50% by March 15, 2027",
+        "metaTitle": "GPT-6 Sol naming forecast — Predict Raven",
+        "metaDescription": "Official Sol naming forecast as of September 15, 2026: 70% conditional on a new lower-tier GPT-6.0 model; 50% by March 15, 2027.",
+        "frameTitle": "Full GPT-6 Sol naming forecast in Chinese"
+      },
+      "zh-CN": {
+        "company": "OpenAI · 模型命名",
+        "title": "GPT-6 的非旗舰模型会继续叫 Sol 吗？",
+        "summary": "从长期能力档位、历史命名先例，以及保留或更换 Sol 的理由，估计官方命名的概率。",
+        "signalLabel": "采用 Sol 名称 · 条件概率",
+        "signal": "70% · 截至 2027-03-15 为 50%",
+        "metaTitle": "GPT-6 Sol 命名预测 — Predict Raven",
+        "metaDescription": "截至 2026 年 9 月 15 日，若推出新的较低档 GPT-6.0 模型，采用官方名称 Sol 的条件概率为 70%；截至 2027 年 3 月 15 日兑现的概率为 50%。",
+        "frameTitle": "GPT-6 Sol 命名预测完整中文报告"
+      }
+    },
+    {
+      "slug": "abivax-acquisition-6m",
+      "question": "Abivax 在接下来六个月内被收购的概率是多少？",
+      "en": {
+        "company": "Abivax · M&A",
+        "title": "Will Abivax be acquired within six months?",
+        "summary": "A forecast built from the lead bidder's stated M&A budget ceiling, the seller's price anchor, the open safety questions still facing the label, and when French foreign-investment review actually bites.",
+        "signalLabel": "Signed agreement announced · probability",
+        "signal": "16% · 3% completed in the window",
+        "metaTitle": "Abivax six-month acquisition forecast — Predict Raven",
+        "metaDescription": "As of September 18, 2026: a 16% probability that Abivax announces a signed, binding acquisition agreement before March 18, 2027, and 3% that one completes within the same window.",
+        "frameTitle": "Full Abivax six-month acquisition forecast in Chinese"
+      },
+      "zh-CN": {
+        "company": "Abivax · 并购",
+        "title": "Abivax 会在六个月内被收购吗？",
+        "summary": "从买方公开的并购预算上限、卖方的价格锚、说明书上的未决安全性问题，以及法国外资审查的时点机制，估计窗口内签约与完成交割的概率。",
+        "signalLabel": "公告签署收购协议 · 概率",
+        "signal": "16% · 窗口内完成交割 3%",
+        "metaTitle": "Abivax 六个月被收购概率 — Predict Raven",
+        "metaDescription": "截至 2026 年 9 月 18 日，Abivax 在 2027 年 3 月 18 日前公告签署有约束力收购协议的概率为 16%，同一窗口内完成交割的概率为 3%。",
+        "frameTitle": "Abivax 六个月被收购概率完整中文报告"
+      }
+    },
+    {
+      "slug": "aws-operating-margin-5y",
+      "question": "AWS 的经营利润率会在接下来五年里超过 40% 吗？",
+      "en": {
+        "company": "Amazon · AWS margin",
+        "title": "Will the AWS operating margin clear 40% in the next five years?",
+        "summary": "Three settlements answered separately, because they are different questions. A rebuilt thirty-quarter segment series, a depreciation model computed two independent ways, and the finding that 1.4 points of the headline margin are an energy-contract accounting gain.",
+        "signalLabel": "Any quarter above 40% · probability",
+        "signal": "65% · 25% held for four quarters",
+        "metaTitle": "AWS five-year operating margin forecast — Predict Raven",
+        "metaDescription": "As of September 18, 2026: a 65% probability that the AWS segment operating margin exceeds 40% in at least one of the next twenty quarters, 22% for a full fiscal year, and 25% that it holds above 40% for four consecutive quarters.",
+        "frameTitle": "Full AWS five-year operating margin forecast in Chinese"
+      },
+      "zh-CN": {
+        "company": "Amazon · AWS 利润率",
+        "title": "AWS 的利润率会在五年内超过 40% 吗？",
+        "summary": "三个口径分开回答，因为它们是难度完全不同的三道题。重建了三十个季度的分部序列，用两种互相独立的方法测算折旧，并发现报出来的利润率里有 1.4 个百分点来自电力合约的会计收益。",
+        "signalLabel": "单季超过 40% · 概率",
+        "signal": "65% · 连续四季站稳 25%",
+        "metaTitle": "AWS 五年经营利润率能否超过 40% — Predict Raven",
+        "metaDescription": "截至 2026 年 9 月 18 日，AWS 分部经营利润率在未来二十个季度中至少一个季度超过 40% 的概率为 65%，某个完整财年超过 40% 的概率为 22%，连续四个季度站稳 40% 以上的概率为 25%。",
+        "frameTitle": "AWS 五年经营利润率完整中文报告"
+      }
+    },
+    {
+      "slug": "uniswap-ath-12m",
+      "question": "未来 12 个月 Uniswap 破前高的概率是多少？",
+      "en": {
+        "company": "Uniswap · UNI token",
+        "title": "Will UNI break its all-time high within 12 months?",
+        "summary": "A forecast built from how much valuation UNI's fee burn can carry, liquidity under a hiking Fed and an early-cycle Bitcoin, the quality of the Robinhood Chain volume surge, and the timetable from CME futures to a spot ETF.",
+        "signalLabel": "Touches USD 45 within 12 months · probability",
+        "signal": "4% · 10% for USD 30",
+        "metaTitle": "UNI 12-month all-time-high forecast — Predict Raven",
+        "metaDescription": "As of September 29, 2026: a 4% probability that Binance UNI/USDT trades above its USD 45.00 all-time high before September 29, 2027; about 10% for USD 30 and 25% for the 2024 cycle high of USD 19.47.",
+        "frameTitle": "Full UNI 12-month all-time-high forecast in Chinese"
+      },
+      "zh-CN": {
+        "company": "Uniswap · UNI 代币",
+        "title": "UNI 会在 12 个月内突破历史最高价吗？",
+        "summary": "从 UNI 的手续费销毁能撑起多少估值、美联储加息与比特币周期下的流动性、Robinhood Chain 这波成交的质量，以及 CME 期货通向现货 ETF 的时间表，估计 45 美元历史高点被重新碰到的概率。",
+        "signalLabel": "12 个月内触及 45 美元 · 概率",
+        "signal": "4% · 碰到 30 美元 10%",
+        "metaTitle": "UNI 12 个月破前高概率 — Predict Raven",
+        "metaDescription": "截至 2026 年 9 月 29 日，币安 UNI/USDT 在 2027 年 9 月 29 日前触及 45 美元历史最高价的概率为 4%；碰到 30 美元约 10%，碰到上一轮高点 19.47 美元约 25%。",
+        "frameTitle": "UNI 12 个月破前高概率完整中文报告"
+      }
+    },
+    {
+      "slug": "global-datacenter-capacity",
+      "question": "全球和各家大厂分别有多少 GW 数据中心，分别向谁租用？",
+      "en": {
+        "company": "Global data centers · clouds × landlords × AI labs",
+        "title": "Global data center capacity survey, Sep 2026",
+        "summary": "A bottom-up count of the world's operating data center capacity: who owns each building, how much Microsoft, AWS, Google, Meta, Oracle, ByteDance, OpenAI and Anthropic use and whom they rent it from, then the global total and its regional split.",
+        "signalLabel": "Global IT capacity in service · Sep 2026",
+        "signal": "~110 GW · ~120 GW by end-2026",
+        "metaTitle": "Global data center capacity survey, Sep 2026 — Predict Raven",
+        "metaDescription": "As of September 29, 2026: about 110 GW of data center IT capacity in service worldwide (range 100–125 GW) and about 120 GW by year-end; the US about 50 GW and China about 27 GW. Cloud companies own about 35% of the buildings and third-party landlords about 53%, with a map of who rents from whom.",
+        "frameTitle": "Full global data center capacity survey in Chinese"
+      },
+      "zh-CN": {
+        "company": "全球数据中心 · 云厂商 × 房东 × AI 公司",
+        "title": "全球数据中心数据容量调研-26.9",
+        "summary": "自下而上统计全球在运的数据中心容量：先按楼查清业主，再看微软、亚马逊、谷歌、Meta、甲骨文、字节跳动、OpenAI、Anthropic 等各用了多少、分别向谁租，最后汇总总量与地区分布。",
+        "signalLabel": "全球在运 IT 容量 · 2026 年 9 月",
+        "signal": "约 110GW · 年底约 120GW",
+        "metaTitle": "全球数据中心数据容量调研-26.9 — Predict Raven",
+        "metaDescription": "截至 2026 年 9 月 29 日，全球在运数据中心 IT 容量约 110GW（区间 100–125GW），年底约 120GW；美国约 50GW，中国约 27GW。楼的业主中云厂商约占 35%、第三方房东约 53%，并列出各家分别向谁租用。",
+        "frameTitle": "全球数据中心数据容量调研完整中文报告"
+      }
+    }
+  ]
+}

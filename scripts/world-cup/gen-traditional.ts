@@ -17,6 +17,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as OpenCC from "opencc-js";
 import { ALL_TEAMS } from "../../apps/web/lib/world-cup/team-meta.js";
+import { traditionalCopies } from "../investment-analysis/report-manifest.js";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const WEB = path.join(REPO_ROOT, "apps/web/lib/world-cup");
@@ -67,6 +68,13 @@ async function main(): Promise<void> {
   }
   await writeFile(path.join(GEN, "content-zh-TW.generated.json"), JSON.stringify({ content }, null, 1));
   C.ok(`content: ${Object.keys(content).length} forecasts → content-zh-TW.generated.json`);
+
+  // 4) Investment-analysis report cards (same conversion; also run by ia:add-report)
+  const reportsDir = path.join(REPO_ROOT, "apps/web/lib/investment-analysis");
+  const manifest = JSON.parse(await readFile(path.join(reportsDir, "reports.json"), "utf8"));
+  const reports = traditionalCopies(manifest);
+  await writeFile(path.join(reportsDir, "reports-zh-TW.generated.json"), JSON.stringify(reports, null, 2) + "\n");
+  C.ok(`reports: ${Object.keys(reports).length} investment reports → reports-zh-TW.generated.json`);
   C.info("Traditional resource set regenerated.");
 }
 

@@ -1,0 +1,57 @@
+# Merging a report is publishing it. When a push to main touches the
+# investment-analysis collection (usually a PR made with `pnpm ia:add-report`),
+# this deploys forecasting-agent.com and then checks every report route in every
+# locale on the live site. Before this, the site only changed after someone ran
+# `vercel deploy --prod` by hand from a checkout linked to the `web` project.
+#
+# Same deploy as that manual step (Vercel builds remotely from vercel.json), so
+# production behaviour does not change. Uses the existing VERCEL_TOKEN secret.
+# Manual redeploy of current main: Actions -> "Investment reports deploy" -> Run workflow.
+name: Investment reports deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/web/lib/investment-analysis/**"
+      - "apps/web/public/investment-analysis/**"
+      - "apps/web/app/*/investment-analysis/**"
+      - "apps/web/components/investment-analysis/**"
+      - "scripts/investment-analysis/**"
+      - ".github/workflows/investment-reports-deploy.yml"
+  workflow_dispatch: {}
+
+# One production deploy at a time; a newer merge waits instead of cancelling.
+concurrency:
+  group: web-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: team_2pB0XDZyHAZM66UPHg0fuAvA
+      VERCEL_PROJECT_ID: prj_kPZRCALGVSeotZxQ1PD0fvOOwmRc
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy forecasting-agent.com
+        run: |
+          url="$(vercel deploy --prod --yes -A vercel.json --archive=tgz --token "$VERCEL_TOKEN")"
+          echo "deployed: $url"
+          # A past `vercel rollback` pins production so --prod deploys stop aliasing;
+          # promote covers that case. The live checks below are the real gate.
+          vercel promote "$url" --yes --scope "$VERCEL_ORG_ID" --token "$VERCEL_TOKEN" ||
+            echo "::warning::vercel promote returned non-zero; relying on the --prod alias"
+
+      - name: Verify every report route on the live site
+        run: node scripts/investment-analysis/verify-live.mjs
