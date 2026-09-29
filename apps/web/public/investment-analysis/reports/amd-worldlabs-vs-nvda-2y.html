@@ -1,0 +1,1031 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AMD 收购 World Labs 后两年能否跑赢英伟达</title><link rel="icon" href="data:,">
+<style>
+:root{--ink:#18201d;--muted:#657069;--paper:#fffdf8;--canvas:#eeeae1;--line:#d9d4c8;--accent:#9d3f25;--accent-soft:#f5e7df;--shadow:0 18px 55px rgba(47,42,31,.10)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:var(--canvas);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;line-height:1.72}
+.topbar{position:sticky;top:0;z-index:10;background:rgba(255,253,248,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1480px;margin:auto;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-weight:750;letter-spacing:.02em}.brand span{color:var(--accent)}
+.meta{font-size:13px;color:var(--muted)}
+.layout{max-width:1480px;margin:28px auto 64px;padding:0 24px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px}
+.toc{position:sticky;top:72px;align-self:start;max-height:calc(100vh - 96px);overflow:auto;padding:18px 14px;border:1px solid var(--line);border-radius:14px;background:rgba(255,253,248,.72)}
+.toc-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.toc a{display:block;color:var(--ink);text-decoration:none;font-size:13.5px;padding:4px 8px;border-radius:8px;margin:1px 0}
+.toc a:hover{background:var(--accent-soft);color:var(--accent)}
+main{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:40px 48px 56px;min-width:0}
+main h1{font-size:26px;line-height:1.35;margin:.2em 0 .6em;letter-spacing:.01em}
+main h2{font-size:21px;margin:2.2em 0 .7em;padding-top:.6em;border-top:1px solid var(--line)}
+main h3{font-size:17px;margin:1.6em 0 .5em;line-height:1.5}
+main h2:first-of-type{border-top:none;padding-top:0;margin-top:1em}
+main a{color:var(--accent)}
+main blockquote{margin:1.2em 0;padding:12px 18px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0}
+main blockquote p{margin:.3em 0}
+.tablewrap{overflow-x:auto;margin:1.1em 0}
+main table{border-collapse:collapse;font-size:14px;min-width:60%}
+main th{background:var(--accent-soft);color:var(--ink);text-align:left;font-weight:650}
+main th,main td{border:1px solid var(--line);padding:8px 12px;vertical-align:top;line-height:1.65}
+main tr:nth-child(even) td{background:rgba(238,234,225,.35)}
+main code{background:var(--canvas);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.9em}
+main hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+main li{margin:.25em 0}
+main ul ul,main ol ul{margin-top:.2em}
+main strong{color:#111}
+main u.key{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:4px}
+main u.minor{text-decoration:underline dotted;text-decoration-color:#9aa39d;text-decoration-thickness:1.5px;text-underline-offset:4px}
+main u.ask{text-decoration:underline;text-decoration-color:#8d9a91;text-decoration-thickness:1px;text-underline-offset:5px;font-weight:600;color:#2f3a34}
+main li>u.ask{display:inline-block;margin-bottom:.25em}
+.tag{display:inline-block;font-size:11.5px;line-height:1;padding:3px 6px;border-radius:5px;background:var(--canvas);border:1px solid var(--line);color:var(--muted);margin-right:5px;vertical-align:1px;white-space:nowrap}
+.note{display:block;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.55;font-weight:400}
+.legend{font-size:13.5px;color:#4d5651;background:rgba(238,234,225,.5);border:1px dashed var(--line);border-radius:10px;padding:10px 14px;margin:.6em 0 1.2em;line-height:1.75}
+.legend p{margin:.2em 0}
+.formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"PingFang SC","Hiragino Sans GB",monospace;background:var(--canvas);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:1em 0;line-height:2;font-size:13.5px;overflow-x:auto;white-space:nowrap}
+.formula b{color:var(--accent)}
+.org td:first-child,.tight1 td:first-child{white-space:nowrap}
+.org td:first-child{font-weight:650}
+.org td:nth-child(2){width:58%}
+.org td:nth-child(3){min-width:260px}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.toc{position:static;max-height:none}main{padding:24px 20px}}
+</style></head><body>
+<div class="topbar"><div class="topbar-inner"><div class="brand">Predict-Raven</div><div class="meta">AMD 收购 World Labs 后两年能否跑赢英伟达｜生成 2026-09-30｜research-only / market-blind</div></div></div>
+<div class="layout"><nav class="toc"><div class="toc-title">目录</div><a href="#amd-world-labs">AMD 收购 World Labs 后两年，股价能否跑赢英伟达</a>
+<a href="#1">1. 阅读结论</a>
+<a href="#2">2. 路径推演</a>
+<a href="#3">3. 核心判断</a>
+<a href="#4">4. 结算口径</a>
+<a href="#5">5. 情景与路径</a>
+<a href="#6">6. 关键证据表</a>
+<a href="#7">7. 信息缺口树</a>
+<a href="#8">8. 信源梯度反馈</a>
+<a href="#9">9. 自检结果</a>
+<a href="#10">10. 最终预测声明</a>
+<a href="#_2">附录·当前估计依据</a></nav><main><h1 id="amd-world-labs">AMD 收购 World Labs 后两年，股价能否跑赢英伟达</h1>
+<div class="note">
+<p>研究日 2026-09-30（北京时间）｜行情截至 2026-09-29 美东盘中｜窗口 2026-09-28 收盘至 2028-09-28 收盘｜结算口径见第 4 节</p>
+</div>
+<h2 id="1">1. 阅读结论</h2>
+<p><strong>客户原题：</strong> AMD收购李飞飞world labs后，2年后，公司股价表现优于NVDA的概率是多少？两家的竞争力会有什么变化，对于模型上游的算力芯片市场格局会有什么影响 <span class="note">按第 4 节冻结的口径结算</span></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>问的是什么</th>
+<th>概率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>严格口径：从 2026-09-28 收盘到 2028-09-28 收盘，AMD 的股东总回报高于英伟达</strong> <br><span class="note">股东总回报＝股价涨跌加上再投资的现金股息。AMD 在 9-28 收盘后才发布公告，所以起点是公告前的最后一个价格：AMD 607.87 美元，英伟达 228.86 美元</span></td>
+<td><strong>38%</strong></td>
+</tr>
+<tr>
+<td>参考：AMD 领先 20% 以上 <br><span class="note">两年后，AMD 这笔投资的价值至少是英伟达那笔的 1.2 倍</span></td>
+<td><span style="white-space:nowrap">约 28%</span></td>
+</tr>
+<tr>
+<td>参考：两家相差不到 20%</td>
+<td><span style="white-space:nowrap">约 20%</span></td>
+</tr>
+<tr>
+<td>参考：英伟达领先 20% 以上</td>
+<td><span style="white-space:nowrap">约 52%</span></td>
+</tr>
+</tbody>
+</table></div>
+<div class="note">
+<p>后三行合计 100%。38% 里约四分之三是 AMD 大幅领先的情形：这两只股票两年的相对涨跌通常在六成上下，很少打成平手，所以结果多半是一方明显胜出。</p>
+</div>
+<p><strong>一句话结论：我们认为 AMD 两年后跑赢英伟达的可能性偏低（38%），这笔收购本身几乎不改变这个结果。</strong></p>
+<p>原因是两条同时成立：<strong>AMD 的好消息已经提前放进了股价</strong>——按卖方一致预期，两家下一年的每股收益几乎一样（AMD 15.58 美元，英伟达 15.68 美元），AMD 的股价却是这个数字的 39 倍，英伟达只有 14.6 倍；过去一年 AMD 涨了 281%，英伟达涨了 29%。<strong>并且，英伟达让出的份额主要流向谷歌 TPU、OpenAI 自研芯片这类定制芯片，而不是 AMD</strong>——AMD 要同时和英伟达、定制芯片两线作战，而它最大的几家客户，正是最积极自研芯片的那几家。</p>
+<p>这笔收购只占 AMD 约 0.8% 的股本。它买到的是一个约 70 人的世界模型团队，以及"用自家芯片训练前沿模型"的第一手经验，收益主要落在 2028 年以后。</p>
+<p>最可能推翻这个判断的情形是：AMD 的 Helios 整柜系统在 2027 年上半年顺利放量，2027 年每股收益做到买方预期的 20 美元以上；同时英伟达在定制芯片的压力下被迫降价，毛利率跌破 70%。</p>
+<p><strong>另外两问的简短回答：</strong></p>
+<ul>
+<li><strong>两家的竞争力：</strong> 两年后，AMD 最可能是"稳固的第二家商用 GPU 与整柜系统供应商，加上 x86 服务器 CPU 份额领先者"，按金额约占 AI 加速器支出的 6%–9%。英伟达仍是唯一能交付整座 AI 数据中心的供应商，份额从今天的约四分之三降到约三分之二，毛利率在 72%–73% 附近企稳。World Labs 给 AMD 补上了世界模型和"模型—芯片协同设计"两块短板；但决定份额的是 Helios 量产、HBM 成本和软件，这三件事它都不改变。</li>
+<li><strong>上游算力芯片格局：</strong> 按颗数，定制芯片 2027 年就会过半；按金额，到 2028 年英伟达仍占 63%–72%，定制芯片 22%–30%，AMD 6%–9%。这笔交易加速的是"芯片厂向上做模型、模型厂向下做芯片"的双向整合。世界模型到 2028 年只占加速器支出的 3%–8%，但它更吃显存带宽、架构变化快，更适合通用 GPU 而不是定制芯片。</li>
+</ul>
+<h2 id="2">2. 路径推演</h2>
+<h3 id="20">2.0 这两家公司和这笔交易</h3>
+<p><strong>AMD</strong> 是美国芯片设计公司，1969 年成立，2014 年起由苏姿丰任 CEO。它只设计、不制造，芯片由台积电代工。今天的收入近六成来自数据中心：服务器 CPU（EPYC）和 AI 加速器（Instinct）；其余来自 PC 处理器、游戏芯片，以及 2022 年收购赛灵思（Xilinx）后得到的嵌入式芯片。2026 年二季度收入 115.4 亿美元，同比增长 50%，其中数据中心 67.2 亿美元，同比翻倍。9 月 28 日收盘市值约 9,900 亿美元，一周前刚首次突破 1 万亿美元。</p>
+<p>在 AI 加速器上，AMD 是英伟达之外唯一能提供整柜系统的商用供应商。当前主力是 MI355X；下一代 MI455X 与 72 卡整柜系统 Helios 从 2026 年三季度末开始出货。它已经拿到三份"吉瓦级"大单：OpenAI 最多 6 吉瓦、Meta 最多 6 吉瓦、Anthropic 最多 2 吉瓦，前两份附带认股权证。</p>
+<p><strong>英伟达</strong> 是 AI 加速器的绝对龙头，市值约 5.5 万亿美元。截至 2026 年 7 月的季度收入 962 亿美元，其中数据中心 890 亿美元。它卖的不只是 GPU，还有 CPU、网络芯片、整柜系统和 CUDA 软件生态，并且越来越多地用自己的资产负债表为客户的数据中心提供担保。</p>
+<p><strong>World Labs</strong> 由斯坦福教授李飞飞（ImageNet 的创建者）于 2024 年与 Justin Johnson、Ben Mildenhall、Christoph Lassner 共同创立，约 70 人，做"空间智能"：用文字、图片或视频生成、重建和模拟可交互的三维环境。产品有 Marble（2025 年 11 月上线的三维世界生成工具）、World API（2026 年 1 月）、实时模型 RTFM，以及 2026 年 9 月初只对少数伙伴开放的 Atlas。它 2026 年 2 月融资 10 亿美元，报道估值约 50 亿美元。</p>
+<p>2026 年 9 月 28 日美东 16:05（收盘后），AMD 宣布以约 82 亿美元的 AMD 股票收购 World Labs，预计年底前完成交割；交割后李飞飞任 AMD 执行副总裁兼首席科学家，直接向苏姿丰汇报。这是 AMD 史上第二大收购，仅次于赛灵思。</p>
+<p>它成为这道题的标的，是因为两件事撞在了一起：一边是外界把这笔交易解读为"AMD 要在模型层和英伟达正面竞争"；另一边，AMD 过去一年涨了 281%、英伟达只涨了 29%，两家的估值差距处在十几年来的极端位置。客户想知道：这一步能否让 AMD 在接下来两年继续跑赢。</p>
+<div class="legend">
+<p><strong>几个后文反复出现的词，先解释清楚：</strong></p>
+<ul>
+<li><strong>股东总回报</strong>：一段时间里股价的涨跌，加上期间派发的现金股息（假设股息拿到后立即买回这只股票）。英伟达每季度每股派息 0.25 美元，AMD 不派息。</li>
+<li><strong>每股收益与市盈率</strong>：每股收益是公司一年的净利润除以股数；市盈率是股价除以每股收益，表示"买下一年的利润要付几倍的价钱"。<strong>前瞻市盈率</strong>用的是分析师对未来一年的盈利预测。</li>
+<li><strong>卖方与买方</strong>：卖方指券商研究员，给出评级、目标价和盈利预测；买方指基金等真正投资的机构。两者的预期常常不同。</li>
+<li><strong>AI 加速器</strong>：专门做 AI 训练和推理计算的芯片，主要是英伟达和 AMD 的 GPU（图形处理器）。</li>
+<li><strong>定制芯片</strong>：大客户自己设计、只为自家负载优化的芯片，也叫 ASIC，例如谷歌的 TPU、亚马逊的 Trainium、Meta 的 MTIA、OpenAI 与博通合作的 Jalapeño。</li>
+<li><strong>整柜系统</strong>：把几十颗 GPU、CPU、交换芯片、供电和散热装进一个机柜、作为一台整机交付的产品，例如英伟达的 NVL72 和 AMD 的 Helios。能不能按时量产整柜，决定了新一代 GPU 何时真正产生收入。</li>
+<li><strong>HBM 与 CoWoS</strong>：HBM 是堆叠在 GPU 旁边的高带宽内存，AI 芯片最贵、最紧缺的部件之一；CoWoS 是台积电把 GPU 和 HBM 封装在一起的先进封装工艺，产能长期紧张，谁分到多少，基本决定了谁能出多少货。</li>
+<li><strong>CUDA 与 ROCm</strong>：英伟达和 AMD 各自的 GPU 软件栈，开发者靠它们让程序跑在 GPU 上。CUDA 发展近二十年，是英伟达最深的护城河。</li>
+<li><strong>认股权证</strong>：允许持有人以约定价格买入公司股票的权利。AMD 给 OpenAI 和 Meta 的认股权证行权价只有 0.01 美元，客户每完成一批采购和部署，就能拿到一批几乎免费的 AMD 股票——本质上是用 AMD 老股东的股份给大客户返利。</li>
+<li><strong>吉瓦（GW）</strong>：数据中心的用电规模。行业用"多少吉瓦"衡量算力订单，1 吉瓦大约对应几十万颗 AI 芯片、一两百亿美元的芯片收入。</li>
+<li><strong>世界模型与空间智能</strong>：能生成、重建三维环境并预测它如何变化的 AI 模型，区别于只处理文字的大语言模型。"空间智能"是李飞飞对这个方向的叫法。</li>
+<li><strong>超大规模云厂商</strong>：微软、亚马逊、谷歌、Meta、甲骨文这几家自建超大型数据中心的公司，是 AI 芯片最大的买家。</li>
+<li><strong>波动率</strong>：股价涨跌幅度的统计量，按年计算。<strong>隐含波动率</strong>是从期权价格反推出的、市场预期的未来波动幅度。</li>
+</ul>
+</div>
+<h3 id="21">2.1 拆解树</h3>
+<p>两只股票两年后谁跑得快，可以拆成三件事相乘：<strong>AMD 的相对回报 ＝ 相对盈利增长 × 相对估值变化 × 相对股本变化</strong>。也就是说，如果"AMD 两年后跑赢英伟达"这个命题成立，需要这三项乘起来大于 1：AMD 的盈利增长明显快于英伟达，或者它的估值溢价在两年后还能守住，同时股本摊薄不过度拖累每股回报。World Labs 这笔交易只通过这三条路起作用。</p>
+<p>研究权重指我们花在这一环上的注意力，不是概率。</p>
+<p><strong>一、AMD 的盈利能不能比英伟达长得更快（研究权重 35%，对应 P(盈利跑赢)）</strong></p>
+<ul>
+<li><u class="ask">两家未来两年的盈利预期差多少？</u><ul>
+<li>卖方一致预期：AMD 2027 年每股收益 15.58 美元，是 2025 年 4.17 美元的约 3.7 倍；英伟达截至 2028 年 1 月的财年 15.68 美元，是截至 2026 年 1 月的财年 4.77 美元的约 3.3 倍。两家两年的盈利增幅相近。</li>
+<li>买方对 AMD 更乐观，2027、2028 年多在 22 美元和 30 美元左右，比卖方高约四成。股价已经按买方口径定价。</li>
+</ul>
+</li>
+<li><u class="ask">AMD 的新一代产品能不能按时放量？</u><ul>
+<li>官方口径是 Helios 三季度末首批出货、四季度和 2027 年一季度逐级上台阶；2026 年四季度一致预期收入 161 亿美元，环比要增长 24%，几乎全靠 Helios。</li>
+<li>独立研究机构 SemiAnalysis 称 Helios 正处于缓慢的量产爬坡期：背板最多 85% 的链路需要额外的信号中继芯片，可靠性也有问题；它判断英伟达的 Vera Rubin 会先于 Helios 大规模交付。</li>
+</ul>
+</li>
+<li><u class="ask">英伟达还能长多快？</u><ul>
+<li>英伟达预计截至 2028 年 1 月的财年收入增长约 70%，并称这是受供给限制后的数字，客户的预测是翻倍。</li>
+<li>但毛利率在下台阶：75% 降到四季度的 71%–72%，下一财年 72%–73%，主要因为内存涨价。</li>
+</ul>
+</li>
+<li><u class="ask">谁在分走英伟达之外的那份预算？</u><ul>
+<li>OpenAI 自研推理芯片 Jalapeño 2027 年约 1.3 吉瓦、2028 年超过 5 吉瓦；谷歌 TPU 开始对外销售，Anthropic 直接购买；这些客户同时也是 AMD 的大客户。</li>
+</ul>
+</li>
+</ul>
+<p><strong>二、AMD 的估值溢价能不能守住（研究权重 30%，对应 P(估值守住)）</strong></p>
+<ul>
+<li><u class="ask">起点有多贵？</u><ul>
+<li>按卖方一致预期，AMD 前瞻市盈率约 39 倍，英伟达约 14.6 倍；按过去 12 个月收入算的市销率，AMD 是英伟达的 1.32 倍，是 2010 年以来的最高值，历史中位数只有 0.30 倍。</li>
+<li>卖方平均目标价隐含英伟达还有约 43% 的上涨空间，AMD 只有约 2%。</li>
+</ul>
+</li>
+<li><u class="ask">两年后市场还愿意给 AMD 这个倍数吗？</u><ul>
+<li>高盛、摩根士丹利都预计超大规模云厂商的资本开支增速会从 2027 年的约 55%–60% 骤降到 2028 年的约 12%。行业减速时，估值更高、波动更大的一方通常跌得更多。</li>
+</ul>
+</li>
+</ul>
+<p><strong>三、股本变化会不会拖累 AMD 的每股回报（研究权重 10%，对应 P(摊薄可控)）</strong></p>
+<ul>
+<li><u class="ask">AMD 这边会多出多少股？</u><ul>
+<li>World Labs 约 1,350 万股，占 0.83%；给 OpenAI 和 Meta 的认股权证合计最多 3.2 亿股，约占现有股本的 19.6%，截至 6 月底尚未归属，但股价门槛据报最高 600 美元，已经越过，剩下的归属只看部署进度。</li>
+</ul>
+</li>
+<li><u class="ask">英伟达这边会少掉多少股？</u><ul>
+<li>9 月 28 日新增 1,500 亿美元回购授权，剩余合计 2,350 亿美元，约占市值 4%，计划在 2028 年 1 月前用完；另有年化约 0.44% 的股息。</li>
+</ul>
+</li>
+</ul>
+<p><strong>四、World Labs 本身带来什么（研究权重 10%，对应 P(交易增值)）</strong></p>
+<ul>
+<li><u class="ask">它能带来收入吗？</u><ul>
+<li>AMD 没有披露 World Labs 的收入，也没有给出任何变现目标；第三方估计其年收入只有数百万到一千多万美元。</li>
+</ul>
+</li>
+<li><u class="ask">它能改变 AMD 的芯片竞争力吗？</u><ul>
+<li>它给 AMD 一个以 AMD GPU 为主力平台的前沿模型团队，能逼 ROCm 更快成熟，也补上了一个能对标英伟达 Cosmos 的开放世界模型。但这些要反映到 MI500 之后的产品上，主要在 2028 年结算日之后。</li>
+</ul>
+</li>
+</ul>
+<p><strong>五、市场环境会放大还是抵消这些差异（研究权重 15%，对应 P(环境有利)）</strong></p>
+<ul>
+<li><u class="ask">利率和情绪处在什么位置？</u><ul>
+<li>美联储 9 月 16 日加息到 3.75%–4.00%，10 年期美债收益率约 5.25%，是 2007 年以来最高；9 月 14 日 Anthropic 呼吁放慢能力进展后，费城半导体指数单日跌 6%。</li>
+</ul>
+</li>
+<li><u class="ask">波动的差别有多大影响？</u><ul>
+<li>期权市场给 AMD 的两年隐含波动率约 57%，英伟达约 39%。即使两家的预期回报完全相同，波动更大的一方"中间结局"也更差，AMD 胜出的概率约四成而不是五成（见附录）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="22">2.2 关键参与方关系表</h3>
+<div class="note">
+<p>"打灯"是客户自己的用法：给每条关系的当前状态打一个分（5 分制），绿灯＝顺畅，黄灯＝方向一致但执行待验证，红灯＝有结构性摩擦。本题比较两家公司，所以这里列的是影响两家相对表现的关键关系。</p>
+</div>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>关系链条</th>
+<th><span style="white-space:nowrap">打灯</span></th>
+<th>目前关系</th>
+<th>对本题意味着什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>苏姿丰 → 李飞飞（World Labs 团队）</td>
+<td><span class="tag">4 绿</span></td>
+<td>授权型支持：李飞飞直接向 CEO 汇报，团队定位为"公司的横向模型能力"和吸引人才的核心；交割前与芯片业务分开运营</td>
+<td>组织上给足了位置；但 AMD 2024 年收购的 Silo AI，创始人 18 个月后转任顾问，World Labs 也已有一位联合创始人在交易前转为顾问，关键人物留任需要跟踪</td>
+</tr>
+<tr>
+<td>AMD → OpenAI</td>
+<td><span class="tag">3 黄</span></td>
+<td>方向上合作：6 吉瓦订单加最多 1.6 亿股认股权证，首个 1 吉瓦从 2026 年下半年开始；但 OpenAI 同时在博通做自研芯片，2028 财年超过 5 吉瓦</td>
+<td>订单是真的，份额不锁定；SemiAnalysis 指出 OpenAI 在多个节点可以退出首个吉瓦</td>
+</tr>
+<tr>
+<td>AMD → Meta</td>
+<td><span class="tag">3 黄</span></td>
+<td>方向上合作：6 吉瓦订单加认股权证；但首批多为"计算单元和 HBM 各减半"的定制版，主要给推荐系统用</td>
+<td>Meta 的大模型团队更可能选英伟达 Rubin，AMD 在 Meta 的量可能低于纸面</td>
+</tr>
+<tr>
+<td>AMD → Anthropic</td>
+<td><span class="tag">4 绿</span></td>
+<td>换血已完成、执行密度待验证：2 吉瓦订单，首个 1 吉瓦 2027 年上半年上线；AMD 按里程碑向 Anthropic 投资最多 50 亿美元</td>
+<td>是 AMD 2027 年能否兑现的第一块试金石；同时 Anthropic 也在大量买 TPU 和 Trainium</td>
+</tr>
+<tr>
+<td>英伟达 → OpenAI</td>
+<td><span class="tag">3 黄</span></td>
+<td>方向一致但节奏有拉扯：1,000 亿美元意向书已放弃，改为约 300 亿美元股权投资；英伟达为 OpenAI 俄亥俄数据中心园区提供最高 1,050 亿美元的信用担保</td>
+<td>英伟达越来越多地"用资产负债表买需求"，前沿实验室一旦融资受阻，风险会直接回到英伟达</td>
+</tr>
+<tr>
+<td>英伟达 → World Labs</td>
+<td><span class="tag">3 黄</span></td>
+<td>历史上存在边界：英伟达旗下风投是 World Labs 的早期股东，交易完成后会拿到少量 AMD 股票；World Labs 的训练已从英伟达转向 AMD</td>
+<td>英伟达失去一个小客户，影响可以忽略</td>
+</tr>
+<tr>
+<td>谷歌 TPU、博通 → 两家共同的大客户</td>
+<td><span class="tag">2 红</span></td>
+<td>有结构性摩擦：TPU 开始对外销售，Anthropic 直接购买；博通为 OpenAI、Anthropic 做定制芯片，2028 财年两家合计约 15 吉瓦</td>
+<td>这是两家的共同对手，但对 AMD 伤害更大：它争的正是"想摆脱英伟达"的那笔预算</td>
+</tr>
+<tr>
+<td>台积电、SK 海力士 → 两家</td>
+<td><span class="tag">3 黄</span></td>
+<td>方向上合作，能不能调动对方资源不清楚：台积电先进封装给 AMD 的份额 2027 年升到约 18%（含 CPU）；但 SK 海力士 2027 年 HBM4 报价给英伟达约 3.0–3.3 美元每千兆比特，给 AMD 等其他客户约 3.7–4.1 美元</td>
+<td>AMD 拿得到货，但单位成本更高，毛利率更吃紧</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="23-amd">2.3 组织要素快照（AMD）</h3>
+<div class="org">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>要素</th>
+<th>当前事实</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>战略方向</strong></td>
+<td>①苏姿丰："Building the compute platforms for the next generation of AI requires a deep understanding of how models are evolving."（🏛️ AMD 公告，2026-09-28）<br>②"one company is going to have the killer chip. I don't think that's the world we're in today"（🎙️ TBPN 访谈，2026-07-23，第三方机器转写）<br>③2030 年 AI 加速器市场空间上调到约 1.4 万亿美元，服务器 CPU 市场空间从 600 亿（旧）上调到 1,200 亿（2026-05）再到 2,200 亿美元（2026-08）（🏛️ 电话会；💹 花旗会议纪要，2026-09-08）</td>
+<td>从"卖芯片和软件栈"走向"芯片＋整柜＋自有模型团队"，并把智能体 AI 带动的服务器 CPU 当作第二条增长腿</td>
+</tr>
+<tr>
+<td><strong>组织与人才</strong></td>
+<td>①World Labs 约 70 人，交割后李飞飞任执行副总裁兼首席科学家，直接向苏姿丰汇报（🏛️ AMD 公告，2026-09-28）<br>②AMD 高级副总裁 Vamsi Boppana：与前沿模型客户竞争"not the intent at all"，团队是"a horizontal models capability for the company"（📰 Stocktwits 转述分析师 Patrick Moorhead，2026-09-29）<br>③此前的 AI 收购：Nod.ai（2023）、Silo AI（2024，6.65 亿美元）、ZT Systems（2025，约 49 亿美元，保留约 1,000 名整柜设计工程师）、Taalas（2026-08）（🏛️ AMD 公告）</td>
+<td>用收购补齐"全栈"：编译器 → 模型团队 → 整柜系统 → 推理芯片 → 前沿模型实验室</td>
+</tr>
+<tr>
+<td><strong>产品节奏</strong></td>
+<td>①Helios"已投产，首批出货按计划在本季度晚些时候开始"（🏛️ 二季度电话会，2026-08-04）<br>②"despite the delays, Vera Rubin will still be the first deliver tokens at scale compared to MI455 Helios."（💹 SemiAnalysis，2026-07-24）<br>③MI500 与新 CPU 计划 2027 年下半年推出，三大锚定客户已参与联合设计（💹 花旗会议纪要，2026-09-08）</td>
+<td>从"按季度追赶"变成"一年一代"，但首个整柜产品的量产能力尚未证明</td>
+</tr>
+<tr>
+<td><strong>客户结构</strong></td>
+<td>①OpenAI 6 吉瓦（2025-10-06）、Meta 6 吉瓦（2026-02-24）、Anthropic 2 吉瓦（2026-07-22），另有微软 Azure 与甲骨文 5 万颗 MI450（🏛️ AMD 公告）<br>②10-Q："We depend on a small number of customers for a substantial portion of our business"（🏛️ 二季度 10-Q）<br>③管理层称 2027 年三大客户的需求预测都高于协议，约束在供给而非需求（💹 TMT Breakout 转述花旗会议，2026-09-08）</td>
+<td>从"没有大客户"变成"三家前沿实验室锚定"，但客户集中度和客户自研风险同步上升</td>
+</tr>
+<tr>
+<td><strong>考核与激励</strong></td>
+<td>①认股权证：OpenAI、Meta 各最多 1.6 亿股，行权价 0.01 美元；首批随首个 1 吉瓦部署归属，其余随采购扩至 6 吉瓦分批归属，并挂钩股价门槛（🏛️ AMD 公告，2025-10-06、2026-02-24）<br>②10-Q 披露：截至 2026-06-27，尚无任何认股权证股份归属或可行权（🏛️ 二季度 10-Q）<br>③SemiAnalysis 测算：股价到 600 美元时，OpenAI 与 Meta 每吉瓦各得约 160 亿美元返利，"a partner discount of ~105% to ~85% respectively"（💹 SemiAnalysis，2026-07-24）<br>④"Those warrants can create substantial economic dilution that is not fully reflected in headline non-GAAP EPS."（💹 TMT Breakout，2026-08-05）<br>⑤World Labs 交易全部用 AMD 股票支付，发股数按交割前 10 个交易日均价折算（🏛️ 8-K，2026-09-28）</td>
+<td>从"用产品换订单"变成"用股票换订单、用股票换团队"；股价越高，送出去的股票越值钱</td>
+</tr>
+<tr>
+<td><strong>财务结构</strong></td>
+<td>①二季度非 GAAP 毛利率 56%，四季度及 2027 年"略低于"56%；营业费用 2026、2027 年各增约 35%（🏛️ 电话会；💹 TMT Breakout，2026-09-08）<br>②现金及短期投资 131 亿美元、总债务 32 亿美元（🏛️ 二季度财报）<br>③为拉动需求提供数据中心租赁担保最高 41 亿美元、对 Anthropic 最多 50 亿美元投资承诺（🏛️ 二季度 10-Q）</td>
+<td>开始像英伟达一样用资产负债表拉需求，但相对自身规模更大</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<h2 id="3">3. 核心判断</h2>
+<div class="legend">
+<p>依据前的图标：🏛️ 官方材料（公告、财报、监管文件、行情数据）｜📰 新闻报道｜💹 卖方或独立机构研究｜🎙️ 播客。实线下划线是承重证据（拿掉它判断会变），虚线是佐证。</p>
+</div>
+<h3 id="31-amd-27">3.1 两家下一年的盈利几乎一样多，AMD 的股价却贵了 2.7 倍</h3>
+<p>按卖方一致预期，AMD 2027 年每股收益 15.58 美元，英伟达截至 2028 年 1 月的财年 15.68 美元，几乎相同；未来两年的盈利增幅也相近。但 <u class="key">9 月 28 日收盘价对应 AMD 约 39 倍、英伟达约 14.6 倍前瞻市盈率</u>。换成更乐观的买方口径（AMD 2027 年约 22 美元、2028 年约 30 美元），AMD 仍是 28 倍和 20 倍，而高盛给英伟达 2028 财年、2029 财年的预测对应只有 13.7 倍和 10 倍。</p>
+<p>市场给 AMD 溢价，反映的是对它份额上升、盈利持续加速的期待。问题在于起点：<u class="key">AMD 的相对市销率处在 2010 年以来的最高位（1.32 倍，历史中位数 0.30 倍），而历史上最贵的那三分之一时期，AMD 随后两年只有 7% 的时间跑赢英伟达</u>。这个统计只覆盖少数几段行情，不能当规律，但方向和卖方目标价一致：平均目标价隐含英伟达还有约 43% 的空间，AMD 只剩约 2%，约四成近期目标价已经低于现价。</p>
+<p>依据：</p>
+<ul>
+<li>🏛️ <span class="tag">事实</span> Yahoo Finance 一致预期（2026-09-29 抓取）：AMD 2027 年每股收益 15.58 美元（50 家，90 天内从 13.18 上调），英伟达 2028 财年 15.68 美元（53 家，90 天内从 12.71 上调）；平均目标价 AMD 618.5 美元、英伟达 327.7 美元。</li>
+<li>💹 <span class="tag">卖方预测</span> 华泰证券《超威半导体：关注 Helios 放量节奏与 ROCm 生态破局》（何翩翩，2026-08-05，扩展资源库，PDF 第 1 页）：<u class="minor">"估值已处于较高水平，一致预期 27E PE 约 33x，对比英伟达约 17x、博通约 23x。"</u></li>
+<li>💹 <span class="tag">卖方预测</span> 美银（2026-08-25，扩展资源库摘要）：按企业价值与自由现金流之比，英伟达 2027、2028 年约 18 倍和 15 倍，AMD 约 46 倍和 29 倍。</li>
+<li>💹 <span class="tag">作者判断</span> TMT Breakout《TMTB Morning Wrap》（2026-08-27，扩展资源库）：<u class="minor">"At approximately 13x FY28 earnings and potentially below 10x FY29 earnings, even a 10% post-FY28 earnings CAGR would mean stock should be higher than here."</u></li>
+<li>🏛️ <span class="tag">事实</span> SEC 季报收入数据与 Yahoo 行情（本报告计算，<code>research/quant_base_rates.py</code>）：AMD 市销率 24.0 倍，英伟达 18.2 倍；相对市销率 1.32 倍为 2010 年以来 197 个月度样本中的最高值。</li>
+</ul>
+<p><strong>为什么重要：</strong> 这道题比的是股价，不是谁的技术更好。两家的盈利增速相近时，结果主要由估值怎么变决定。AMD 要跑赢，必须让盈利大幅超出卖方预期，或者让市场两年后仍愿意为它付接近三倍于英伟达的倍数。</p>
+<h3 id="32-amd">3.2 AMD 的订单是真的，但股价已经按"订单顺利兑现"定价</h3>
+<p>AMD 基本面的进步是实打实的：二季度数据中心收入同比翻倍，服务器 CPU 连续五个季度创纪录；管理层说 2027 年数据中心收入将增长"well over 100%"，三大锚定客户的需求预测都超过协议。</p>
+<p>但 2027 年的增长几乎全靠 Helios，而 Helios 是 AMD 第一个整柜产品。SemiAnalysis 的供应链调研认为，<u class="key">Helios 正在缓慢爬坡，背板最多 85% 的链路需要中继芯片，每柜要用 550 多颗博通的信号中继芯片，可靠性也有问题</u>。当前这一代的推理成本也还落后：在一项实测中，要求第一个词元（token，模型输出的最小单位）在 2 秒内返回时，英伟达 B200 的推理成本比 MI355X 低约 47%。</p>
+<p>还要算上摊薄。OpenAI 和 Meta 的认股权证合计最多 3.2 亿股，约占股本的 19.6%。<u class="key">据报最后一档股价门槛是 600 美元，AMD 自 9 月 21 日起一直在这个价位之上，剩下的归属主要取决于部署进度</u>——部署越顺利，送出的股票越多。我们粗算两年内可能归属 3%–6.5% 的股本；World Labs 再加约 0.8%。与之相对，英伟达在两年里大约会回购 4% 的股本。</p>
+<p>依据：</p>
+<ul>
+<li>🏛️ <span class="tag">事实</span> AMD 二季度财报（2026-08-04）：收入 115.36 亿美元（+50%），数据中心 67.18 亿美元（+107%），非 GAAP 毛利率 56%，每股收益 1.66 美元；三季度指引 130 亿美元 ±3 亿。</li>
+<li>💹 <span class="tag">作者判断</span> SemiAnalysis《Can AMD break the CUDA Moat? AMD Advancing AI 2026》（2026-07-24，扩展资源库）：<u class="key">"AMD's first AI rack scale system, Helios, is going currently going through slow rack production ramp due to the lack of a cableless design compared to Rubin Oberon rack."</u></li>
+<li>💹 <span class="tag">作者判断</span> 同上：<u class="minor">"Note that just because AMD gains market share, that doesn't mean NVIDIA will do poorly. The pie is getting massive, and NVIDIA will continue to massively grow revenue."</u></li>
+<li>💹 <span class="tag">作者判断</span> SemiAnalysis《How GLM5.3 Sparse Attention Affects HBM Memory Usage》（2026-09-28，扩展资源库）：同等响应时间要求下，<u class="minor">"B200 still costs about 47% less"</u>（相对 MI355X）。</li>
+<li>🏛️ <span class="tag">事实</span> AMD 二季度 10-Q（截至 2026-06-27，附注"Warrants"）：尚无任何认股权证股份归属或可行权。</li>
+<li>💹 <span class="tag">作者判断</span> TMT Breakout（2026-08-05，扩展资源库）：<u class="minor">"Buyside numbers likely unchanged after yesterday for FY27/FY28 with most sitting in low 20s/$30, respectively."</u></li>
+</ul>
+<p><strong>为什么重要：</strong> AMD 的股价假设的是"Helios 按季度上台阶、2027 年盈利按买方口径兑现"。只要 Helios 晚一两个季度，2026 年四季度或 2027 年一季度就可能低于预期，市盈率从 39 倍向 25 倍收敛，就足以让 AMD 在两年里跑输——哪怕它的业务仍在高速增长。</p>
+<h3 id="33-amd">3.3 英伟达让出的份额，主要流向定制芯片，而不是 AMD</h3>
+<p>英伟达的份额确实会下降，但下降的部分有另一个去处。瑞银估计，2027 年定制芯片出货约 1,366 万颗，其中 TPU 约 900 万颗，已经超过英伟达 AI GPU 的约 880 万颗；AMD 约 195 万颗。摩根士丹利预计，<u class="key">定制芯片在新增算力容量中的占比将从 2025 年的 34% 升到 2028 年的 66%</u>。</p>
+<p>更麻烦的是客户重叠。OpenAI、Anthropic、Meta 既是 AMD 的三大锚定客户，也是定制芯片最积极的买家：博通称 OpenAI 的 Jalapeño 2027 财年约 1.3 吉瓦、2028 财年超过 5 吉瓦；Anthropic 在博通的部署 2027 财年 5 吉瓦、2028 财年再加 10 吉瓦。SemiAnalysis 实测 Jalapeño 的每美元产出与英伟达 Vera Rubin 几乎相同，并对 AMD 写下了最严厉的一句话。谷歌也在 10 月开源面向外部客户的 TPU 软件栈，AMD 作为"第二软件平台"的稀缺性会被稀释。</p>
+<p>依据：</p>
+<ul>
+<li>💹 <span class="tag">卖方预测</span> 瑞银 CoWoS 报告（2026-09-22，扩展资源库，PDF 第 1–3 页）：2027 年英伟达 AI GPU 约 880 万颗、AMD 加速器约 195 万颗、定制芯片合计约 1,366 万颗（TPU 约 900 万、Trainium 约 317 万）；台积电先进封装份额英伟达从 2025 年 65% 降到 2027 年 49%，AMD 从 6% 升到 18%（含 CPU）。</li>
+<li>💹 <span class="tag">卖方预测</span> 摩根士丹利（TMT Breakout 2026-09-08、09-14 转述，扩展资源库）：算力容量从 2025 年约 35 吉瓦增至 2028 年约 145 吉瓦，定制芯片在新增容量中的占比从 34% 升到 66%。</li>
+<li>💹 <span class="tag">作者判断</span> SemiAnalysis《OpenAI Jalapeño: Better Than Nvidia Blackwell》（2026-08-25，扩展资源库）：<u class="key">"Meanwhile at AMD, alarm bells should be going off… a custom silicon program has delivered in 9 months something that AMD has not been able to figure out in the 4 years since the ChatGPT moment. Namely, outperforming NVIDIA GPUs."</u></li>
+<li>💹 <span class="tag">来源陈述</span> 博通业绩会（TMT Breakout 2026-09-03 转述，扩展资源库）：Jalapeño "on track for 1.3GW in FY27 and more than 5GW across Jalapeño and its successor in FY28"。</li>
+<li>💹 <span class="tag">作者判断</span> Damnang《Can AMD Beat NVIDIA?》（2026-04-17，扩展资源库）：AMD 的结构性风险之一是 <u class="minor">"custom ASICs absorb the overflow first"</u>。</li>
+<li>💹 <span class="tag">作者判断</span> SemiAnalysis《TPU Inference Externalization Full Steam Ahead》（2026-09-07，扩展资源库）：外部可买的 TPU 在同口径推理中每美元性能比 B200/B300 最高好约 50%，并称 <u class="minor">"unlike AMD, which is still learning how to build a test-first software culture"</u>。</li>
+</ul>
+<p><strong>为什么重要：</strong> 看空英伟达的最强理由是"大客户正在摆脱它"，但这条理由并不自动变成看多 AMD 的理由。定制芯片压低的是英伟达的毛利率，挤掉的却是 AMD 作为"唯一替代者"的存在价值。</p>
+<h3 id="34-world-labs">3.4 World Labs 买到的是一个"自家芯片的重度用户"，不是一门生意</h3>
+<p>这笔交易的公开信息里，没有收入、没有利润、没有变现目标。AMD 的 8-K 只按"未注册发股"申报，没有附上合并协议，说明 AMD 自己也认为它对公司不构成重大交易。82 亿美元比 World Labs 2 月融资时报道的约 50 亿美元估值高约 64%，折合每位员工超过 1 亿美元。</p>
+<p>它真正的价值在两处。第一，<u class="key">World Labs 从 2025 年起就在 AMD GPU 上做训练和推理优化，收购后训练将以 AMD 自有设施为主</u>。SemiAnalysis 批评 AMD 最缺的，恰恰是稳定的内部集群和一个重度使用自家软件栈的第一方团队。第二，它补上了一个能对标英伟达 Cosmos 的开放世界模型，让 AMD 在物理 AI 的叙事上从"无"到"有"。</p>
+<p>但英伟达在这里并不是空白。它 2026 年 5 月发布了开放的 Cosmos 3 世界模型，旁边还有 Omniverse 仿真平台、GR00T 人形机器人模型、Jetson 边缘芯片，亚马逊已宣布整套采用；9 月又以 129 亿美元收购开源模型平台 Hugging Face。仅 Hugging Face（2026 年 9 月）与 Groq（2025 年 12 月）两笔，英伟达就花了约 330 亿美元，是 AMD 这笔的约 4 倍。</p>
+<p>市场的反应也很平淡。公告后到 9 月 29 日美东中午，AMD 相对英伟达大致持平；9 月 28 日 AMD 下跌 3.6% 发生在公告之前，起因是服务器 CPU 概念股集体回吐，不少二手报道把它错归到这笔收购上。</p>
+<p>依据：</p>
+<ul>
+<li>🏛️ <span class="tag">事实</span> AMD 8-K（2026-09-28）：World Labs 全部股权，约 82 亿美元，全部以 AMD 普通股支付，按交割前 10 个交易日成交量加权均价折算股数；按 607.87 美元约 1,349 万股，占 16.32 亿股的 0.83%。</li>
+<li>🏛️ <span class="tag">事实</span> World Labs 官方博客（2026-09-28）：<u class="key">"We began a deep technical partnership with AMD last year, starting with model training and inference optimization on AMD GPUs"</u>。</li>
+<li>🏛️ <span class="tag">来源陈述</span> 李飞飞 Substack（2026-09-28）：<u class="minor">"Without having a focused hardware effort, AI is hobbled in efficiency. And scale."</u></li>
+<li>💹 <span class="tag">卖方预测</span> StoneX（买入，目标价 685 美元，TMT Breakout 2026-09-29 转述，扩展资源库）：<u class="key">"the deal narrows AMD's strategic gap with NVDA over time but is not a near-term moat-closing event"</u>。</li>
+<li>💹 <span class="tag">卖方预测</span> Stifel（买入，同上转述）：价值在于 <u class="minor">"a more credible open-model alternative to NVDA's Cosmos stack, rather than near-term P&amp;L contribution"</u>。</li>
+<li>🏛️ <span class="tag">事实</span> 英伟达新闻稿（2026-05-31）发布 Cosmos 3；英伟达博客（2026-09-03）宣布以 129.303 亿美元收购 Hugging Face。</li>
+<li>📰 <span class="tag">来源陈述</span> TechCrunch（Tim Fernholz，2026-09-28）：<u class="minor">"While Nvidia already has a suite of open-weight world models like Cosmos, AMD has only offered text- and video-based models to the public."</u></li>
+</ul>
+<p><strong>为什么重要：</strong> 即使把这笔交易全部当作打水漂，AMD 跑赢的概率也只下降约 0.5 个百分点；即使它完全成功，带来的收益也主要落在结算日之后。它不是这道题的胜负手。</p>
+<h3 id="35-amd">3.5 两年后的竞争力：AMD 是稳固的第二，英伟达从"卖卡"变成"卖整座工厂，外加担保"</h3>
+<p><strong>AMD 两年后最可能的位置</strong>，是稳固的第二家商用 GPU 与整柜供应商，同时是 x86 服务器 CPU 份额领先者。它的 GPU 收入基数小，2026 年约 170 亿美元，卖方对 2027 年的估计在 410 亿到 485 亿美元之间，瑞银估 2028 年约 610 亿美元；按金额约占 AI 加速器支出的 6%–9%。服务器 CPU 是英伟达没有的第二条腿：AMD 的 x86 服务器 CPU 收入份额已到约 41%，管理层把 2030 年市场空间提到 2,200 亿美元。</p>
+<p>它的硬约束有三条，World Labs 一条也不改变：HBM 单价比英伟达高约两成、用量又多一半，内存涨价时毛利率受压更重；首个整柜系统的量产能力尚未证明；分布式、长上下文的推理软件仍有差距。</p>
+<p><strong>英伟达两年后</strong>大概率仍是唯一能交付"整座 AI 工厂"的供应商：GPU、CPU、网络、整柜、推理加速器（Groq）一起卖，每吉瓦能拿到的收入从 Hopper 的约 180 亿美元升到 Vera Rubin 的约 400 亿美元。但它的风险在变形：<u class="key">英伟达的表外承诺与担保已达约 5,300 亿美元，管理层自己说明年约四分之一的业务来自需要英伟达资产负债表支持的 AI 实验室</u>。毛利率 72%–73% 大概率是新的中枢。结算窗口的最后一年，Feynman 新架构要同时引入四项新技术，定制芯片第二代也陆续放量，这是英伟达风险最集中的一年。</p>
+<p>依据：</p>
+<ul>
+<li>🏛️ <span class="tag">事实</span> 英伟达 2027 财年二季度财报与电话会（2026-08-26）：收入 962.21 亿美元（+106%），数据中心 890.23 亿美元；三季度指引 1,080 亿美元；每吉瓦收入 Hopper 约 180 亿、Blackwell 约 250 亿、Vera Rubin 约 400 亿美元。</li>
+<li>🏛️ <span class="tag">来源陈述</span> 英伟达 CFO Colette Kress（同上电话会）：<u class="minor">"Customers' forecasts point to our growth doubling next year. However, as I mentioned earlier, we expect to grow approximately 70% as we are supply-constrained."</u></li>
+<li>💹 <span class="tag">作者判断</span> SemiAnalysis《Nvidia's Backstop Universe – Heads I Win, Tails Who Loses?》（2026-09-11，扩展资源库）：表外义务合计约 5,300 亿美元（上季约 1,840 亿），<u class="key">"The real risk to Nvidia is not from a cyclical downturn in AI demand relative to expectations, instead it is a scenario where competing chips take leadership, and Nvidia enters a spiral where it must price down to hold share."</u></li>
+<li>💹 <span class="tag">作者判断</span> SemiAnalysis《Korea's Trillion-Dollar Sovereign AI Investment》（2026-09-01，扩展资源库）：2027 年 HBM4 报价英伟达约 3.0–3.3 美元每千兆比特，AMD 等其他一线客户约 3.7–4.1 美元。</li>
+<li>📰 <span class="tag">事实</span> The Register（Dan Robinson，2026-08-21，转引 Mercury Research）：二季度 AMD 服务器处理器份额 34.5%，只算 Xeon 与 EPYC 为 46.4%；Damnang（2026-04-17）转引 2025 年四季度 x86 服务器 CPU 收入份额 41.3%。</li>
+<li>💹 <span class="tag">作者判断</span> Stratechery《Nvidia Earnings, Dollars Per Gigawatt, Open and Hugging Face》（Ben Thompson，2026-09-01，扩展资源库）：<u class="minor">"As long as the world is fragmented Nvidia wins; the only way its margins come under pressure is if there are a limited number of buyers who have the means to take only part of Nvidia's stack or replace them completely."</u></li>
+</ul>
+<p><strong>为什么重要：</strong> 两家都会变强，但变强的方式不同。AMD 的上限被成本和执行卡住，英伟达的下限被客户集中和担保链条考验。两年内，前者更可能先暴露。</p>
+<h3 id="36">3.6 芯片格局：颗数上定制芯片过半，金额上英伟达仍占三分之二；世界模型改变的是需求形状，不是规模</h3>
+<p>同一个"份额"有四种算法，结论差别很大。按颗数，定制芯片 2027 年约占 56%，英伟达约 36%，AMD 约 8%；按先进封装产能，英伟达 2027 年约 49%；按金额，英伟达到 2028 年仍有约三分之二，因为它一颗芯片的售价远高于定制芯片。我们把卖方数字拼起来，<u class="key">2028 年按金额估计英伟达约 63%–72%，定制芯片约 22%–30%，AMD 约 6%–9%</u>（口径不完全可比，见附录）。</p>
+<p>这笔交易放大的是一个双向趋势：芯片厂在向上做模型（英伟达的 Cosmos、Nemotron、Hugging Face，AMD 的 Silo AI、World Labs），模型公司在向下做芯片（OpenAI 的 Jalapeño、Anthropic 深度参与 TPU 与 Trainium）。协同设计的价值，谁离模型近谁拿走。</p>
+<p>世界模型本身到 2028 年仍是小负载。英伟达 Cosmos 3 的预训练只用了 1,024 到 2,048 颗 GB200，前沿大语言模型的训练集群在十万卡以上。我们估计 2028 年世界模型、视频生成和机器人训练合计只占加速器支出的 3%–8%（低置信度）。但它的形状不同：<u class="minor">单位输出更耗算力、更吃显存带宽、模型架构变化快</u>，这类负载更适合可编程的通用 GPU，而不是为固定模型定制的芯片；HBM 容量更大的 MI455X（432GB，Rubin 为 288GB）在这里有结构性顺风。</p>
+<p>依据：</p>
+<ul>
+<li>💹 <span class="tag">卖方预测</span> 伯恩斯坦（2026-09-24，扩展资源库中文摘要）：定制芯片市场 2026、2027、2028 年分别为 500–700 亿、1,300–1,500 亿、2,500–3,000 亿美元（含 HBM 价值）。</li>
+<li>🏛️ <span class="tag">来源陈述</span> World Labs 官方博客（2025-10-16）：<u class="key">"generative World Models will be very computationally demanding, much more so than LLMs today."</u></li>
+<li>🏛️ <span class="tag">事实</span> 英伟达 Cosmos 3 论文（arXiv 2606.02800）：Nano 版在 1,024 颗 GB200 上预训练，Super 版在 2,048 颗 GB200 上预训练。</li>
+<li>💹 <span class="tag">作者判断</span> Citrini Research《Robotics Tipping Point: A Citrini Field Trip》（2026-09-16，扩展资源库）：<u class="minor">"The world-model layer is less commoditized and more strategically contested than the VLM layer. NVIDIA's Cosmos is open-sourced, with strategic intent to spur innovation across an industry that largely relies on its chips."</u></li>
+<li>💹 <span class="tag">卖方预测</span> 伯恩斯坦人形机器人报告（2026-09-03，扩展资源库摘要）：2026 年最好的世界模型在综合"物理理解"评估中只得 22%。</li>
+<li>📰 <span class="tag">事实</span> Calcalist（2025-12-10）：世界模型公司 Decart 从英伟达 GPU 迁到亚马逊 Trainium3，帧率从 26 升到约 101——说明这类负载也能迁移，并不锁定在 CUDA 上。</li>
+</ul>
+<p><strong>为什么重要：</strong> 客户的第三问是"对上游算力芯片格局有什么影响"。答案是：这笔交易不改变 2028 年前的份额走势，但它是一个信号——算力竞争已从"单卡性能"扩展到"模型、软件、系统一起设计"，而这场竞争里，自己有模型的超大规模云厂商和前沿实验室，比两家商用芯片厂站得更近。</p>
+<h3 id="37-amd">3.7 即使两家的预期回报一样，波动更大的 AMD 也只有约四成胜算</h3>
+<p>这是很多人忽略的一点。期权市场给 AMD 的两年隐含波动率约 57%，英伟达约 39%。<u class="key">如果市场对两家的预期回报完全相同，AMD 胜出的概率约为 40%，而不是 50%</u>：波动越大，平均结果被少数大涨拉高，"中间那个结局"反而更差。要让这场比赛变成五五开，市场需要预期 AMD 每年比英伟达多赚约 8 个百分点。</p>
+<p>历史统计同样偏向英伟达，但误差很大。1999 年英伟达上市以来的滚动两年窗口里，AMD 只有 29.5% 的时间跑赢；可这些窗口大量重叠，真正独立的两年段只有十来段。如果只看与本题同样从 9 月 28 日起算、互不重叠的 26 段，AMD 赢了 12 段（46%）。另一个特点是胜负幅度不对称：AMD 赢时多是险胜，英伟达赢时常常是大胜。</p>
+<p>两个条件信号都偏向英伟达：过去 12 个月，AMD 相对英伟达的价值比涨到了原来的 2.9 倍，处在 2000 年以来的第 98 百分位；历史上达到这个程度只有三段（2004、2010、2019 年），AMD 随后两年大多跑输或基本持平，以这些日子为起点，最终跑赢的只占约 18%。</p>
+<p>依据：</p>
+<ul>
+<li>🏛️ <span class="tag">事实</span> Yahoo Finance 期权报价（2026-09-29 美东盘中，本报告用买卖价中点反解）：插值到 2028-09-28，AMD 平值隐含波动率 56.6%，英伟达 39.1%。</li>
+<li>🏛️ <span class="tag">事实</span> Yahoo 复权日线（1999-01 至 2026-09-28，本报告计算）：滚动两年窗口 AMD 胜率 1999 年起 29.5%、2010 年起 21.1%、2015 年起 31.1%、2020 年起 8.5%；与结算日对齐的不重叠窗口 12/26。</li>
+<li>🏛️ <span class="tag">事实</span> 同上：5 年日度数据下，两家相对标普 500 的贝塔（对大盘波动的敏感度）为 2.17 和 2.16，几乎相同；所以"风险更高就该有更高回报"并不能替 AMD 补上这段差距。</li>
+</ul>
+<p><strong>为什么重要：</strong> 这给出了本题的中性起点：约 40%。第 3.1 到 3.6 节讨论的是，现有证据应该把这个起点往哪边推、推多少。我们的结论是略往下推，落在 38%。</p>
+<h2 id="4">4. 结算口径</h2>
+<h3 id="41-yes">4.1 什么算 YES</h3>
+<p>从 <strong>2026-09-28 常规交易时段收盘</strong> 到 <strong>2028-09-28 常规交易时段收盘</strong>，<strong>AMD（纳斯达克：AMD）的股东总回报严格高于英伟达（纳斯达克：NVDA）的股东总回报</strong>，即结算 YES；否则 NO。</p>
+<ul>
+<li>股东总回报＝股价变化加上再投资的现金股息，按拆股调整。9-28 收盘价：AMD 607.87 美元，英伟达 228.86 美元（Yahoo Finance）。</li>
+<li>结算数据：Nasdaq、Yahoo Finance 或 CRSP 的拆股和股息调整后收盘价。英伟达每季度每股派息 0.25 美元，两年合计约占股价 0.9%；AMD 不派息。</li>
+<li>任何一方在截止日前被收购、退市或合并，按最后成交价加所获对价计算。</li>
+<li>恰好相等算 NO。</li>
+</ul>
+<p><strong>不算 YES：</strong> 市值超过英伟达、盈利增速快于英伟达、AI 加速器份额上升、World Labs 产品成功。这些都是研究证据，不是结算指标。</p>
+<h3 id="42">4.2 什么算"收购后"（起点的定义）</h3>
+<p>"收购后"按<strong>宣布日</strong>计，不按交割日计：AMD 在 2026-09-28 美东 16:05 收盘后发布公告，所以 9-28 收盘价是公告前的最后一个价格，也是结算起点。</p>
+<ul>
+<li>窗口固定为宣布后两年，与交割是否完成无关；交易被监管否决或终止，仍按两只股票的回报结算。</li>
+<li>不用"交割后两年"，是因为交割日期未定（预计 2026 年底前），而且交割本身有不确定性；以宣布日为起点，到期时一定能判定。交割前后的股价反应，也属于"收购后"这件事的一部分。</li>
+</ul>
+<h3 id="43">4.3 什么算"表现优于"</h3>
+<p>只比较两家的<strong>相对</strong>表现，不问两只股票涨还是跌。两家都下跌、AMD 跌得少，同样算 YES。</p>
+<ul>
+<li>用总回报而不用价格涨幅，是为了不让英伟达的股息影响结算；两者只差约 0.9 个百分点，对概率的影响约 0.5 个百分点。</li>
+<li>不要求领先的幅度。第 1 节另给了"领先 20% 以上"等参考数字，帮助理解结果的分布。</li>
+</ul>
+<h2 id="5">5. 情景与路径</h2>
+<h3 id="51">5.1 互斥路径</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>路径</th>
+<th>可能性</th>
+<th>怎么走到这里</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>两家都兑现，AMD 估值向英伟达靠拢</strong></td>
+<td>最可能 <strong>30%</strong></td>
+<td>AI 资本开支 2027 年继续高增长、2028 年放缓；英伟达按指引交付，AMD 的 Helios 晚一两个季度但最终放量；AMD 盈利逐步追上预期，市盈率从 39 倍回落到 25 倍左右，英伟达维持 15 倍上下</td>
+<td>NO</td>
+</tr>
+<tr>
+<td><strong>AMD 真正成为第二极</strong></td>
+<td>次可能 <strong>17%</strong></td>
+<td>Helios 2027 年上半年顺利放量，Anthropic 首个 1 吉瓦按时上线，MI500 拿到第四、第五个大客户；服务器 CPU 继续高增长，2027 年每股收益 20 美元以上、2028 年 30 美元以上，市场维持 30 倍</td>
+<td>YES</td>
+</tr>
+<tr>
+<td><strong>2028 年资本开支减速，高估值一方先跌</strong></td>
+<td><strong>15%</strong></td>
+<td>超大规模云厂商资本开支增速降到约一成，AI 实验室融资变难；两只股票都跌，估值更高、波动更大的 AMD 跌得更多</td>
+<td>NO</td>
+</tr>
+<tr>
+<td><strong>Helios 量产不顺，或定制芯片抢走"第二供应商"的份额</strong></td>
+<td><strong>12%</strong></td>
+<td>背板可靠性问题拖到 2027 年下半年；OpenAI、Meta 的采购更多转向自研芯片和 TPU；认股权证照常归属，收入却不及预期</td>
+<td>NO</td>
+</tr>
+<tr>
+<td><strong>英伟达自身失速</strong></td>
+<td><strong>10%</strong></td>
+<td>Jalapeño、TPU 在 2027 年大规模部署，英伟达为守份额降价，毛利率跌破 70%；或某家前沿实验室融资受阻，触发英伟达的担保；英伟达估值进一步收缩，AMD 相对守住</td>
+<td>YES</td>
+</tr>
+<tr>
+<td><strong>AI 行情继续加速，弹性更大的一方跑得更快</strong></td>
+<td><strong>8%</strong></td>
+<td>利率见顶回落，AI 应用收入超预期，资金追逐高增长；AMD 更高的波动和份额上升叙事让它涨得更多</td>
+<td>YES</td>
+</tr>
+<tr>
+<td><strong>其他偏向英伟达的意外</strong></td>
+<td><strong>5%</strong></td>
+<td>认股权证加速归属、AMD 关键人物流失、中国放开高端芯片出口且英伟达受益更多等</td>
+<td>NO</td>
+</tr>
+<tr>
+<td><strong>其他偏向 AMD 的意外</strong></td>
+<td><strong>3%</strong></td>
+<td>英伟达的 Groq 交易被反垄断机构处罚并限制、英伟达遭遇重大产品召回等</td>
+<td>YES</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td><strong>100%</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p>严格口径的 YES ＝ "AMD 真正成为第二极" ＋ "英伟达自身失速" ＋ "AI 行情继续加速" ＋ "其他偏向 AMD 的意外" ＝ 17% ＋ 10% ＋ 8% ＋ 3% ＝ <strong>38%</strong>。</p>
+<h3 id="52">5.2 最容易误判的情景</h3>
+<p><strong>把"AMD 业务很好"读成"AMD 股价会跑赢"。</strong> AMD 的收入、订单、服务器 CPU 份额都在创纪录，这些都是真的。但股价已经按买方更高的预期定价：卖方平均目标价只比现价高约 2%，约四成近期目标价已经低于现价。</p>
+<p><strong>把"英伟达份额下降"读成"AMD 份额上升"。</strong> 英伟达让出的份额，按摩根士丹利和瑞银的数字，主要流向 TPU、Trainium、Jalapeño。AMD 与定制芯片争的是同一批大客户。</p>
+<p><strong>把"收购了一家明星模型公司"读成"AMD 要和英伟达在模型层正面竞争"。</strong> 这笔交易只占 AMD 约 0.8% 的股本，市场反应平淡；AMD 高管也明确说无意与前沿模型客户竞争。英伟达在世界模型和物理 AI 上的布局更早、更完整。</p>
+<p><strong>把 9 月 28 日 AMD 下跌 3.6% 读成市场否定这笔交易。</strong> 公告在收盘后发布，当天的下跌来自服务器 CPU 概念股集体回吐（英特尔 −5.5%、Arm −8%）。</p>
+<h3 id="53">5.3 最强反方</h3>
+<p><strong>"AMD 是唯一同时拥有 x86 服务器 CPU、整柜 GPU 和三家前沿实验室锚定客户的公司，它的盈利会远超卖方预期。"</strong></p>
+<p>完整逻辑是：智能体 AI 让 CPU 和 GPU 同时放量，AMD 服务器 CPU 2027 年增长 70% 以上，GPU 收入从 2026 年约 170 亿美元翻到 2027 年 400 亿美元以上，华泰预测 2028 年每股收益 25 美元，Piper 给出 2030 年约 54 美元；认股权证把大客户变成股东，客户有动力推 ROCm；World Labs 让 AMD 第一次有了在自家芯片上训练前沿模型的团队。同时英伟达的最大客户正在摆脱它，担保链条让它背上 5,300 亿美元的表外义务，一旦定制芯片取得领先，它可能陷入"降价保份额"的螺旋。</p>
+<p><strong>它错在哪里：</strong> 它把 AMD 最好的情形当成基准，却没有给这个情形打折。即使采用华泰 2028 年 25 美元的每股收益，今天的股价也对应约 24 倍；同一年高盛给英伟达的预测对应约 10 倍。AMD 必须在盈利上远超所有卖方预测，同时让市场两年后仍愿意付高出一倍多的倍数，两件事都要成立。</p>
+<p><strong>它还漏了一件事：</strong> 行业周期。高盛、摩根士丹利都预计 2028 年超大规模云厂商的资本开支增速降到约一成。那一年正好是结算窗口的最后一年，历史上这种时候，估值更高的一方先跌、跌得更多。</p>
+<p><strong>它可能对在哪里：</strong> 英伟达的风险确实在变大，而且集中在窗口末段。如果 2027 年下半年 Jalapeño 和外销 TPU 大规模上线，英伟达为守份额降价，今天 14.6 倍的市盈率也未必是底。那种情况下，AMD 只要守住大部分溢价，就能胜出。这是 38% 里最重要的一块。</p>
+<h2 id="6">6. 关键证据表</h2>
+<div class="legend">
+<p>来源层级：<strong>A</strong> ＝ 公司公告、监管文件、交易所与行情数据；<strong>B</strong> ＝ 有署名的媒体报道、机构研究或当事人公开发言；<strong>C</strong> ＝ 转述、聚合或二手摘录。"倾向"一栏指向 YES（AMD 跑赢）或 NO。</p>
+</div>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>事实或说法</th>
+<th>倾向</th>
+<th>来源、日期、链接</th>
+<th>层级与可靠性</th>
+<th>它支撑哪条路径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AMD 以约 82 亿美元股票收购 World Labs，9-28 美东 16:05 收盘后公告，年底前交割</td>
+<td>—</td>
+<td>🏛️ <a href="https://ir.amd.com/news-events/press-releases/detail/1299/amd-to-acquire-world-labs-to-advance-the-future-of-ai-compute">AMD 公告</a>，2026-09-28</td>
+<td>A｜事实</td>
+<td>结算起点</td>
+</tr>
+<tr>
+<td>按交割前 10 日均价折算股数；按 607.87 美元约 1,349 万股，占 0.83%；未附合并协议</td>
+<td>NO（很小）</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/0000002488/000000248826000182/amd-20260926.htm">AMD 8-K</a>，2026-09-28</td>
+<td>A｜事实</td>
+<td>其他偏向英伟达的意外</td>
+</tr>
+<tr>
+<td>9-28 收盘 AMD 607.87、英伟达 228.86；9-29 盘中 AMD 约 +0.8%、英伟达约 +0.6%</td>
+<td>中性</td>
+<td>🏛️ Yahoo Finance 行情接口，2026-09-29</td>
+<td>A｜事实</td>
+<td>结算基准</td>
+</tr>
+<tr>
+<td>9-28 AMD 下跌来自服务器 CPU 概念股回吐，发生在公告之前</td>
+<td>中性</td>
+<td>💹 TMT Breakout《TMTB EOD Wrap》，2026-09-28，扩展资源库</td>
+<td>B｜作者转述市场事实</td>
+<td>—</td>
+</tr>
+<tr>
+<td>下一年每股收益一致预期：AMD 15.58 美元、英伟达 15.68 美元；前瞻市盈率约 39 倍对 14.6 倍</td>
+<td>NO</td>
+<td>🏛️ Yahoo Finance 一致预期，2026-09-29</td>
+<td>B｜市场数据</td>
+<td>两家都兑现，AMD 估值靠拢</td>
+</tr>
+<tr>
+<td>卖方平均目标价隐含英伟达 +43%、AMD +2%</td>
+<td>NO</td>
+<td>🏛️ Yahoo Finance，2026-09-29</td>
+<td>B｜卖方预测</td>
+<td>两家都兑现，AMD 估值靠拢</td>
+</tr>
+<tr>
+<td>华泰：AMD 2027/2028 年每股收益 18.28/25.03 美元；"一致预期 27E PE 约 33x，对比英伟达约 17x"</td>
+<td>NO</td>
+<td>💹 华泰证券（何翩翩），2026-08-05，扩展资源库 PDF 第 1 页</td>
+<td>B｜卖方预测</td>
+<td>两家都兑现，AMD 估值靠拢</td>
+</tr>
+<tr>
+<td>高盛：英伟达 2028/2029 财年每股收益 16.70/23.00 美元</td>
+<td>NO</td>
+<td>💹 高盛，2026-09-10，扩展资源库摘要</td>
+<td>B｜卖方预测</td>
+<td>两家都兑现，AMD 估值靠拢</td>
+</tr>
+<tr>
+<td>相对市销率 1.32 倍，2010 年以来最高；最贵三分之一时期 AMD 两年胜率 7%</td>
+<td>NO</td>
+<td>🏛️ SEC 收入数据＋Yahoo 行情，本报告计算</td>
+<td>A｜事实（样本少）</td>
+<td>两家都兑现，AMD 估值靠拢</td>
+</tr>
+<tr>
+<td>AMD 二季度数据中心收入 +107%；2027 年数据中心"well over 100%"</td>
+<td>YES</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/2488/000000248826000121/q22026991.htm">AMD 二季度财报</a>，2026-08-04；电话会</td>
+<td>A｜事实</td>
+<td>AMD 真正成为第二极</td>
+</tr>
+<tr>
+<td>OpenAI 6 吉瓦、Meta 6 吉瓦、Anthropic 2 吉瓦</td>
+<td>YES</td>
+<td>🏛️ AMD 公告，2025-10-06、2026-02-24、2026-07-22</td>
+<td>A｜事实</td>
+<td>AMD 真正成为第二极</td>
+</tr>
+<tr>
+<td>Helios 缓慢爬坡；Vera Rubin 先于 Helios 规模交付</td>
+<td>NO</td>
+<td>💹 SemiAnalysis，2026-07-24，扩展资源库</td>
+<td>B｜作者判断（有供应链渠道）</td>
+<td>Helios 量产不顺</td>
+</tr>
+<tr>
+<td>认股权证合计最多 3.2 亿股（19.6%），截至 6 月底未归属；最后股价门槛据报 600 美元</td>
+<td>NO</td>
+<td>🏛️ <a href="https://ir.amd.com/financial-information/sec-filings/content/0000002488-26-000123/0000002488-26-000123.pdf">AMD 二季度 10-Q</a> 第 16–17 页；💹 SemiAnalysis 2026-07-24</td>
+<td>A＋B｜事实＋作者判断</td>
+<td>其他偏向英伟达的意外</td>
+</tr>
+<tr>
+<td>股价 600 美元时，认股权证相当于给 OpenAI、Meta 约 105%、85% 的返利</td>
+<td>NO</td>
+<td>💹 SemiAnalysis，2026-07-24，扩展资源库</td>
+<td>B｜作者测算</td>
+<td>Helios 量产不顺</td>
+</tr>
+<tr>
+<td>英伟达 2027 财年二季度收入 962 亿美元（+106%），下一财年约 +70%，受供给限制</td>
+<td>NO</td>
+<td>🏛️ <a href="https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-second-quarter-fiscal-2027">英伟达财报</a>，2026-08-26</td>
+<td>A｜事实</td>
+<td>两家都兑现，AMD 估值靠拢</td>
+</tr>
+<tr>
+<td>英伟达毛利率四季度 71%–72%，下一财年 72%–73%</td>
+<td>YES（小）</td>
+<td>🏛️ 英伟达电话会，2026-08-26</td>
+<td>A｜事实</td>
+<td>英伟达自身失速</td>
+</tr>
+<tr>
+<td>新增 1,500 亿美元回购，剩余 2,350 亿美元；季度股息 0.25 美元</td>
+<td>NO</td>
+<td>🏛️ 英伟达公告，2026-09-28；10-Q，2026-08-26</td>
+<td>A｜事实</td>
+<td>两家都兑现，AMD 估值靠拢</td>
+</tr>
+<tr>
+<td>英伟达表外承诺与担保约 5,300 亿美元；约四分之一业务需资产负债表支持</td>
+<td>YES</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/1045810/000104581026000073/q2fy27cfocommentary.htm">英伟达 CFO 评述</a>，2026-08-26；💹 SemiAnalysis，2026-09-11</td>
+<td>A＋B｜事实＋作者判断</td>
+<td>英伟达自身失速</td>
+</tr>
+<tr>
+<td>2027 年颗数：英伟达约 880 万、AMD 约 195 万、定制芯片约 1,366 万</td>
+<td>NO</td>
+<td>💹 瑞银，2026-09-22，扩展资源库 PDF 第 1–3 页</td>
+<td>B｜卖方预测</td>
+<td>Helios 量产不顺</td>
+</tr>
+<tr>
+<td>定制芯片在新增算力中的占比 34% → 66%（2025 → 2028）</td>
+<td>NO</td>
+<td>💹 摩根士丹利，经 TMT Breakout 2026-09-08、09-14 转述</td>
+<td>C｜卖方预测（二手）</td>
+<td>Helios 量产不顺</td>
+</tr>
+<tr>
+<td>Jalapeño 每美元产出与 Vera Rubin 几乎相同；"alarm bells should be going off"（针对 AMD）</td>
+<td>NO</td>
+<td>💹 SemiAnalysis，2026-08-25，扩展资源库</td>
+<td>B｜作者判断（数据由 OpenAI 提供，现场复核）</td>
+<td>Helios 量产不顺；英伟达自身失速</td>
+</tr>
+<tr>
+<td>博通：Jalapeño 2027 财年约 1.3 吉瓦、2028 财年超过 5 吉瓦</td>
+<td>NO</td>
+<td>💹 TMT Breakout 转述博通业绩会，2026-09-03</td>
+<td>C｜来源陈述（二手）</td>
+<td>Helios 量产不顺</td>
+</tr>
+<tr>
+<td>超大规模云厂商资本开支增速 2027 年约 54%、2028 年约 12%</td>
+<td>NO</td>
+<td>💹 高盛，2026-09-24，扩展资源库摘要；摩根士丹利，经 TMT Breakout 转述</td>
+<td>B｜卖方预测</td>
+<td>2028 年资本开支减速</td>
+</tr>
+<tr>
+<td>HBM4 报价英伟达约 3.0–3.3、AMD 约 3.7–4.1 美元每千兆比特</td>
+<td>NO</td>
+<td>💹 SemiAnalysis，2026-09-01，扩展资源库</td>
+<td>B｜作者判断（渠道信息）</td>
+<td>Helios 量产不顺</td>
+</tr>
+<tr>
+<td>B200 比 MI355X 推理成本低约 47%（同等响应时间要求）</td>
+<td>NO</td>
+<td>💹 SemiAnalysis，2026-09-28，扩展资源库</td>
+<td>B｜作者实测</td>
+<td>Helios 量产不顺</td>
+</tr>
+<tr>
+<td>World Labs 自 2025 年起在 AMD GPU 上训练与推理</td>
+<td>YES（小）</td>
+<td>🏛️ <a href="https://www.worldlabs.ai/blog/amd-announcement">World Labs 博客</a>，2026-09-28</td>
+<td>A｜事实</td>
+<td>AMD 真正成为第二极</td>
+</tr>
+<tr>
+<td>StoneX："not a near-term moat-closing event"；Stifel："rather than near-term P&amp;L contribution"</td>
+<td>中性</td>
+<td>💹 TMT Breakout 转述，2026-09-29，扩展资源库</td>
+<td>C｜卖方判断（二手）</td>
+<td>—</td>
+</tr>
+<tr>
+<td>AMD 高管：与前沿模型客户竞争"not the intent at all"</td>
+<td>中性</td>
+<td>📰 <a href="https://finance.yahoo.com/markets/stocks/articles/amd-stock-dips-overnight-8-045010112.html">Stocktwits 经 Yahoo 转载</a>，2026-09-29</td>
+<td>C｜来源陈述（二手转述）</td>
+<td>—</td>
+</tr>
+<tr>
+<td>英伟达 Cosmos 3（2026-05-31）；以 129.3 亿美元收购 Hugging Face（2026-09-03）</td>
+<td>NO（小）</td>
+<td>🏛️ <a href="https://nvidianews.nvidia.com/news/nvidia-launches-cosmos-3-the-open-frontier-foundation-model-for-physical-ai">英伟达新闻稿</a>；英伟达博客，2026-09-03</td>
+<td>A｜事实</td>
+<td>两家都兑现，AMD 估值靠拢</td>
+</tr>
+<tr>
+<td>两年隐含波动率 AMD 56.6%、英伟达 39.1%；同等预期回报下 AMD 胜率约 40%</td>
+<td>NO</td>
+<td>🏛️ Yahoo 期权报价，2026-09-29，本报告计算</td>
+<td>A｜事实＋计算</td>
+<td>全部路径的中性起点</td>
+</tr>
+<tr>
+<td>滚动两年窗口 AMD 胜率 29.5%（1999 年起）；与结算日对齐的不重叠窗口 12/26</td>
+<td>NO（弱）</td>
+<td>🏛️ Yahoo 复权日线，本报告计算</td>
+<td>A｜事实（样本少）</td>
+<td>全部路径的中性起点</td>
+</tr>
+<tr>
+<td>美联储 9-16 加息到 3.75%–4.00%；10 年期美债约 5.25%</td>
+<td>NO（小）</td>
+<td>🏛️ 美联储 FOMC 声明，2026-09-16；💹 TMT Breakout，2026-09-28</td>
+<td>A＋B｜事实</td>
+<td>2028 年资本开支减速</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>同源合并说明：</strong> Helios 爬坡、认股权证返利、Jalapeño 对 AMD 的冲击、HBM 报价差，这四条都出自 SemiAnalysis 一家机构，本报告按一条独立信源计权，并用 AMD 官方口径（"三季度末首批出货"）和其他机构（FundaAI、Evercore ISI）的判断对照。StoneX、Stifel、摩根士丹利、博通的若干说法都是经 TMT Breakout 转述的二手材料，没有读到卖方原报告，只作佐证。一致预期、目标价和市盈率来自同一个数据源（Yahoo Finance 聚合的卖方数据），与华泰 PDF、高盛摘要的单家数字交叉核对过，量级一致。</p>
+<h2 id="7">7. 信息缺口树</h2>
+<h3 id="helios">一、Helios 的真实量产节奏</h3>
+<ul>
+<li><strong>岗位画像：</strong> AMD 整柜系统的代工厂与组装厂工程师；背板、信号中继芯片、交换芯片供应商的销售；甲骨文、微软、OpenAI 数据中心的基础设施工程师。</li>
+<li><strong>直接问法：</strong> Helios 四季度的实际出货是多少柜？背板可靠性问题解决了吗，良率多少？单柜功耗 240 千瓦以上，客户机房准备好了吗？首批客户从到货到真正跑起生产负载要多久？MI455X 在真实智能体推理测试里，每单位成本能做到 Rubin 的几成？</li>
+<li><strong>能改变什么：</strong> 决定"AMD 的盈利能不能长得更快"这一环。顺利放量可让"AMD 真正成为第二极"上调约 5 个百分点；推迟到 2027 年下半年则把它下调约 5 个百分点。</li>
+<li><strong>好不好约：</strong> 中等。供应链工程师好约，客户侧基础设施负责人难约。</li>
+</ul>
+<h3 id="_1">二、认股权证归属表与已归属股数</h3>
+<ul>
+<li><strong>岗位画像：</strong> 熟悉 AMD 与 OpenAI、Meta 认股权证条款的证券律师或卖方分析师；AMD 投资者关系部门。</li>
+<li><strong>直接问法：</strong> 600 美元的股价门槛怎么计算，是否已经达成？首个 1 吉瓦对应多少股，何时归属？卖方的每股收益预测是否已经计入这些股份？OpenAI 若退出首个吉瓦，权证怎么处理？</li>
+<li><strong>能改变什么：</strong> 影响"股本变化"一环，对总概率约 1 到 2 个百分点。</li>
+<li><strong>好不好约：</strong> 容易。11 月初三季度 10-Q 会披露一部分。</li>
+</ul>
+<h3 id="20272028">三、定制芯片 2027–2028 年的真实部署量</h3>
+<ul>
+<li><strong>岗位画像：</strong> 博通、联发科定制芯片业务的销售或产品经理；谷歌云 TPU 外部销售团队；OpenAI、Anthropic 算力采购人员。</li>
+<li><strong>直接问法：</strong> Jalapeño 2027 年四季度前能上线多少？外销 TPU 的客户除了 Anthropic、Meta 还有谁？谷歌对外开源 TPU 软件栈后，第三方的迁移成本降了多少？大客户新增预算里，AMD、英伟达、定制芯片各占多少？</li>
+<li><strong>能改变什么：</strong> 同时影响"Helios 量产不顺或定制芯片抢份额"和"英伟达自身失速"两条路径，合计约 3 到 5 个百分点。</li>
+<li><strong>好不好约：</strong> 中等偏难。</li>
+</ul>
+<h3 id="2028-ai">四、2028 年的资本开支与 AI 实验室的融资能力</h3>
+<ul>
+<li><strong>岗位画像：</strong> 覆盖超大规模云厂商的卖方分析师；数据中心开发商与电力开发商；AI 实验室的财务或融资负责人。</li>
+<li><strong>直接问法：</strong> 2028 年资本开支增速降到一成左右的依据是什么？OpenAI 6 吉瓦 AMD 订单和英伟达担保的园区，资金从哪里来？Anthropic 上市后的资本开支节奏怎样？如果实验室放慢扩张，哪家供应商先被砍单？</li>
+<li><strong>能改变什么：</strong> 决定"2028 年资本开支减速"路径的大小，约 3 到 5 个百分点。</li>
+<li><strong>好不好约：</strong> 容易。</li>
+</ul>
+<h3 id="world-labs">五、World Labs 的整合与人才留存</h3>
+<ul>
+<li><strong>岗位画像：</strong> World Labs 或 AMD AI 团队的研究员；做三维生成与机器人仿真的同行；AMD 客户中做物理 AI 的团队。</li>
+<li><strong>直接问法：</strong> 交割后团队会扩到多大，费用多少？Atlas 会开源吗，何时商用？核心成员有没有留任安排？团队的训练负载有多少跑在 MI455X 上，发现了哪些 ROCm 问题？这支团队的需求会不会改变 MI500 之后的设计？</li>
+<li><strong>能改变什么：</strong> 对两年内的概率影响不到 1 个百分点，但对 2028 年之后 AMD 的竞争力判断很重要。</li>
+<li><strong>好不好约：</strong> 中等。</li>
+</ul>
+<h2 id="8">8. 信源梯度反馈</h2>
+<p><strong>本报告的信源分四层，可靠性依次递减。</strong></p>
+<p><strong>第一层，公司公告、监管文件和行情数据，可靠性最高。</strong> AMD 与英伟达的财报、电话会、8-K、10-Q，World Labs 与英伟达的官方博客，以及 Yahoo Finance 的行情、期权报价和一致预期。历史胜率、隐含波动率、相对估值由 <code>research/quant_base_rates.py</code> 从公开数据算出，脚本随报告保存。</p>
+<p><strong>第二层，扩展资源库里的独立研究与卖方研究。</strong> 我们实际读了 SemiAnalysis 八篇、Stratechery 三篇，以及 Damnang、FundaAI、Citrini、Irrational Analysis、Jason's Chips、Cassandra Unchained、TMT Breakout（十余期）的原文，华泰 AMD 报告的 PDF 全文和瑞银 CoWoS 报告 PDF 的前三页。其中 SemiAnalysis 对两家覆盖最深，但它出售机构模型、也与两家工程师有往来，本报告对它的判断单独计权。Cassandra Unchained 的作者披露持有英伟达看跌期权，他的观点只作为空方代表。</p>
+<p><strong>第三层，卖方研报摘要和二手转述。</strong> 高盛、摩根士丹利、美银、伯恩斯坦、交银国际、花旗等只读到资源库里的中文摘要，没有读 PDF 原文；StoneX、Stifel 对这笔交易的点评只有 TMT Breakout 的转述。这些材料用于交叉核对量级，不单独支撑结论。摩根大通、摩根士丹利关于 AMD 七月发布会的报告读取失败（只有标题），记为缺口。</p>
+<p><strong>第四层，播客与新闻。</strong> 苏姿丰 7 月在 TBPN 的访谈来自第三方机器转写，有识别错误，数字未采用；AMD 高管"无意与客户竞争"的原话只能经 Stocktwits 转述核实，分析师在 X 上的原帖未读到。a16z 对李飞飞团队的访谈，本地语音转写失败，本报告没有使用。</p>
+<p><strong>仍然存在的缺口，按优先级：</strong> 一、没有 AMD 供应链或客户侧的专家访谈（全文没有 🗣️ 图标，这是缺口，不是遗漏）；二、认股权证归属表未公开；三、没有一家机构给出统一口径的 2027–2028 年加速器金额份额，第 3.6 节的份额是拼接估计；四、交易公告后 48 小时内没有任何卖方研报专门评论这笔收购，资源库截至 2026-09-29 16:06（UTC）的同步里只有两条二手转述。</p>
+<h2 id="9">9. 自检结果</h2>
+<ul>
+<li><code>report_lint.py</code>：结果附于交付说明。</li>
+<li>章节编号 1–10 连续，目录条目数与章节数一致。</li>
+<li>概率数字只出现在第 1 节、第 3.7 节（中性起点）、第 5 节路径表、第 7 节（各信息缺口的影响幅度）、第 10 节与附录，处处一致；路径表合计 100%，四条 YES 路径之和等于第 1 节的严格口径数字 38%。</li>
+<li>第 1 节三个参考数字合计 100%，与附录的分布计算一致。</li>
+<li>全文未使用被禁术语，没有数学排版残留。</li>
+<li>价格、日期、金额可回到第 6 节的来源、附录的计算脚本或 <code>research/angles/</code> 里的研究记录核对；两位以上研究者独立取数的数字（收盘价、市值、一致预期、股本、认股权证股数、隐含波动率）已交叉核对一致。</li>
+<li>每条核心判断至少含一条实线下划线证据。没有专家访谈，故全文未出现 🗣️ 图标。</li>
+</ul>
+<h2 id="10">10. 最终预测声明</h2>
+<p><strong>从 2026-09-28 收盘到 2028-09-28 收盘，AMD 股东总回报高于英伟达的概率：38%。</strong> AMD 领先 20% 以上约 28%，两家相差不到 20% 约 20%，英伟达领先 20% 以上约 52%。</p>
+<hr />
+<h2 id="_2">附录·当前估计依据</h2>
+<h3 id="_3">参照类一：两家过去的两年赛跑</h3>
+<p>用 Yahoo Finance 复权日线（1999 年 1 月英伟达上市起，至 2026-09-28），计算"任意起点往后两年，AMD 的总回报是否高于英伟达"。</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>窗口起点范围</th>
+<th>窗口数</th>
+<th>相当于独立的两年段</th>
+<th>AMD 胜率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1999 年起</td>
+<td>6,459</td>
+<td>约 14 段</td>
+<td>29.5%</td>
+</tr>
+<tr>
+<td>2010 年起</td>
+<td>3,705</td>
+<td>约 8 段</td>
+<td>21.1%</td>
+</tr>
+<tr>
+<td>2015 年起</td>
+<td>2,447</td>
+<td>约 6 段</td>
+<td>31.1%</td>
+</tr>
+<tr>
+<td>2020 年起</td>
+<td>1,189</td>
+<td>约 3 段</td>
+<td>8.5%</td>
+</tr>
+<tr>
+<td>与结算日对齐（每年 9 月 28 日起算，互不重叠）</td>
+<td>26</td>
+<td>26 段</td>
+<td>46%（12/26）</td>
+</tr>
+</tbody>
+</table></div>
+<p>这些比例的误差有十几个百分点：换一个起算日，1999 年以来的胜率能在 15% 到 46% 之间摆动。它还带有后见之明——选英伟达作对手，本身就是因为它是过去 27 年回报最好的大型股之一。所以历史频率只作下限参考。</p>
+<h3 id="_4">参照类二：期权市场定价的中性起点</h3>
+<p>两年期平值期权的隐含波动率：AMD 56.6%，英伟达 39.1%；两家日收益的相关系数取过去三年的 0.54，两家相对涨跌的年化波动约 48.6%。</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>市场预期 AMD 每年比英伟达多赚</th>
+<th>两年合计</th>
+<th>AMD 胜出的概率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>−5%</td>
+<td>−10%</td>
+<td>35%</td>
+</tr>
+<tr>
+<td>0（两家预期回报相同）</td>
+<td>0</td>
+<td>40%</td>
+</tr>
+<tr>
+<td>+5%</td>
+<td>+10%</td>
+<td>46%</td>
+</tr>
+<tr>
+<td>+8.4%</td>
+<td>+17%</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>+10%</td>
+<td>+20%</td>
+<td>52%</td>
+</tr>
+</tbody>
+</table></div>
+<p>两家对标普 500 的贝塔几乎相同，按资本资产定价模型，风险溢价的差异接近零，所以约 40% 就是"没有额外观点时"的中性起点。每 1 个百分点的年化相对预期回报，约对应 1.1 到 1.2 个百分点的概率；每 1% 的一次性相对价值变化，约对应 0.6 个百分点的概率。</p>
+<h3 id="_5">参照类三：两个条件信号</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>条件</th>
+<th>历史上的情形</th>
+<th>AMD 随后两年胜率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>过去 12 个月 AMD 相对英伟达的价值比涨到 2.9 倍（第 98 百分位）</td>
+<td>只有 2004、2010、2019 年三段</td>
+<td>约 18%</td>
+</tr>
+<tr>
+<td>相对市销率处在最贵的三分之一（今天 1.32 倍，为历史最高）</td>
+<td>2010、2012、2018–2024 年几段</td>
+<td>约 7%</td>
+</tr>
+</tbody>
+</table></div>
+<p>两个信号都偏向英伟达，但样本只有两三段行情，只能作为把概率放在 40% 以下的理由，不宜大幅下调。</p>
+<h3 id="_6">情景合成</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>来源</th>
+<th>估计</th>
+<th>主要理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>期权市场的中性起点</td>
+<td>40%</td>
+<td>同等预期回报下，波动更大的一方中位结局更差</td>
+</tr>
+<tr>
+<td>估值与盈利预期的不对称</td>
+<td>下调约 3 到 5 个百分点</td>
+<td>盈利增速相近，市盈率差 2.7 倍；卖方目标价隐含空间 +43% 对 +2%</td>
+</tr>
+<tr>
+<td>股本变化</td>
+<td>下调约 1 到 2 个百分点</td>
+<td>认股权证归属、World Labs 发股，对英伟达回购；大部分已在股价里</td>
+</tr>
+<tr>
+<td>英伟达自身风险与 AMD 的小基数</td>
+<td>上调约 3 到 5 个百分点</td>
+<td>客户自研、毛利率下台阶、担保链条集中；AMD 份额每升 1 个百分点，边际影响远大于英伟达</td>
+</tr>
+<tr>
+<td>World Labs 交易本身</td>
+<td>约 0</td>
+<td>摊薄约 0.8%，收益主要在 2028 年后</td>
+</tr>
+<tr>
+<td><strong>合成</strong></td>
+<td><strong>38%</strong></td>
+<td>与第 5 节互斥路径加总一致</td>
+</tr>
+</tbody>
+</table></div>
+<p>我们还参考了另一个独立的模型估计：同一题面下，只看参照类（同行业两只大盘股的两年赛跑、这两家自己的历史）得到的起点约 44%。它还没有纳入估值差和定制芯片分流这些具体证据。</p>
+<h3 id="_7">结果的分布</h3>
+<p>按上面的相对波动（两年约 68%），把中位结局定在让 AMD 胜出概率等于 38% 的位置，两年后 AMD 相对英伟达的价值比（两家总回报各自加 1 后相除）：</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>结果</th>
+<th>概率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AMD 领先 20% 以上（价值比 ≥ 1.2）</td>
+<td>约 28%</td>
+</tr>
+<tr>
+<td>AMD 领先 10% 以上</td>
+<td>约 33%</td>
+</tr>
+<tr>
+<td>AMD 领先（价值比 &gt; 1）</td>
+<td>38%</td>
+</tr>
+<tr>
+<td>两家相差不到 20%（价值比在 0.83 到 1.2 之间）</td>
+<td>约 20%</td>
+</tr>
+<tr>
+<td>英伟达领先 20% 以上（价值比 ≤ 0.83）</td>
+<td>约 52%</td>
+</tr>
+</tbody>
+</table></div>
+<p>中位结局是两年后 AMD 的相对价值约为英伟达的 0.81 倍。</p>
+<h3 id="_8">口径敏感性</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>若把口径改成</th>
+<th>概率变为</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>起点改为 9-25 收盘（上一个交易日）</td>
+<td>约 35%</td>
+<td>9-28 当天 AMD 跌 3.6%、英伟达涨 1.7%，改用前一天，AMD 要多追约 5%</td>
+</tr>
+<tr>
+<td>用价格涨幅，不含股息</td>
+<td>约 38.5%</td>
+<td>英伟达两年股息约 0.9%，影响约 0.5 个百分点</td>
+</tr>
+<tr>
+<td>窗口延长到三年（至 2029-09-28）</td>
+<td>约 35%</td>
+<td>中位结局随时间继续偏向英伟达，波动的拉平作用弱于漂移</td>
+</tr>
+<tr>
+<td>以交割日（约 2026 年底）为起点、再算两年</td>
+<td>约 38%</td>
+<td>起点只差约三个月，主要驱动因素不变</td>
+</tr>
+<tr>
+<td>要求 AMD 领先 10% 以上才算 YES</td>
+<td>约 33%</td>
+<td>见上表</td>
+</tr>
+</tbody>
+</table></div>
+<p>计算脚本与完整输出见 <code>research/quant_base_rates.py</code> 与 <code>research/quant_base_rates.out.txt</code>；各研究角度的原始记录见 <code>research/angles/</code>。</p></main></div>
+</body></html>
