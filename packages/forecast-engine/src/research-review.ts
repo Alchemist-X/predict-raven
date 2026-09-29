@@ -1,7 +1,7 @@
 import { isLocalResearchUrl } from "./url";
 // Explicit questions link inference back to retrieval without changing answers.
 import { callResearchTool, researchSourceUrls, signalDeskEnabled } from "./research-tools";
-import { collectExpandedLibrary, mergeExpandedLibrary } from "./expanded-library";
+import { collectExpandedLibrary, librarySubjects, mergeExpandedLibrary } from "./expanded-library";
 import type { AgentRunResult } from "./claude-agent";
 import type { ExpandedLibraryCoverage } from "./answer-types";
 import { retryRetrieval } from "./research-progress";
@@ -138,13 +138,17 @@ export async function retrieveResearchGaps(state: ResearchReviewState, round: nu
   const call = opts.callTool ?? callResearchTool, collect = opts.collectLibrary ?? collectExpandedLibrary;
   const pending = (state.researchGaps ?? []).filter(g => g.status !== "resolved")
     .sort((a, b) => Number(b.priority === "high") - Number(a.priority === "high"));
+  const subjects = librarySubjects(state.expandedLibrary);
   for (const gap of pending) {
     log(`  Re-searching ${gap.id}: ${gap.question}`);
     const errors: string[] = [], sourceUrls: string[] = [], publicReadings: FollowupReading[] = [];
     let partialSearch = false;
     let extra: ExpandedLibraryCoverage | null = null;
-    try { extra = await collect({searchQueries: gap.targetIds.map(targetId => ({targetId, query: gap.query, keywords: gap.keywords}))}, log,
-      {mode: "focused"}); } catch (error) { errors.push(error instanceof Error ? error.message : "Library retrieval failed"); }
+    const searchQueries = gap.targetIds.map(targetId => {
+      const subject = subjects.get(targetId);
+      return {targetId, query: gap.query, keywords: gap.keywords, ...(subject ? {subject} : {})};
+    });
+    try { extra = await collect({searchQueries}, log, {mode: "focused"}); } catch (error) { errors.push(error instanceof Error ? error.message : "Library retrieval failed"); }
     if (extra) {
       state.expandedLibrary = mergeExpandedLibrary(state.expandedLibrary ?? null, extra);
       sourceUrls.push(...extra.readings.map(r => r.url));

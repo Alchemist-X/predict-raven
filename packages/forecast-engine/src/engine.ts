@@ -11,7 +11,7 @@ import { analystPath } from "./store";
 // computed, not guessed -> persist -> check stop conditions.
 
 import { providerHasWebSearch, runAgent } from "./agent";
-import { expandedLibraryRequired, collectExpandedLibrary, libraryPrompt, binaryLibraryUsage } from "./expanded-library";
+import { expandedLibraryRequired, collectExpandedLibrary, libraryPrompt, binaryLibraryUsage, librarySubject } from "./expanded-library";
 import { assessResearchProgress, incompleteResearch, researchProgressPrompt, researchRoundLimit, roundLimitLabel } from "./research-progress";
 import { validatedCall, object, text } from "./question-spec";
 import { recordModelReads, parseResearchReview, applyResearchReview, retrieveResearchGaps, researchReviewPrompt, modelVisibleSourceUrls, assertModelReadSources, researchEvidenceSources, materialResearchGaps, researchGapSources } from "./research-review";
@@ -230,6 +230,28 @@ export function newForecastState(input: {
     summary: null,
     researchPlan: input.researchPlan ?? defaultResearchPlan(input.framing)
   };
+}
+
+// The mandatory library sweep is anchored to the question's subject: the
+// gateway ANDs it into every search and reports when no article mentions it,
+// instead of returning documents that merely share a word such as a ticker.
+export function libraryPlanPrompt(question: string): string {
+  return `Plan keyword searches of the expanded resource library for this binary investment question: ${question}
+subject: the one company, protocol, token, fund or other named entity the question is about, spelled the way research publications name it (for example the protocol name rather than its ticker). The engine ANDs it into every library search, and a library with no article mentioning it is recorded as not covering it. Use null only when the question concerns a broad theme with no single named entity.
+queries: 1–4 concise searches about that subject. Each uses a company and metric or driver as keywords, not a full sentence; never a bare ticker or generic word on its own.
+JSON only: {"subject":"entity name or null","queries":[{"query":"public query","keywords":["company","metric"]}]}`;
+}
+export function parseLibraryPlan(raw: unknown): Array<{ targetId: string; query: string; keywords: string[]; subject?: string }> {
+  const plan = object(raw);
+  if (!("subject" in plan)) throw new Error("Return subject: the entity the question is about, or null for a broad theme");
+  const subject = librarySubject(plan.subject);
+  const rows = plan.queries;
+  if (!Array.isArray(rows) || !rows.length || rows.length > 4) throw new Error("Provide 1–4 research queries");
+  return rows.map(row => {
+    const q = object(row);
+    if (!Array.isArray(q.keywords) || !q.keywords.length || q.keywords.length > 6) throw new Error("Use short keywords");
+    return {targetId: "question", query: text(q.query, "query"), keywords: q.keywords.map(k => text(k, "keyword")), ...(subject ? {subject} : {})};
+  });
 }
 
 function validationError(result: AgentRunResult, error: unknown): string {
@@ -710,11 +732,8 @@ export async function runForecast(state: ForecastState, opts: RunForecastOptions
   const log = opts.onLog ?? (() => {});
 
   if (!pendingSummary && expandedLibraryRequired() && state.round < maxRounds && !state.expandedLibrary) {
-    const queries = await validatedCall(`Return concise keyword searches for the expanded resource library for this binary investment question: ${state.eventText}. Each query uses a company and metric, not a full sentence. JSON only: {"queries":[{"query":"public query","keywords":["company","metric"]}]}`, raw => {
-      const rows = object(raw).queries;
-      if (!Array.isArray(rows) || !rows.length || rows.length > 4) throw new Error("Provide 1–4 research queries");
-      return rows.map(row => {const q=object(row); if (!Array.isArray(q.keywords) || !q.keywords.length || q.keywords.length>6) throw new Error("Use short keywords"); return {targetId:"question",query:text(q.query,"query"),keywords:q.keywords.map(k=>text(k,"keyword"))};});
-    }, {model:opts.model,runAgentFn:opts.runAgentFn,allowedTools:""});
+    const queries = await validatedCall(libraryPlanPrompt(state.eventText), parseLibraryPlan,
+      {model:opts.model,runAgentFn:opts.runAgentFn,allowedTools:""});
     state.expandedLibrary = await collectExpandedLibrary({searchQueries:queries.value}, log);
     saveState(state);
   }

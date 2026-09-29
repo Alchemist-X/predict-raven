@@ -143,8 +143,10 @@ export function renderStructuredReport(s: StructuredForecastState): string {
   lines.push("## 关键事实与原文", "| 事实或来源观点 | 原文短句 | 来源/日期 | 性质 |", "| --- | --- | --- | --- |");
   for (const e of s.evidenceLedger) lines.push(`| ${cell(e.claim)} | ${cell(e.quote)} | [${cell(e.sourceTitle)}](${e.sourceUrl}) · ${e.publishedAt ?? "原始日期未核实"} | ${e.epistemicStatus}; ${e.verifiedInSearchTrace ? "检索/读取已记录" : "来源未核实，未赋权"} |`);
   lines.push("", "## 扩展资源库使用", s.expandedLibrary ? `实际搜索 ${s.expandedLibrary.queries.length} 次，读取 ${s.expandedLibrary.readings.length} 个片段，使用 ${s.expandedLibrary.usedArticleIds.length} 篇。` : "本次未启用。", "");
-  for (const q of s.expandedLibrary?.queries ?? []) lines.push(`- ${q.targetId}：${q.status}，${q.total ?? "未知"} 条候选${q.error ? `；${q.error}` : ""}`);
-  for (const e of s.expandedLibrary?.exclusions ?? []) lines.push(`- 未采用 ${e.articleId}：${e.reason}`);
+  for (const q of s.expandedLibrary?.queries ?? []) lines.push(`- ${q.targetId}：${q.status}，${q.total ?? "未知"} 条候选${q.coverageVerdict === "subject_not_covered" ? "；扩展资源库没有提及研究主体的文章（覆盖缺口，不是关于主体的证据）" : ""}${q.error ? `；${q.error}` : ""}`);
+  const exclusions = s.expandedLibrary?.exclusions ?? [], automatic = exclusions.filter(e => e.automatic);
+  if (automatic.length) lines.push(`- 引擎自动排除 ${automatic.length} 篇正文未提及研究主体的预读文章：${automatic.map(e => e.articleId).join("、")}`);
+  for (const e of exclusions.filter(e => !e.automatic)) lines.push(`- 未采用 ${e.articleId}：${e.reason}`);
   for (const e of s.expandedLibrary?.readingErrors ?? []) lines.push(`- 读取失败 ${e.articleId}：${e.error}`);
   lines.push("", "## 方法与局限", spec.priorRationale, "数值由引擎按已接受的证据逐步更新；来源相关性被折减，未经检索核验的来源不赋权。模型提出的证据强度与起点属于主观判断，尚无本题类型的长期校准。", "");
   return lines.join("\n");

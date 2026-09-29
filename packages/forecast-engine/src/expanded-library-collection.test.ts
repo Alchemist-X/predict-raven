@@ -48,7 +48,8 @@ function pdfResult(args: Record<string, any>) {
 }
 function mockRows(rows: ReturnType<typeof article>[]) {
   gateway.callResearchTool.mockImplementation(async (name: string, args: Record<string, any>) => {
-    if (name === "signal_desk_search") return { status: "ok", results: rows, total: rows.length, next_offset: null };
+    if (name === "signal_desk_search") return { status: "ok", results: rows, total: rows.length, next_offset: null,
+      ...(args.subject ? { subject_probe: { subject: args.subject, total: rows.length } } : {}) };
     if (name === "signal_desk_pdf") return pdfResult(args);
     return readResult(args);
   });
@@ -159,8 +160,16 @@ describe("broad expanded-library collection", () => {
     });
     const calls = gateway.callResearchTool.mock.calls.map((c) => c[1]);
     expect(calls).toHaveLength(5);
-    expect(calls.map(args => args.keywords)).toEqual([["Google","TPU","revenue"],["Google","TPU","revenue"],["Google"],["TPU"],["revenue"]]);
-    expect(calls.every(args => args.limit === null && !args.publisher)).toBe(true);
+    // Without a subject anchor an empty intersection broadens to keyword pairs, never one word on its own.
+    expect(calls.map(args => args.keywords)).toEqual([["Google","TPU","revenue"],["Google","TPU","revenue"],["TPU","revenue"],["Google","revenue"],["Google","TPU"]]);
+    expect(calls.every(args => args.limit === null && !args.publisher && !args.subject)).toBe(true);
+    gateway.callResearchTool.mockClear();
+    await collectExpandedLibrary({
+      searchQueries: [{ targetId: "cloud", query: "Google TPU revenue", keywords: ["Google", "TPU", "revenue"], subject: "Google" }]
+    });
+    const anchored = gateway.callResearchTool.mock.calls.map((c) => c[1]);
+    expect(anchored.map(args => args.keywords)).toEqual([["Google","TPU","revenue"],["Google","TPU","revenue"],["Google"],["TPU"],["revenue"]]);
+    expect(anchored.every(args => JSON.stringify(args.subject) === '["Google"]')).toBe(true);
   });
 
   it("requests complete article text rather than bounded introductory and matched windows", async () => {

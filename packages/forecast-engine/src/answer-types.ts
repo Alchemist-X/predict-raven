@@ -27,7 +27,9 @@ export interface QuestionSpec {
   scoreRubric: string | null;
   prior: Record<string, number> | { mean: number; standardDeviation: number };
   priorRationale: string;
-  searchQueries: Array<{ targetId: string; query: string; keywords: string[] }>;
+  // subject anchors a library search to the entity under study; the gateway
+  // ANDs it into every query and reports when no article mentions it.
+  searchQueries: Array<{ targetId: string; query: string; keywords: string[]; subject?: string }>;
 }
 export type StructuredAnswer =
   | { kind: "categorical"; selectedId: string; tiedIds: string[]; probabilities: Array<AnswerOption & { probability: number }> }
@@ -57,16 +59,17 @@ export interface ExpandedLibraryCoverage {
   required: boolean;
   searchedAtUtc: string;
   queries: Array<{ targetId: string; query: string; status: string; total: number | null; error?: string; coverage?: unknown;
-    arguments?: Record<string, unknown>; returnedCount?: number; nextOffset?: number | null; exhausted?: boolean }>;
+    coverageVerdict?: string; arguments?: Record<string, unknown>; returnedCount?: number; nextOffset?: number | null; exhausted?: boolean }>;
   readings: ExpandedLibraryReading[];
   usedArticleIds: string[];
-  exclusions: Array<{ articleId: string; reason: string }>;
+  // automatic marks an engine decision (read text never mentions the subject), not a model judgement.
+  exclusions: Array<{ articleId: string; reason: string; automatic?: boolean }>;
   readingErrors?: Array<{ articleId: string; targetId: string; error: string; tool?: string; url?: string; arguments?: Record<string, unknown> }>;
   candidates?: Array<{ articleId: string; targetId: string; title: string; url: string; publisher: string;
     bodyIndexed: boolean; contentKind: string; selected: boolean; selectionReason: string; query: string }>;
   collectionAudit?: Array<{ mode: "broad" | "focused"; startedAtUtc: string; completedAtUtc: string;
     budgets: { maxQueriesPerTarget: number | null; maxPagesPerQuery: number | null; candidatesPerPage: number | null; maxArticlesPerTarget: number | null; maxPdfArticles: number | null; maxPdfArticlesPerTarget: number | null; maxCharsPerRead: number | null };
-    targets: Array<{ targetId: string; queryCount: number; candidateCount: number; readArticleCount: number; pdfAttemptCount: number; pdfReadCount: number;
+    targets: Array<{ targetId: string; subject?: string; subjectCovered?: boolean; queryCount: number; candidateCount: number; readArticleCount: number; pdfAttemptCount: number; pdfReadCount: number;
       coverageExhausted: boolean; limitations: string[] }>; pdfAttemptCount: number; pdfReadCount: number }>;
 }
 export interface StructuredClaim {
