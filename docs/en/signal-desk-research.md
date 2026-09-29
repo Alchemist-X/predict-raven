@@ -4,6 +4,17 @@
 
 Research mode searches public sources and the personal subscription index through one local gateway. The Claude and DeepSeek loops in `forecast-engine`, and the Hongshu repository's OpenRouter `orgpt.py --tools`, use this gateway.
 
+
+### Heavily covered subjects and pre-read budgets (2026-09-30, #161)
+
+Cause: the AMD vs NVIDIA two-year return question planned four company-and-metric searches that found 22 articles. One came back empty and was broadened into a bare "AMD" search, which matched 503 articles; 488 were read (about 16.9M characters, 84 PDFs, 75 minutes), including drug reports where "AMD" means macular degeneration. Round 1 had to cite or exclude every one, failed twice and aborted.
+
+- Broadening searches the subject (or a gateway alias of it) on its own only when the subject is sparsely covered: when the gateway's `subject_probe.total` (library articles naming the subject) is within the reading budget. Above it, the subject is not searched alone and the audit records that the empty combined search is the result. An older gateway that reports no count is treated as heavily covered.
+- The forced pre-read reads at most 40 articles per target (`FORECAST_LIBRARY_MAX_ARTICLES`) and 12 PDFs per target (`FORECAST_LIBRARY_MAX_PDFS`) by default. Values are non-negative integers or `unlimited`; invalid values fail. An explicit caller budget wins. Candidates beyond the budget are recorded as unread for budget reasons and need no model action.
+- Ranking prefers articles found by the planned searches over those found only by broadened ones.
+- In a comparison, each planned search may carry its own `subject` (AMD searches anchored to AMD, NVIDIA searches to NVIDIA); searches without one use the question's subject. Follow-up gap searches of a target with several subjects are not anchored to any one of them.
+- Every pre-read logs candidates, articles and PDFs read, characters and minutes, and warns above 2M characters or 20 minutes.
+
 ## Unlimited default rounds and completion checks (2026-09-14)
 
 The default three-round cap is removed from the CLI, HTTP, MCP and Raven UI. Omitted `maxRounds` or `0` means unlimited. Direct engine calls can still use an explicit `FORECAST_MAX_ROUNDS` budget; an explicit argument takes precedence. Positive integers are operator-selected total research-round budgets, without the former 1–6 or 1–20 ceiling. Each research round may contain many searches. Probability calculations and evidence weighting are unchanged.

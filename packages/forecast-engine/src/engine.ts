@@ -239,7 +239,8 @@ export function libraryPlanPrompt(question: string): string {
   return `Plan keyword searches of the expanded resource library for this binary investment question: ${question}
 subject: the one company, protocol, token, fund or other named entity the question is about, spelled the way research publications name it (for example the protocol name rather than its ticker). The engine ANDs it into every library search, and a library with no article mentioning it is recorded as not covering it. Use null only when the question concerns a broad theme with no single named entity.
 queries: 1–4 concise searches about that subject. Each uses a company and metric or driver as keywords, not a full sentence; never a bare ticker or generic word on its own.
-JSON only: {"subject":"entity name or null","queries":[{"query":"public query","keywords":["company","metric"]}]}`;
+When the question compares named entities (for example one company's return against another's), give each query its own subject: the entity that query is about, so a search about the second company is not forced to mention the first. A query without its own subject uses the top-level subject.
+JSON only: {"subject":"entity name or null","queries":[{"query":"public query","keywords":["company","metric"],"subject":"optional: entity this query is about"}]}`;
 }
 export function parseLibraryPlan(raw: unknown): Array<{ targetId: string; query: string; keywords: string[]; subject?: string }> {
   const plan = object(raw);
@@ -250,7 +251,9 @@ export function parseLibraryPlan(raw: unknown): Array<{ targetId: string; query:
   return rows.map(row => {
     const q = object(row);
     if (!Array.isArray(q.keywords) || !q.keywords.length || q.keywords.length > 6) throw new Error("Use short keywords");
-    return {targetId: "question", query: text(q.query, "query"), keywords: q.keywords.map(k => text(k, "keyword")), ...(subject ? {subject} : {})};
+    // A comparison names a subject per query; otherwise the question's subject applies.
+    const querySubject = "subject" in q ? librarySubject(q.subject) : subject;
+    return {targetId: "question", query: text(q.query, "query"), keywords: q.keywords.map(k => text(k, "keyword")), ...(querySubject ? {subject: querySubject} : {})};
   });
 }
 
