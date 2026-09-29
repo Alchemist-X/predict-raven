@@ -21,8 +21,10 @@ import type { AgentRunResult, RunAgentOptions } from "./claude-agent";
 import { fetchPageText, webSearch } from "./web-search";
 import {
   agentTimeoutMs,
+  boundResearchResult,
   configuredLimit,
   callResearchTool,
+  maxToolResultChars,
   RESEARCH_POLICY,
   researchSourceUrls,
   researchReadSourceUrls,
@@ -309,6 +311,7 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
   const deadline = ctx.timeoutMs > 0 ? Date.now() + ctx.timeoutMs : Infinity;
   const maxModelTurns = configuredLimit("FORECAST_MAX_MODEL_TURNS", ctx.researchSchemas ? 0 : 8);
   const maxToolCalls = configuredLimit("FORECAST_MAX_TOOL_CALLS", ctx.researchSchemas ? 0 : 14);
+  const maxResultChars = ctx.researchSchemas ? maxToolResultChars() : 0;
   let modelTurns = 0;
   let promptTokens = 0;
   let completionTokens = 0;
@@ -389,8 +392,9 @@ async function runWithTools(prompt: string, ctx: ToolLoopCtx): Promise<AgentRunR
             const budget = Math.min(gatewayTimeout || Infinity, remaining);
             if (tc.function.name === "research_image" && args.observation !== undefined)
               throw new Error("visual_review_unavailable: this text-only route cannot submit visual observations; use a vision-capable route");
-            const result = textOnlyResearchResult(tc.function.name,
-              await ctx.researchCall(tc.function.name, args, Number.isFinite(budget) ? budget : 0));
+            // Bound before recording provenance, so it reflects what the model received.
+            const result = boundResearchResult(tc.function.name, textOnlyResearchResult(tc.function.name,
+              await ctx.researchCall(tc.function.name, args, Number.isFinite(budget) ? budget : 0)), maxResultChars);
             retrievalAttempts.push(researchRetrievalAttempt(tc.function.name, args, result));
             for (const url of researchSourceUrls(result)) traceUrls.add(url);
             for (const url of researchReadSourceUrls(tc.function.name, result)) readUrls.add(url);

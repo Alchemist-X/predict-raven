@@ -6,6 +6,7 @@ import { extractToolUrls, parseStreamJson, runAgentRaw } from "./claude-agent";
 import { runDeepSeekRaw } from "./deepseek-agent";
 import {
   callResearchTool,
+  DEFAULT_MAX_TOOL_RESULT_CHARS,
   RESEARCH_MCP_PREFIX,
   RESEARCH_TOOL_NAMES,
   researchClaudeArgs,
@@ -476,5 +477,81 @@ describe("strict successfully-read provenance", () => {
     expect(out.researchReadings?.map((r) => r.tool)).toEqual(["signal_desk_read", "signal_desk_pdf"]);
     expect(out.researchReadings?.[0].access).toBe("summary_verified");
     expect(JSON.stringify(out.researchReadings)).not.toContain("/private/");
+  });
+});
+
+describe("bounded OpenAI-compatible tool results", () => {
+  function toolLoop(calls: Array<{ name: string; args: unknown }>) {
+    const requests: any[] = [];
+    const fetchFn = vi.fn(async (_input, init) => {
+      requests.push(JSON.parse(String(init?.body)));
+      const message = requests.length === 1
+        ? { content: null, tool_calls: calls.map((c, i) => ({ id: String(i), type: "function", function: { name: c.name, arguments: JSON.stringify(c.args) } })) }
+        : { content: '{"answer":"done"}' };
+      return new Response(JSON.stringify({ choices: [{ message }] }));
+    }) as typeof fetch;
+    return { fetchFn, toolMessages: () => requests[1].messages.filter((m: any) => m.role === "tool") as Array<{ content: string }> };
+  }
+
+  it("keeps an oversized read within the per-result budget and records only the text the model received", async () => {
+    vi.stubEnv("FORECAST_SIGNAL_DESK", "1");
+    vi.stubEnv("DEEPSEEK_API_KEY", "test");
+    vi.stubEnv("FORECAST_MAX_TOOL_RESULT_CHARS", "5000");
+    const text = "Opening passage. " + "x".repeat(300_000);
+    const loop = toolLoop([{ name: "signal_desk_read", args: { article_id: "article", offset: 4000, max_chars: 0 } }]);
+    const researchCall = vi.fn(async () => verifiedRead(url, { text, next_offset: null, total_chars: 4000 + text.length }));
+    const out = await runDeepSeekRaw("Research Meta", {}, { fetchFn: loop.fetchFn, researchCall, researchSchemas: schemas });
+    const [message] = loop.toolMessages();
+    expect(message.content.length).toBeLessThanOrEqual(5000);
+    const shown = JSON.parse(message.content);
+    expect(shown.text.length).toBeGreaterThan(1000);
+    expect(text.startsWith(shown.text)).toBe(true);
+    expect(shown.next_offset).toBe(4000 + shown.text.length);
+    expect(shown.engine_truncated).toMatchObject({ field: "text", original_chars: text.length, returned_chars: shown.text.length });
+    // Provenance keeps what the model saw, never the part the engine withheld.
+    expect(out.researchReadings?.[0]).toMatchObject({ text: shown.text, next_offset: 4000 + shown.text.length });
+  });
+
+  it("marks a bounded PDF as partial page text and says where to resume", async () => {
+    vi.stubEnv("FORECAST_SIGNAL_DESK", "1");
+    vi.stubEnv("DEEPSEEK_API_KEY", "test");
+    vi.stubEnv("FORECAST_MAX_TOOL_RESULT_CHARS", "6000");
+    const pages = Array.from({ length: 12 }, (_, i) => `[Page ${i + 1}]\n` + "p".repeat(1500)).join("\n");
+    const loop = toolLoop([{ name: "signal_desk_pdf", args: { article_id: "report", start_page: 1, max_pages: 0, max_chars: 0 } }]);
+    const pdf = { ...verifiedPdf(), text: pages, start_page: 1, next_page: null, pages: Array.from({ length: 12 }, (_, i) => ({ page: i + 1, text_chars: 1500, truncated: false })) };
+    const out = await runDeepSeekRaw("Research", {}, { fetchFn: loop.fetchFn, researchCall: async () => pdf, researchSchemas: schemas });
+    const shown = JSON.parse(loop.toolMessages()[0].content);
+    expect(loop.toolMessages()[0].content.length).toBeLessThanOrEqual(6000);
+    expect(shown).toMatchObject({ status: "partial", access: "body_partial" });
+    const lastShown = Number([...shown.text.matchAll(/\[Page (\d+)\]/g)].at(-1)?.[1]);
+    expect(shown.next_page).toBe(lastShown);
+    expect(out.researchReadings?.[0]).toMatchObject({ tool: "signal_desk_pdf", access: "body_partial", text: shown.text });
+  });
+
+  it("keeps whole search results that fit with matching source URLs, applies a default, and treats zero as unlimited", async () => {
+    vi.stubEnv("FORECAST_SIGNAL_DESK", "1");
+    vi.stubEnv("DEEPSEEK_API_KEY", "test");
+    vi.stubEnv("FORECAST_MAX_TOOL_RESULT_CHARS", "5000");
+    const hits = Array.from({ length: 40 }, (_, i) => `https://example.org/hit-${i}`);
+    const search = { status: "ok", results: hits.map((u) => ({ url: u, snippet: "y".repeat(1000) })), source_urls: hits };
+    let loop = toolLoop([{ name: "web_search", args: { query: "Meta capex" } }]);
+    let out = await runDeepSeekRaw("Research Meta", {}, { fetchFn: loop.fetchFn, researchCall: async () => search, researchSchemas: schemas });
+    const shown = JSON.parse(loop.toolMessages()[0].content);
+    expect(loop.toolMessages()[0].content.length).toBeLessThanOrEqual(5000);
+    expect(shown.results.length).toBeGreaterThan(0);
+    expect(shown.results.length).toBeLessThan(hits.length);
+    expect(shown.source_urls).toEqual(shown.results.map((r: { url: string }) => r.url));
+    expect(shown.engine_truncated).toMatchObject({ field: "results", original_count: 40, returned_count: shown.results.length });
+    expect([...out.searchResultUrls]).toEqual(shown.source_urls);
+
+    vi.stubEnv("FORECAST_MAX_TOOL_RESULT_CHARS", undefined);
+    loop = toolLoop([{ name: "signal_desk_read", args: { article_id: "article" } }]);
+    await runDeepSeekRaw("Research", {}, { fetchFn: loop.fetchFn, researchCall: async () => verifiedRead(url, { text: "z".repeat(1_000_000) }), researchSchemas: schemas });
+    expect(loop.toolMessages()[0].content.length).toBeLessThanOrEqual(DEFAULT_MAX_TOOL_RESULT_CHARS);
+
+    vi.stubEnv("FORECAST_MAX_TOOL_RESULT_CHARS", "0");
+    loop = toolLoop([{ name: "web_search", args: { query: "Meta capex" } }]);
+    out = await runDeepSeekRaw("Research Meta", {}, { fetchFn: loop.fetchFn, researchCall: async () => search, researchSchemas: schemas });
+    expect(JSON.parse(loop.toolMessages()[0].content).results).toHaveLength(40);
   });
 });
