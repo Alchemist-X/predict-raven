@@ -69,7 +69,7 @@ export interface ExpandedLibraryCoverage {
     bodyIndexed: boolean; contentKind: string; selected: boolean; selectionReason: string; query: string }>;
   collectionAudit?: Array<{ mode: "broad" | "focused"; startedAtUtc: string; completedAtUtc: string;
     budgets: { maxQueriesPerTarget: number | null; maxPagesPerQuery: number | null; candidatesPerPage: number | null; maxArticlesPerTarget: number | null; maxPdfArticles: number | null; maxPdfArticlesPerTarget: number | null; maxCharsPerRead: number | null };
-    targets: Array<{ targetId: string; subject?: string; subjectCovered?: boolean; queryCount: number; candidateCount: number; readArticleCount: number; pdfAttemptCount: number; pdfReadCount: number;
+    targets: Array<{ targetId: string; subject?: string; subjects?: string[]; subjectCovered?: boolean; queryCount: number; candidateCount: number; readArticleCount: number; pdfAttemptCount: number; pdfReadCount: number;
       coverageExhausted: boolean; limitations: string[] }>; pdfAttemptCount: number; pdfReadCount: number }>;
 }
 export interface StructuredClaim {

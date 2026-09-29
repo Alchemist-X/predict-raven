@@ -33,7 +33,10 @@ export function librarySubject(raw: unknown): string | undefined {
 // Follow-up retrieval keeps the subject anchor chosen for the initial sweep.
 export function librarySubjects(coverage: ExpandedLibraryCoverage | null | undefined): Map<string, string> {
   const subjects = new Map<string, string>();
-  for (const audit of coverage?.collectionAudit ?? []) for (const t of audit.targets) if (t.subject) subjects.set(t.targetId, t.subject);
+  // A comparison target searched several subjects; anchoring a follow-up to
+  // any one of them would drop the others' coverage, so it stays unanchored.
+  for (const audit of coverage?.collectionAudit ?? [])
+    for (const t of audit.targets) if (t.subject && !(t.subjects && t.subjects.length > 1)) subjects.set(t.targetId, t.subject);
   return subjects;
 }
 // The gateway's literal keyword rule (raven_signal_desk query.literal_pattern):
@@ -44,6 +47,24 @@ function mentions(text: string, term: string): boolean {
   const right = /[A-Za-z0-9]$/.test(term) ? "(?![A-Za-z0-9_])" : "";
   return new RegExp(left + term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + right, "iu").test(text);
 }
+// Default reading budget (issue #161). A subject the library covers heavily can
+// match hundreds of articles, and every article read must later be cited or
+// excluded in one round, so the default stays near what a round can review.
+// Unread candidates are recorded as a reading budget, not a relevance verdict.
+const DEFAULT_MAX_ARTICLES_PER_TARGET = 40;
+const DEFAULT_MAX_PDF_ARTICLES = 12; // per target
+// Above these a sweep is worth a loud warning: the AMD run read 16.9M characters in 75 minutes.
+const PREREAD_WARN_CHARS = 2_000_000;
+const PREREAD_WARN_MINUTES = 20;
+function envLimit(name: string, fallback: number): number | null {
+  const raw = process.env[name]?.trim();
+  if (!raw) return fallback;
+  if (raw.toLowerCase() === "unlimited") return null;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 0)
+    throw new Error(`${name} must be a non-negative integer or "unlimited", got ${JSON.stringify(raw)}`);
+  return value;
+}
 export interface ExpandedLibraryCollectionOptions {
   mode?: "broad" | "focused";
   maxArticlesPerTarget?: number | null;
@@ -52,7 +73,7 @@ export interface ExpandedLibraryCollectionOptions {
 }
 
 type SearchQuery = QuestionSpec["searchQueries"][number];
-type Candidate = { row: Record<string, any>; query: string; subject?: string; targetId: string; known: boolean };
+type Candidate = { row: Record<string, any>; query: string; subject?: string; targetId: string; known: boolean; broadened: boolean };
 type PlannedQuery = SearchQuery & { scope: "all" | "title"; broadened?: boolean };
 type TargetAudit = NonNullable<ExpandedLibraryCoverage["collectionAudit"]>[number]["targets"][number];
 
@@ -71,14 +92,23 @@ function searchKey(q: PlannedQuery): string {
 // gateway applies it, otherwise to at least two original keywords. One
 // generic word on its own matches unrelated documents, and every pre-read
 // document must later be cited or excluded.
-function broaderQueries(q: PlannedQuery, anchored: boolean): PlannedQuery[] {
+//
+// A set made only of the subject or its aliases searches the subject alone.
+// That finds the few articles on a sparsely covered subject, but over a subject
+// the library covers heavily it returns every article that names it (issue
+// #161: a bare "AMD" search found 503 articles, including eye-disease reports
+// where AMD means macular degeneration). Callers pass the subject's spellings
+// when the subject is heavily covered, and those sets are dropped.
+function broaderQueries(q: PlannedQuery, anchored: boolean, heavySubjectForms: ReadonlySet<string> = new Set()): PlannedQuery[] {
   if (q.scope !== "all" || q.broadened || q.keywords.length < 2) return [];
   const sets = anchored
     ? q.keywords.map((k) => [k])
     : q.keywords.length > 2
       ? q.keywords.map((_, i) => q.keywords.filter((_, j) => j !== i))
       : [];
-  return sets.map((keywords) => ({ ...q, keywords, broadened: true, query: [...new Set([q.subject, ...keywords].filter(Boolean))].join(" ") }));
+  return sets
+    .filter((keywords) => !keywords.every((k) => heavySubjectForms.has(k.toLowerCase())))
+    .map((keywords) => ({ ...q, keywords, broadened: true, query: [...new Set([q.subject, ...keywords].filter(Boolean))].join(" ") }));
 }
 function queryPlan(queries: SearchQuery[], mode: "broad" | "focused"): PlannedQuery[] {
   const originals = [
@@ -124,6 +154,8 @@ function selection(candidates: Candidate[], maximum: number): Candidate[] {
         (themes.has(c.query) ? 0 : 3) +
         (titleOnly ? 5 : 0) +
         (foreign(r) && !selected.some((s) => foreign(s.row)) ? 5 : 0) +
+        // Articles matched by a planned query beat those only a broadened query found.
+        (c.broadened ? 0 : 6) +
         Math.min(4, Number(r.relevance_rank) || 0) +
         (c.known ? -10 : 0)
       );
@@ -171,9 +203,13 @@ export async function collectExpandedLibrary(
     maxQueriesPerTarget: null,
     maxPagesPerQuery: null,
     candidatesPerPage: null,
-    maxArticlesPerTarget: optionalMaximum(options.maxArticlesPerTarget),
+    maxArticlesPerTarget:
+      options.maxArticlesPerTarget !== undefined
+        ? optionalMaximum(options.maxArticlesPerTarget)
+        : envLimit("FORECAST_LIBRARY_MAX_ARTICLES", DEFAULT_MAX_ARTICLES_PER_TARGET),
     maxPdfArticles: optionalMaximum(options.maxPdfArticles),
-    maxPdfArticlesPerTarget: null,
+    // Per target, so a comparison of several companies keeps a PDF allowance for each.
+    maxPdfArticlesPerTarget: envLimit("FORECAST_LIBRARY_MAX_PDFS", DEFAULT_MAX_PDF_ARTICLES),
     maxCharsPerRead: 0
   };
   const result: ExpandedLibraryCoverage = {
@@ -202,15 +238,25 @@ export async function collectExpandedLibrary(
   const selectedByTarget = new Map<string, Candidate[]>();
   // Subject spellings per target, including the gateway's aliases, for reading checks.
   const subjectForms = new Map<string, Set<string>>();
+  // Lower-cased spellings of each subject (its name plus gateway aliases), for broadening.
+  const subjectAliases = new Map<string, Set<string>>();
+  const aliasesOf = (subject: string | undefined): Set<string> => {
+    if (!subject) return new Set();
+    const key = subject.toLowerCase();
+    if (!subjectAliases.has(key)) subjectAliases.set(key, new Set([key]));
+    return subjectAliases.get(key)!;
+  };
   const uncovered = new Set<string>();
 
   // Complete candidate discovery across every target before choosing what to read.
   for (const [targetId, queries] of groups) {
     const plan = queryPlan(queries, mode);
     const subject = plan.find((q) => q.subject)?.subject;
+    const subjects = [...new Set(plan.flatMap((q) => (q.subject ? [q.subject] : [])))];
     const target: TargetAudit = {
       targetId,
       ...(subject ? { subject } : {}),
+      ...(subjects.length > 1 ? { subjects } : {}),
       queryCount: 0,
       candidateCount: 0,
       readArticleCount: 0,
@@ -281,7 +327,11 @@ export async function collectExpandedLibrary(
             target.subjectCovered = true;
             for (const group of Array.isArray(search.keyword_groups) ? search.keyword_groups : [])
               if (String(group?.keyword ?? "").toLowerCase() === q.subject!.toLowerCase() && Array.isArray(group.alternatives))
-                for (const form of group.alternatives) if (typeof form === "string" && form.trim()) subjectForms.get(targetId)!.add(form);
+                for (const form of group.alternatives)
+                  if (typeof form === "string" && form.trim()) {
+                    subjectForms.get(targetId)!.add(form);
+                    aliasesOf(q.subject).add(form.trim().toLowerCase());
+                  }
           } else if (q.subject) {
             const note = `The research gateway ignored subject ${q.subject} (its reply has no subject_probe), so these results are not anchored to it; update the gateway.`;
             if (!target.limitations.includes(note)) {
@@ -290,7 +340,13 @@ export async function collectExpandedLibrary(
             }
           }
           if (!rows.length && offset === 0) {
-            plan.push(...broaderQueries(q, anchored).filter((b) => !plan.some((p) => searchKey(p) === searchKey(b))));
+            // The gateway's probe counts library articles naming the subject.
+            const subjectMentions = anchored ? numeric((search.subject_probe as { total?: unknown } | undefined)?.total) : undefined;
+            const heavy = anchored && (subjectMentions === undefined || subjectMentions > (budgets.maxArticlesPerTarget ?? DEFAULT_MAX_ARTICLES_PER_TARGET));
+            const forms = heavy ? aliasesOf(q.subject) : new Set<string>();
+            plan.push(...broaderQueries(q, anchored, forms).filter((b) => !plan.some((p) => searchKey(p) === searchKey(b))));
+            if (heavy && q.scope === "all" && !q.broadened && q.keywords.some((k) => forms.has(k.toLowerCase())))
+              target.limitations.push(`${q.subject} appears in ${subjectMentions ?? "an unreported number of"} library articles, more than the reading budget, so the empty search "${q.query}" is recorded as a result and not broadened to ${q.subject} alone.`);
             if (!anchored && q.scope === "all" && !q.broadened && q.keywords.length > 1)
               target.limitations.push(`No article matched every keyword of "${q.query}". Without a subject anchor a single keyword is not searched on its own: it matches unrelated documents that would all need review.`);
           }
@@ -304,7 +360,8 @@ export async function collectExpandedLibrary(
             if (!id) continue;
             const previous = candidates.get(id);
             // Preserve the useful body offset if a later title search returns the same article.
-            if (!previous) candidates.set(id, { row: { ...row, id }, query: q.query, subject: q.subject, targetId, known: known.has(id) });
+            if (!previous) candidates.set(id, { row: { ...row, id }, query: q.query, subject: q.subject, targetId, known: known.has(id), broadened: !!q.broadened });
+            else if (previous.broadened && !q.broadened) previous.broadened = false;
           }
           if (exhausted) break;
           if (nextOffset === null || nextOffset <= offset || !rows.length) {
@@ -474,6 +531,11 @@ export async function collectExpandedLibrary(
       target.limitations.push(`PDF already attempted unsuccessfully for shared article ${row.id}.`);
       continue;
     }
+    if (budgets.maxPdfArticlesPerTarget !== null && target.pdfAttemptCount >= budgets.maxPdfArticlesPerTarget) {
+      target.coverageExhausted = false;
+      target.limitations.push(`PDF collection budget per target reached for ${row.id}; summary is not PDF verification.`);
+      continue;
+    }
     if (budgets.maxPdfArticles !== null && audit.pdfAttemptCount >= budgets.maxPdfArticles) {
       target.coverageExhausted = false;
       target.limitations.push(`PDF collection budget reached for ${row.id}; summary is not PDF verification.`);
@@ -580,6 +642,17 @@ export async function collectExpandedLibrary(
   }
   audit.completedAtUtc = new Date().toISOString();
   result.collectionAudit = [audit];
+  const chars = result.readings.reduce((sum, r) => sum + r.text.length, 0);
+  const minutes = (Date.parse(audit.completedAtUtc) - Date.parse(audit.startedAtUtc)) / 60_000;
+  const articles = new Set(result.readings.map((r) => r.articleId)).size;
+  const pdfs = new Set(result.readings.filter((r) => r.format === "pdf").map((r) => r.articleId)).size;
+  log(
+    `  Expanded resource library ${mode === "broad" ? "pre-read" : "follow-up"}: ${result.candidates!.length} candidates, ${articles} articles read (${pdfs} PDFs), ${chars.toLocaleString("en-US")} characters, ${minutes.toFixed(1)} min`
+  );
+  if (chars > PREREAD_WARN_CHARS || minutes > PREREAD_WARN_MINUTES)
+    log(
+      `  ⚠ Expanded resource library ${mode === "broad" ? "pre-read" : "follow-up"} is unusually large; every article read must be cited or excluded. Narrow the queries or lower FORECAST_LIBRARY_MAX_ARTICLES.`
+    );
   return result;
 }
 
