@@ -75,6 +75,15 @@ const CASES: ReadonlyArray<CaseStudy> = [
     summaryKey: "iaUniswapSummary",
     signalLabelKey: "iaUniswapSignalLabel",
     signalKey: "iaUniswapSignal"
+  },
+  {
+    slug: "global-datacenter-capacity",
+    index: "08",
+    companyKey: "iaDatacenterCompany",
+    titleKey: "iaDatacenterTitle",
+    summaryKey: "iaDatacenterSummary",
+    signalLabelKey: "iaDatacenterSignalLabel",
+    signalKey: "iaDatacenterSignal"
   }
 ];
 
