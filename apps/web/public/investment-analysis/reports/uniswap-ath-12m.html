@@ -1,0 +1,1035 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>未来12个月 Uniswap 破前高的概率</title><link rel="icon" href="data:,">
+<style>
+:root{--ink:#18201d;--muted:#657069;--paper:#fffdf8;--canvas:#eeeae1;--line:#d9d4c8;--accent:#9d3f25;--accent-soft:#f5e7df;--shadow:0 18px 55px rgba(47,42,31,.10)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:var(--canvas);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;line-height:1.72}
+.topbar{position:sticky;top:0;z-index:10;background:rgba(255,253,248,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1480px;margin:auto;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-weight:750;letter-spacing:.02em}.brand span{color:var(--accent)}
+.meta{font-size:13px;color:var(--muted)}
+.layout{max-width:1480px;margin:28px auto 64px;padding:0 24px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px}
+.toc{position:sticky;top:72px;align-self:start;max-height:calc(100vh - 96px);overflow:auto;padding:18px 14px;border:1px solid var(--line);border-radius:14px;background:rgba(255,253,248,.72)}
+.toc-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.toc a{display:block;color:var(--ink);text-decoration:none;font-size:13.5px;padding:4px 8px;border-radius:8px;margin:1px 0}
+.toc a:hover{background:var(--accent-soft);color:var(--accent)}
+main{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:40px 48px 56px;min-width:0}
+main h1{font-size:26px;line-height:1.35;margin:.2em 0 .6em;letter-spacing:.01em}
+main h2{font-size:21px;margin:2.2em 0 .7em;padding-top:.6em;border-top:1px solid var(--line)}
+main h3{font-size:17px;margin:1.6em 0 .5em;line-height:1.5}
+main h2:first-of-type{border-top:none;padding-top:0;margin-top:1em}
+main a{color:var(--accent)}
+main blockquote{margin:1.2em 0;padding:12px 18px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0}
+main blockquote p{margin:.3em 0}
+.tablewrap{overflow-x:auto;margin:1.1em 0}
+main table{border-collapse:collapse;font-size:14px;min-width:60%}
+main th{background:var(--accent-soft);color:var(--ink);text-align:left;font-weight:650}
+main th,main td{border:1px solid var(--line);padding:8px 12px;vertical-align:top;line-height:1.65}
+main tr:nth-child(even) td{background:rgba(238,234,225,.35)}
+main code{background:var(--canvas);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.9em}
+main hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+main li{margin:.25em 0}
+main ul ul,main ol ul{margin-top:.2em}
+main strong{color:#111}
+main u.key{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:4px}
+main u.minor{text-decoration:underline dotted;text-decoration-color:#9aa39d;text-decoration-thickness:1.5px;text-underline-offset:4px}
+main u.ask{text-decoration:underline;text-decoration-color:#8d9a91;text-decoration-thickness:1px;text-underline-offset:5px;font-weight:600;color:#2f3a34}
+main li>u.ask{display:inline-block;margin-bottom:.25em}
+.tag{display:inline-block;font-size:11.5px;line-height:1;padding:3px 6px;border-radius:5px;background:var(--canvas);border:1px solid var(--line);color:var(--muted);margin-right:5px;vertical-align:1px;white-space:nowrap}
+.note{display:block;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.55;font-weight:400}
+.legend{font-size:13.5px;color:#4d5651;background:rgba(238,234,225,.5);border:1px dashed var(--line);border-radius:10px;padding:10px 14px;margin:.6em 0 1.2em;line-height:1.75}
+.legend p{margin:.2em 0}
+.formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"PingFang SC","Hiragino Sans GB",monospace;background:var(--canvas);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:1em 0;line-height:2;font-size:13.5px;overflow-x:auto;white-space:nowrap}
+.formula b{color:var(--accent)}
+.org td:first-child,.tight1 td:first-child{white-space:nowrap}
+.org td:first-child{font-weight:650}
+.org td:nth-child(2){width:58%}
+.org td:nth-child(3){min-width:260px}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.toc{position:static;max-height:none}main{padding:24px 20px}}
+</style></head><body>
+<div class="topbar"><div class="topbar-inner"><div class="brand">Predict-Raven</div><div class="meta">未来12个月 Uniswap 破前高的概率｜生成 2026-09-29｜research-only / market-blind</div></div></div>
+<div class="layout"><nav class="toc"><div class="toc-title">目录</div><a href="#12-uniswap">未来 12 个月 Uniswap 破前高的概率</a>
+<a href="#1">1. 阅读结论</a>
+<a href="#2">2. 路径推演</a>
+<a href="#3">3. 核心判断</a>
+<a href="#4">4. 结算口径</a>
+<a href="#5">5. 情景与路径</a>
+<a href="#6">6. 关键证据表</a>
+<a href="#7">7. 信息缺口树</a>
+<a href="#8">8. 信源梯度反馈</a>
+<a href="#9">9. 自检结果</a>
+<a href="#10">10. 最终预测声明</a>
+<a href="#_2">附录·当前估计依据</a></nav><main><h1 id="12-uniswap">未来 12 个月 Uniswap 破前高的概率</h1>
+<div class="note">
+<p>研究日 2026-09-29｜窗口 2026-09-29 至 2027-09-29（UTC）｜结算口径见第 4 节</p>
+</div>
+<h2 id="1">1. 阅读结论</h2>
+<p><strong>客户原题：</strong> 未来12个月uniswap破前高的概率（现在是26年9月底）</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>问的是什么</th>
+<th>概率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>严格口径：窗口内币安 UNI/USDT 任意一根 1 分钟 K 线的最高价高于 45.00 美元</strong> <br><span class="note">45.00 美元是 2021-05-03 的历史最高价；碰到就算，不要求收盘站上。详见第 4 节</span></td>
+<td><strong>4%</strong></td>
+</tr>
+<tr>
+<td>参考：同一窗口碰到 30 美元 <br><span class="note">需要从今天的约 8.6 美元涨约 3.5 倍</span></td>
+<td>10%</td>
+</tr>
+<tr>
+<td>参考：同一窗口碰到 19.47 美元 <br><span class="note">上一轮行情的高点（2024-12-08），需要涨约 2.3 倍</span></td>
+<td>25%</td>
+</tr>
+</tbody>
+</table></div>
+<div class="note">
+<p>三个数字的关系：UNI 要碰到 45 美元，途中一定先碰到 19.47 和 30 美元，所以概率逐级递减。从 25% 掉到 4%，差的主要是"比特币创新高之后，UNI 能不能继续大幅跑赢比特币"——上一轮比特币创新高时，UNI 只到了 19.47 美元，也就是前高的 43%。</p>
+</div>
+<p><strong>一句话结论：我们认为大概率不会破前高（4%）。</strong></p>
+<p>原因是两条同时成立：<strong>UNI 自己的现金流撑不起五倍估值</strong>——就算按 2026 年市场给回购代币的最高估值倍数算，45 美元也需要每年销毁 8 亿到 10 亿美元的 UNI，而最近 30 天的速度折合每年约 1.9 亿美元，最近一周只有约 1.4 亿美元；<strong>并且，能替它补上这个差距的"全市场普涨"大概率不会在窗口内出现</strong>——美联储 9 月刚刚加息，比特币还处在熊市见底后的修复早段，2021 年那种资金涌向所有山寨币的环境，要等流动性真正转向。</p>
+<p>最可能推翻这个判断的情形是：2027 年 4 月前后 UNI 现货 ETF 上市，同时比特币创出新高，Uniswap 的销毁规模再放大几倍。竞争对手 HYPE 今年就是靠"收入回购＋ETF＋新业务"在弱市里创出新高的。</p>
+<h2 id="2">2. 路径推演</h2>
+<h3 id="20">2.0 这是什么资产</h3>
+<p>Uniswap 是以太坊上规模最大的<strong>去中心化交易所</strong>之一：用户不经过任何公司或撮合引擎，直接和链上的资金池换币；往池子里放钱的人（做市商）赚每一笔交易的手续费。它由 Hayden Adams 在 2018 年创立，今天由公司 Uniswap Labs 开发前端和新版本，协议规则由持币人投票决定。</p>
+<p><strong>UNI</strong> 是它的治理代币，2020 年 9 月 17 日通过空投发行：每个用过 Uniswap 的地址领到 400 枚。截至 2026 年 9 月 29 日，UNI 约 8.6 美元，流通市值约 53 亿美元，在全部加密资产中排第 23 位（CoinGecko 口径）。</p>
+<p>这枚代币过去最大的问题是<strong>只有投票权、没有现金流</strong>：协议的手续费全部归做市商，持币人拿不到。2025 年 11 月 10 日，Uniswap Labs 和 Uniswap 基金会提出"UNIfication"方案，12 月底投票通过、12 月 27 日链上执行：打开"手续费开关"，从交易手续费里抽一部分归协议，谁想取走这笔手续费，就得先交出 UNI 并销毁掉，效果相当于用手续费回购并销毁 UNI；同时从国库一次性销毁 1 亿枚。2026 年 3 月、6 月、7 月，收费范围又三次扩大，覆盖了以太坊主网的全部第三版池子和另外十余条链，其中包括 Robinhood 自建的区块链 Robinhood Chain。<strong>UNI 第一次和协议的生意挂上了钩。</strong></p>
+<p>它成为这道题的标的，是因为两件事撞在了一起：一边是 7 月 Robinhood Chain 上线后，链上成交几乎全部走 Uniswap，UNI 从 6 月的 2.3 美元涨到 9 月 23 日的 10.9 美元；另一边，它的历史最高价 45 美元还停在 2021 年 5 月，今天的价格离它还差五倍多。</p>
+<div class="legend">
+<p><strong>几个后文反复出现的词，先解释清楚：</strong></p>
+<ul>
+<li><strong>去中心化交易所</strong>：在区块链上用智能合约完成换币的交易所，没有公司托管用户资产。它按公式自动报价，这种机制叫<strong>自动做市商</strong>。</li>
+<li><strong>治理代币</strong>：持有者可以对协议规则投票；除非协议另行设计，本身不分钱。</li>
+<li><strong>手续费开关与回购销毁</strong>：协议从交易手续费中抽出一部分，用来换回自己的代币并永久销毁，流通的币因此变少，效果类似上市公司回购注销股票。Uniswap 的做法是把手续费存进一个合约，任何人想取走，都要先交出一定数量的 UNI 销毁，所以销毁额约等于这笔手续费的价值。</li>
+<li><strong>流通市值与完全稀释估值</strong>：流通市值＝价格 × 已在市场上流通的币数；完全稀释估值＝价格 × 总供应量（含国库里还没放出来的币）。</li>
+<li><strong>山寨币与山寨季指数</strong>：比特币以外的加密资产统称山寨币。山寨季指数统计市值前 100 的币里有多少在过去 90 天跑赢比特币，达到 75 才算"山寨季"。</li>
+<li><strong>比特币"四年周期"</strong>：比特币约每四年把新币产出减半一次（上一次 2024 年 4 月，下一次约 2028 年 4 月），过去几轮行情的顶部都出现在减半后一年到一年半。</li>
+<li><strong>UNI/BTC 比价</strong>：一枚 UNI 值多少比特币。它剔除了大盘涨跌，只看 UNI 自己相对强还是弱。</li>
+<li><strong>现货 ETF</strong>：在美国证券交易所上市、直接持有该币的基金，传统投资者用股票账户就能买。</li>
+<li><strong>K 线与插针</strong>：K 线记录一段时间里的开盘、最高、最低、收盘价；插针指一瞬间的异常成交把最高价或最低价拉出一根长影线、随即回落。</li>
+</ul>
+</div>
+<h3 id="21">2.1 拆解树</h3>
+<p>UNI 的美元价格可以拆成两部分：<strong>比特币的价格 × UNI/BTC 比价</strong>。今天两者的乘积是 8.6 美元，要到 45 美元，乘积必须涨 5.2 倍。所以如果"12 个月内破前高"这个命题成立，需要以下几个条件同时满足：大盘给出足够空间，UNI 相对比特币大幅走强，而且有现金流和交易结构撑住这个价位。</p>
+<p>研究权重指我们花在这一环上的注意力，不是概率。</p>
+<p><strong>一、大盘给出足够空间（研究权重 30%，对应 P(大盘上行)）</strong></p>
+<ul>
+<li><u class="ask">比特币会不会在窗口内创新高？</u><ul>
+<li>比特币 2025-10-06 见顶 126,200 美元，2026-07-01 跌到 57,800 美元，现在约 83,200 美元，要回到前高还需涨 52%。</li>
+<li>前两轮周期里，比特币从见底到回到前高分别用了 23.5 个月和 15.5 个月。本轮底部在 7 月初，窗口在底部后约 15 个月结束，正好卡在"最快的那一次"的边缘。</li>
+</ul>
+</li>
+<li><u class="ask">这段反弹是牛市开始，还是熊市里的反弹？</u><ul>
+<li>两派都有：摩根大通把 8 月行情称为"死猫反弹"，富达的 Jurrien Timmer 和链上研究者 Michael Nadeau 则认为早期牛市已经开始。</li>
+<li>但即使按乐观派的框架，早期牛市也是比特币领涨、新资金还没进来的阶段，通常持续 9 到 12 个月，恰好覆盖大半个窗口。</li>
+</ul>
+</li>
+<li><u class="ask">钱从哪里来？</u><ul>
+<li>美联储 9 月 16 日加息到 3.75%–4.00%，点阵图显示 2027 年底利率仍在 4.1% 左右；10 年期美债收益率 5.17%，扣除通胀后的实际利率 2.83%。</li>
+<li>稳定币（与美元挂钩、在链上充当现金的代币）总量一年只增加 5.5%；2021 年 UNI 创新高时，这个数字是一年增加约 9 倍。</li>
+</ul>
+</li>
+</ul>
+<p><strong>二、UNI 相对比特币大幅走强（研究权重 30%，对应 P(相对走强｜大盘上行)）</strong></p>
+<ul>
+<li><u class="ask">比价需要回到哪里？</u><ul>
+<li>比特币回到 12.6 万美元时，UNI/BTC 需要涨到今天的 3.5 倍，上次出现在 2022 年 12 月；比特币到 20 万美元时，也还需要 2.2 倍，上次出现在 2024 年 3 月手续费开关行情的顶点。</li>
+</ul>
+</li>
+<li><u class="ask">UNI 过去在牛市里跑赢过比特币吗？</u><ul>
+<li>2021 年以来比特币季度涨幅超过 15% 的 9 个季度里，UNI 涨幅中位数只比比特币略高；扣掉跟随比特币的部分，UNI 平均每年还要再跑输比特币约三分之一。</li>
+<li>2021 年之后唯一的例外是 2026 年 6 月以来：比特币涨 37%，UNI 涨 257%，这是它历史上最强的一段独立行情。</li>
+</ul>
+</li>
+<li><u class="ask">上一次比特币创新高时，UNI 到了哪里？</u><ul>
+<li>2024 年 12 月，比特币已经比 2021 年前高高出约 45%，山寨季指数到 82，UNI 最高只到 19.47 美元，是前高的 43%。</li>
+</ul>
+</li>
+</ul>
+<p><strong>三、现金流撑得起这个估值（研究权重 25%，对应 P(基本面支撑｜前两项)）</strong></p>
+<ul>
+<li><u class="ask">UNI 现在每年被销毁多少？</u><ul>
+<li>按协议数据平台 DefiLlama 的统计，最近 30 天折合每年约 1.9 亿美元，最近一周约 1.4 亿美元；9 月初峰值那一周折合每年约 2.6 亿美元。</li>
+<li>过去 12 个月实际销毁的总额只有约 5,300 万美元。</li>
+</ul>
+</li>
+<li><u class="ask">45 美元需要多少？</u><ul>
+<li>45 美元对应约 280 亿美元的流通市值。即便按 2026 年市场给 HYPE（回购力度最大的交易类代币）的估值倍数，也需要每年销毁 8 亿到 10 亿美元，是最近 30 天速度的 4 到 5 倍、最近一周速度的 6 到 7 倍。</li>
+</ul>
+</li>
+<li><u class="ask">这门生意还能长多大？</u><ul>
+<li>Uniswap 9 月的全部手续费约 2 亿美元，是 2021 年 5 月之后最高的一个月，但到达 UNI 的只有约 7.6%，其余仍归做市商；第四版里带插件的池子大多不收协议费。</li>
+<li>这波增量主要来自 Robinhood Chain 上的 meme 币（没有基本面、靠社交传播炒作的代币）交易；这条链贡献的销毁，最近一周已比 9 月初那一周降了 74%。</li>
+</ul>
+</li>
+</ul>
+<p><strong>四、交易结构和抛压不打断上涨（研究权重 15%，对应 P(抛压可控｜前三项)）</strong></p>
+<ul>
+<li><u class="ask">好消息带来的上涨能持续多久？</u><ul>
+<li>2024 年 2 月手续费开关提案当天涨 55%，约七周后就跌破公告前的价格；2025 年 11 月 UNIfication 公布当天涨 42%，十天后就跌回公告前的价格。</li>
+</ul>
+</li>
+<li><u class="ask">谁在卖？</u><ul>
+<li>UNIfication 同时给 Uniswap Labs 每年 2,000 万枚 UNI 的增长预算，按季度从国库发放，1 月、4 月、7 月各 500 万枚已到账，下一笔预计在 10 月初。2025 年 12 月以来持续销毁约 1,230 万枚，少于同期发放的 1,500 万枚，流通量基本持平。</li>
+<li>价格越高，同样美元的手续费能烧掉的币越少：若 UNI 到 45 美元，每年 2,000 万枚预算价值 9 亿美元，而销毁只能烧掉几百万枚。</li>
+</ul>
+</li>
+<li><u class="ask">这波上涨是现货买的，还是杠杆推的？</u><ul>
+<li>主要是现货。币安 UNI 永续合约（没有到期日、可以加杠杆的合约）持仓量从 8 月底的 1.1 亿美元涨到 9 月 23 日的约 3.3 亿美元，但资金费率（多空双方定期互付的费用，多头越拥挤越高）平均只有每 8 小时 0.0072%，接近常态；2021 年冲向 45 美元时是 0.079%，高出十倍。</li>
+<li>这说明行情没有被杠杆透支，但也说明 2021 年那种狂热还没有出现。</li>
+</ul>
+</li>
+<li><u class="ask">币在往哪里流？</u><ul>
+<li>往交易所流。9 月交易所持有的 UNI 创下 1.139 亿枚的纪录，价格冲顶的那几天币安净流入近 1,000 万枚；9 月 28 日，一个在 6–7 月（当时 UNI 约 2.3 到 4.4 美元）收到约 147 万枚的地址转出了 137 万枚，链上分析机构标注的去向是做市商（未独立核实）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="22">2.2 关键参与方关系表</h3>
+<div class="note">
+<p>"打灯"是客户自己的用法：给每条关系的当前状态打一个分（5 分制），绿灯＝顺畅，黄灯＝方向一致但执行待验证，红灯＝有结构性摩擦。本题没有单一公司的管理层，所以这里列的是影响 UNI 价格的各方关系。</p>
+</div>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>关系链条</th>
+<th>打灯</th>
+<th>目前关系</th>
+<th>对本题意味着什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Uniswap Labs（Hayden Adams）→ UNI 持有人</td>
+<td>4 绿</td>
+<td>授权型支持。UNIfication 后 Labs 取消了自己的前端收费，全部协议收入进入销毁；Labs 的收入改为国库每年拨给的 2,000 万枚 UNI</td>
+<td>利益基本对齐；但这笔预算本身就是每年持续的潜在卖盘</td>
+</tr>
+<tr>
+<td>Uniswap 治理 → 手续费开关扩展</td>
+<td>4 绿</td>
+<td>2026 年 3 月、6 月、7 月三次通过扩展提案，收费范围从主网扩到十余条链；Circle 公链 Arc 的收费提案正在投票</td>
+<td>销毁的来源在持续变宽，这是"现金流会继续长"的主要依据</td>
+</tr>
+<tr>
+<td>Robinhood → Uniswap</td>
+<td>3 黄</td>
+<td>方向上合作：Robinhood Chain 的流动性几乎全部由 Uniswap 提供，Hayden 说这里已是 Uniswap 成交最多的地方；但成交以 meme 币为主，这条链贡献的销毁 9 月下旬比月初降了 74%，Uniswap 在链上的份额也从 96.5% 降到 77.5%</td>
+<td>最大的增量来源，可持续性待验证；Robinhood 也可能在监管要求下调整链上股票代币的玩法</td>
+</tr>
+<tr>
+<td>美国证监会（SEC）、商品期货交易委员会（CFTC）→ UNI</td>
+<td>3 黄</td>
+<td>窗口内明显转暖：9 月 25 日 SEC 工作人员问答表示，网络已能运行、没有中心方时，宣布回购本身不构成证券认定所看的"关键管理努力"（工作人员意见，无法律效力）；9 月 17 日给许可制自动做市商交易代币化股票开了口子；但市场结构法案 9 月 15 日在参议院失败</td>
+<td>窗口内偏利好；11 月中期选举后监管方向可能反复</td>
+</tr>
+<tr>
+<td>美联储 → 加密市场</td>
+<td>2 红</td>
+<td>9 月 16 日加息，点阵图显示 2027 年底前不降息；主席沃什称金融条件"很难说是偏紧"</td>
+<td>全市场普涨的燃料不足，这是本题最硬的外部约束</td>
+</tr>
+<tr>
+<td>比特币 → 山寨币</td>
+<td>3 黄</td>
+<td>比特币市占率 58%，山寨季指数 59–60，没到 75 的门槛；资金集中在比特币、以太坊和少数有现金流的代币</td>
+<td>UNI 需要被资金单独挑中，不能指望"水涨船高"</td>
+</tr>
+<tr>
+<td>早期投资人与大户 → 市场</td>
+<td>3 黄</td>
+<td>长期大户和疑似基金会钱包在这波上涨中基本没动；但风投背景的持有人在反弹时有大额转出的先例（2025 年 6 月 a16z 转出逾 1.5 亿美元的 UNI），9 月 28 日又有一个低位收币的地址转出 137 万枚，去向被标注为做市商</td>
+<td>价格每上一个台阶，都会遇到获利盘；交易所余额创纪录，说明卖方在准备</td>
+</tr>
+<tr>
+<td>HYPE 等回购代币 → UNI</td>
+<td>3 黄</td>
+<td>同赛道竞争：2026 年全市场代币回购里约九成来自 Hyperliquid 和 Pump.fun，"收入加回购"已成行业标配</td>
+<td>UNI 的先发优势在缩小，想拿到 HYPE 式估值需要更大的现金流</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="23">2.3 要素快照</h3>
+<div class="org">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>要素</th>
+<th>当前事实</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>价值捕获机制</strong></td>
+<td>2025-11-10 公布 UNIfication，2025-12-27 链上执行：打开 v2／v3 协议费，追溯销毁 1 亿枚；此后 2026-03-06/07 扩到全部主网 v3 池与 8 条二层网络，06-01 加入 BNB 链与 Polygon，07-27 加入 Robinhood Chain 与 v4（🏛️ Uniswap 博客 2025-11-10；🏛️ 治理提案 93–100 链上执行记录）</td>
+<td>从"只能投票、不分钱"变成"全部协议收入用于销毁"</td>
+</tr>
+<tr>
+<td><strong>销毁规模</strong></td>
+<td>①DefiLlama（2026-09-29）：最近 7 天折合每年 1.38 亿美元，最近 30 天 1.92 亿美元，过去 12 个月实际 5,278 万美元<br>②按月看，1–6 月每月 270 万至 500 万美元，8 月 845 万，9 月 1,751 万（本报告按链上销毁记录计算）<br>③Hayden Adams："We're running about 100 million annualized"（🎙️ Empire 播客，2026-08-17）；9 月 8 日他在 X 上贴出峰值周读数 2.63 亿美元/年</td>
+<td>7 月 27 日接入 Robinhood Chain 后销毁速度翻倍，9 月初见顶，此后三周连续回落</td>
+</tr>
+<tr>
+<td><strong>到达代币的比例</strong></td>
+<td>①过去 30 天 1.193 亿美元手续费中，只有 945 万美元（7.9%）通过销毁到达 UNI（📰 BeInCrypto，2026-09-03）<br>②9 月全部手续费 1.979 亿美元、归持有人 1,513 万美元，约 7.6%；v4 占手续费的 66%，其中带插件的池子大多不在收费范围内（DefiLlama；🏛️ v4 收费提案，2026-07-07）</td>
+<td>做市商仍拿走九成以上；提高抽成要走治理投票，治理论坛上已有做市商公开反对</td>
+</tr>
+<tr>
+<td><strong>成交来源</strong></td>
+<td>①Robinhood Chain 7 月 1 日上线，8 月成交约 180 亿美元，绝大部分走 Uniswap（📰 BeInCrypto，2026-09-03）<br>②全链交易所周成交从 182 亿美元（8/31–9/06）降到 96.5 亿美元（9/21–9/27）；Uniswap 在该链份额从 7 月的 96.5% 降到最近一周的 77.5%（DefiLlama）<br>③德银转述 Robinhood 管理层：8 月下旬的加速来自 meme 币发射平台（💹 德银，2026-09-14）<br>④剔除 Robinhood Chain 后，Uniswap 在全部链上交易所的份额 9 月为 18.8%，与 1–8 月的 16.5%–21.8% 没有差别（DefiLlama）</td>
+<td>从以太坊主网为主，变成一条新链贡献几乎全部增量；增量以 meme 币为主，已从峰值回落</td>
+</tr>
+<tr>
+<td><strong>供给</strong></td>
+<td>①扣除销毁后的总量约 8.88 亿枚，流通约 6.20 亿枚（CoinGecko，2026-09-29）；治理国库持有约 2.67 亿枚（🏛️ 链上读数，2026-09-29）<br>②Labs 增长预算每年 2,000 万枚，2026-01-05、04-10、07-14 各发放 500 万枚（🏛️ 链上转账记录）<br>③2025-12-29 以来持续销毁 1,230 万枚，约合 5,290 万美元（本报告按链上记录计算）<br>④治理保留每年最多增发 2% 的权限，至今未用</td>
+<td>总量第一次下降，但发放与销毁大致相抵，流通量基本持平</td>
+</tr>
+<tr>
+<td><strong>监管与准入</strong></td>
+<td>①SEC 问答 2.5：网络可运行且无中心方时，宣布回购不构成"关键管理努力"承诺（🏛️ SEC，2026-09-25）<br>②CME 宣布 10-19 上线 UNI 期货，待监管审查（🏛️ CME，2026-09-22）<br>③Bitwise 现货 UNI ETF 注册文件 2026-02-05 提交，此后未修订（🏛️ SEC 电子申报系统）<br>④市场结构法案 9-15 参议院程序性表决 49:50 失败（🏛️ GovTrack 表决记录；📰 CoinDesk，2026-09-15）</td>
+<td>从 2024 年收到 SEC 执法前警告，变成回购在满足条件时不再被当作证券化的信号（Uniswap 是否满足"没有中心方"仍有解释空间）；ETF 通道约在 2027 年 4 月具备条件</td>
+</tr>
+<tr>
+<td><strong>大盘与流动性</strong></td>
+<td>比特币约 83,200 美元，较前高 −34%；美联储 9-16 加息 25 个基点；10 年期美债 5.17%（🏛️ 美联储、FRED，2026-09-25）；稳定币 3,113 亿美元，同比 +5.5%（DefiLlama）</td>
+<td>8 月以来反弹，比特币现货 ETF 9 月最后一周净流入 24 亿美元；但利率和流动性在收紧</td>
+</tr>
+<tr>
+<td><strong>交易结构</strong></td>
+<td>①币安 UNI 永续合约持仓量：8-31 约 1.1 亿美元 → 9-23 峰值约 3.3 亿美元 → 9-29 约 2.3 亿美元（🏛️ 币安公开接口）<br>②资金费率 8-16 至 9-23 平均每 8 小时 0.0072%；2021 年 3–5 月冲顶期平均 0.079%（🏛️ 币安公开接口，全部历史）<br>③全部交易所持有的 UNI 创纪录 1.139 亿枚（📰 BeInCrypto 引 CryptoQuant，2026-09-24）；币安热钱包 9-16 至 9-28 净流入约 990 万枚（🏛️ 链上记录）</td>
+<td>上涨由现货推动、杠杆不热；但冲顶时大量币转进交易所，UNI 自 9-23 高点已回落约 21%</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<h2 id="3">3. 核心判断</h2>
+<div class="legend">
+<p>依据前的图标：🏛️ 官方材料（公告、监管文件、交易所与链上数据）｜📰 新闻报道｜💹 卖方或机构研究｜🎙️ 播客｜🗣️ 专家访谈。实线下划线是承重证据（拿掉它判断会变），虚线是佐证。</p>
+</div>
+<h3 id="31-45">3.1 45 美元是狂热期的价格，同类资产在上一轮完整牛市里一次都没回去过</h3>
+<p>UNI 的前高诞生在 2021 年 5 月：零利率、美联储资产负债表一年多扩张八成、稳定币一年涨九倍，所有 DeFi（去中心化金融）代币一起被推到天上。那时 UNI 没有任何现金流，完全稀释估值却约 450 亿美元。</p>
+<p>之后的五年里，市场改用手续费和收入给这些代币估值。结果是：<u class="key">2024–2025 年比特币、以太坊都创了新高，但 2021 年见顶的 DeFi 蓝筹没有一个回到前高，回得最多的 MKR 到前高的 65%，AAVE 到 60%，UNI 只到 43%</u>。</p>
+<p>我们用币安全部 675 个交易对（含已下架的币）做了统计：像 UNI 这样距前高跌了七八成、前高已是两年以前的币，一年内回到前高的比例整体约 6%。比例最高的是 2020 年那一批（73%）——它们赶上了 2021 年的全面牛市；2023 年以后的起点里，这个比例只有 2% 到 7%；前高超过三年的，只有 2%。</p>
+<p>依据：</p>
+<ul>
+<li>🏛️ <span class="tag">事实</span> 币安日线（本报告计算）：41 个 2021 年见顶的 DeFi 及相邻代币里，2022 年以后重新超过 2021 年高点的只有 INJ 和 OM，两者都是改造成独立公链、换了叙事，不是靠手续费价值捕获。</li>
+<li>🏛️ <span class="tag">事实</span> 币安日线与 CoinMarketCap 数据接口：2024-12-08 UNI 最高 19.47 美元，当天山寨季指数 82，比特币已比 2021 年前高高出约 45%。</li>
+<li>🏛️ <span class="tag">事实</span> 币安日线（本报告计算）：<u class="key">2022 年以来，处在"距一个三年以上的老前高七到九成、且已比近期低点反弹 2.5 倍以上"状态的币，在约 80 个历史大市值币里有 28 个币-年，之后 12 个月没有一个再涨 5 倍或回到前高</u>；放宽到币安全部交易对是 118 个币-年，只有 3 个做到，其中两个是小市值代币的短暂拉升，另一个是 ZEC 的隐私币行情。UNI 今天正处在这个状态：距前高 81%，价格已是 6 月低点的 3.7 倍。</li>
+</ul>
+<p><strong>为什么重要：</strong> 这道题问的不是"UNI 会不会涨"，而是"UNI 会不会回到一个没有现金流时代的狂热价格"。历史上做到这件事的币，几乎都靠全市场流动性泛滥，而不是靠自身基本面。</p>
+<h3 id="32-uni-45">3.2 UNI 的现金流是真的，但离 45 美元差一个数量级</h3>
+<p>手续费开关是 UNI 五年来最重要的变化，这一点不应被低估。9 月 Uniswap 的全部手续费约 2 亿美元，是 2021 年 5 月之后最高的一个月；9 月的销毁额是 1–6 月月均的四倍以上。</p>
+<p>问题在于规模。45 美元对应约 280 亿美元流通市值。2026 年市场给"收入回购"代币的最高估值来自 HYPE：市值约为年化回购额的 28 倍。<u class="key">按这个倍数，UNI 到 45 美元需要每年销毁约 10 亿美元；而最近 30 天的速度折合每年约 1.9 亿美元，最近一周约 1.4 亿美元，过去 12 个月实际销毁的总额只有约 5,300 万美元</u>。Hayden Adams 9 月 8 日贴出的"年化 2.63 亿美元"，是 9 月初峰值那一周的读数。</p>
+<p>把缺口再往下拆一层，会更清楚它有多大。Uniswap 的手续费九成以上归做市商，到达 UNI 的只有约 7.6%。按这个比例，每年 10 亿美元的销毁需要 Uniswap 全年手续费约 132 亿美元，是 9 月年化水平的 5 倍多，是 2021 年全年的 8 倍多。提高抽成要走治理投票，治理论坛上已有做市商公开反对。</p>
+<p>供给端也在抵消销毁。UNIfication 给 Uniswap Labs 每年 2,000 万枚增长预算，按现价约 1.7 亿美元，与当前的销毁速度大致相当，所以流通量基本持平。而且价格越高，同样美元的手续费能烧掉的币越少，"越涨越通缩"的正循环并不成立。</p>
+<p>连看多的卖方也没有把 45 美元放进 2027 年：渣打 6 月首次覆盖 UNI，给出的 2027 年底目标是 20 美元。</p>
+<p>依据：</p>
+<ul>
+<li>🎙️ <span class="tag">来源陈述</span> Hayden Adams 在 Empire 播客（Blockworks，2026-08-17，本机转写）：<u class="minor">"all protocol revenue now feeds into this burn system"</u>；<u class="key">"We're running about 100 million annualized"</u>，更长时间的平均"more in like the 50 60 million"。</li>
+<li>🏛️ <span class="tag">事实</span> DefiLlama（2026-09-29 查询）：Uniswap 归持有人的收入（即销毁额）最近 7 天 265 万美元、最近 30 天 1,579 万美元、过去 12 个月 5,278 万美元；9 月手续费 1.979 亿美元，归持有人 1,513 万美元。</li>
+<li>🏛️ <span class="tag">来源陈述</span> Hayden Adams 在 X 上的帖子（2026-09-08）："update: now over $250m"，配图为 Uniswap Labs 数据面板的"7-day annualized burn rate"，读数 263,017,586 美元；同一面板 9 月 4 日的 30 天口径只有 1.19 亿美元。</li>
+<li>🏛️ <span class="tag">事实</span> Uniswap 链上记录（本报告读取）：国库在 2026-01-05、04-10、07-14 各向 Labs 发放 500 万枚；2025-12-29 以来持续销毁 1,230 万枚。</li>
+<li>💹 <span class="tag">卖方预测</span> 渣打首次覆盖 UNI（The Block 报道，Yogita Khatri，2026-06-15）：<u class="key">2026 年底 6.5 美元、2027 年底 20 美元、2028 年底 40 美元、2030 年底 100 美元</u>，覆盖时 UNI 约 2.70 美元。</li>
+<li>💹 <span class="tag">作者判断</span> Citrini Research《State of the Themes: June 2026》（2026-06-08，扩展资源库）：HYPE 的回购<u class="minor">"clocks in at roughly 7% annually"</u>，即回购额约为市值的 7%。按 9 月数据复算，这一比例已降到约 3.5%，也就是说 HYPE 的估值倍数在扩张，回购本身并没有变大。</li>
+</ul>
+<p><strong>为什么重要：</strong> 这是本题最核心的一环。大盘能给的只是跟随上涨的部分，要从 8.6 美元走到 45 美元，UNI 必须证明自己值 280 亿美元。按现在的销毁规模，即使给到 HYPE 的倍数，也只对应今天的价格；销毁再翻一倍、倍数再放大到 40 倍，也才对应约 25 美元，和渣打给的 2027 年底 20 美元在同一个量级。能让 45 美元"说得通"的，只剩 2021 年那种估值方式：当时市场按总手续费给 UNI 定价，流通市值约为年化总手续费的 15.8 倍，今天只有 2 到 3 倍；若市场重回那种定价，对应约 43 到 65 美元。但那是情绪，不是现金流，它把问题又交回了 3.4 节的大盘。</p>
+<h3 id="33-robinhood-chain-meme">3.3 这波上涨的燃料是 Robinhood Chain 上的 meme 币，而它已在降温</h3>
+<p>UNI 的价格从 6 月低点涨到了原来的 3.7 倍。驱动主要来自 7 月 1 日上线的 Robinhood Chain 带来的真实成交和销毁，外加 SEC 豁免、CME 期货两条监管消息和 8 月下旬的大盘反弹。Robinhood 把股票代币化（把美股变成链上代币）放上自己的链，链上的交易池主要由 Uniswap 提供；7 月 27 日这条链接入手续费开关后，UNI 的销毁速度翻倍。</p>
+<p>但这些成交里最热的是 meme 币，不是股票。据 Crypto Briefing 等报道，近 30 天这条链上的股票代币成交约 97 亿美元；按 DefiLlama 统计的同期链上交易所成交折算，只占约 17%。而 meme 币热潮在 9 月初见顶后迅速降温：<u class="key">按实际销毁时间算，Robinhood Chain 贡献的 UNI 销毁从 8 月 31 日那一周的年化约 2 亿美元，降到 9 月 22 日那一周的年化约 5,200 万美元，降了 74%</u>；同期整条链的交易所周成交从 182 亿美元降到 96.5 亿美元。Uniswap 在这条链上的份额也在被分走，从 7 月的 96.5% 降到最近一周的 77.5%。而扣掉这条链，截至 9 月 12 日的 30 天里，Uniswap 在其他地方的成交平平无奇，比 1–7 月的月均还低约 13%。Robinhood 为用户代付网络费用的 90 天补贴，也在 9 月 29 日前后到期。</p>
+<p>监管还可能收紧这种玩法。9 月 17 日 SEC 的"创新豁免"只放行许可制的自动做市池，股票代币必须带有与原股票相同的权利，发行人有权反对第三方代币化；已有上市公司 CEO 公开抨击这些股票代币未经注册。</p>
+<p>需要同时说清楚一条反向事实：在股票代币这条线上，Uniswap 已经占住了位置。Robinhood 股票代币在 DeFi 里的存款 99% 以上放在 Uniswap，全市场代币化股票的链上成交六成以上走 Uniswap。这条线今天规模小，却是唯一有可能接替 meme 币、撑起更大现金流的来源。</p>
+<p>依据：</p>
+<ul>
+<li>🎙️ <span class="tag">来源陈述</span> Hayden Adams（Empire，2026-08-17）：<u class="minor">"the volumes are pretty much our highest volumes anywhere now"</u>，但<u class="key">"a lot of it has been around like meme coin trading"</u>，他接着说代币化的现实世界资产"also increasingly"在增加。</li>
+<li>💹 <span class="tag">来源陈述</span> 德银《Robinhood：伦敦会议要点》（Brian Bedell，2026-09-14，扩展资源库）：<u class="minor">"momentum accelerated rapidly in late August with a surge in a meme coin launchpad activity"</u>，管理层预计链上日费用会保持健康，但"可能达不到近期的高位"。</li>
+<li>💹 <span class="tag">来源陈述</span> 伯恩斯坦《Crypto: Clarity fails - what next?》（Gautam Chhugani 等，2026-09-16，扩展资源库，PDF 第 2 页）：<u class="minor">"current gross chain revenues at ~$1mn/day despite declining gas congestion fees"</u>。</li>
+<li>🏛️ <span class="tag">事实</span> Robinhood Chain 链上销毁记录与 DefiLlama 周数据（本报告读取）：Robinhood 贡献的销毁 8/31–9/06 一周 58.6 万枚（约 381 万美元），9/22–9/28 一周 10.4 万枚（约 99 万美元）；全链交易所周成交 182 亿 → 96.5 亿美元。</li>
+<li>📰 <span class="tag">事实</span> The Block（James Hunt，2026-07-01）：Robinhood 在前 90 天承担用户的网络费用；股票代币不向美国人开放。</li>
+<li>📰 <span class="tag">分析判断</span> Clarity Today（2026-09-12）：最近 30 天 Uniswap 成交 706 亿美元，其中 Robinhood Chain 占 260 亿；<u class="minor">"Subtract Robinhood Chain and the month is ordinary."</u></li>
+<li>📰 <span class="tag">事实</span> TechFlow（2026-09-23，引 Token Terminal）：Uniswap 占 Robinhood 股票代币 DeFi 存款的 99% 以上；startupfortune.com（2026-09-27，引 KuCoin 数据）：Uniswap 占代币化股票近 30 天链上成交的约 60%。</li>
+<li>🎙️ <span class="tag">分析判断</span> Dragonfly 普通合伙人 Rob Hadick（Empire 播客，2026-09-18，本机转写）：预计会出现<u class="minor">"rules that don't allow the current state of tokenization to continue"</u>，尤其是 meme 币与代币化股票配对的做法。</li>
+</ul>
+<p><strong>为什么重要：</strong> 3.2 节算出的缺口，需要销毁再放大四到五倍才能补上。唯一有可能提供这种增量的就是 Robinhood Chain 和股票代币化，而这块增量目前由投机性最强的交易撑着，并且已经在回落。</p>
+<h3 id="34">3.4 全市场普涨的条件不在：美联储在加息，流动性已过峰，比特币还在修复早段</h3>
+<p>UNI 唯一一次创历史新高，发生在全球放水、所有风险资产齐涨的 2021 年。这一次的宏观条件几乎完全相反：美联储 9 月 16 日以 12:0 全票加息，是 2023 年以来第一次；点阵图显示 2027 年底利率仍在 4.1% 左右；10 年期美债收益率升到 5.17%。</p>
+<p>流动性研究者给出的时间表也偏后。Capital Wars 的 Michael Howell 认为全球流动性已在 2025 年三季度末见顶，<u class="key">"The next sustained crypto upswing still looks some time away."</u>海通国际按减半周期推算，下一个周期高点在 2029 年下半年。</p>
+<p>历史统计把这一点量化了：同样是距前高跌了八成的币，当比特币距自己前高 25% 到 40% 时（今天是 −34%），2019–2021 年的起点一年内回到前高的约占 27%，2022–2025 年的起点只占约 3%。前者赶上了流动性转向，后者没有。</p>
+<p>依据：</p>
+<ul>
+<li>🏛️ <span class="tag">事实</span> 美联储 FOMC 声明（2026-09-16）：<u class="key">"The Committee decided to raise the target range for the federal funds rate by 1/4 percentage point to 3-3/4 to 4 percent"</u>；同日点阵图中位数 2026 年末 4.1%、2027 年末 4.1%。</li>
+<li>💹 <span class="tag">作者判断</span> Capital Wars《Bitcoin, Gold and Fed Liquidity》（Michael Howell，2026-06-28，扩展资源库）：<u class="key">"For crypto investors, the near-term objective is therefore less a renewed bull market than the formation of a durable floor."</u></li>
+<li>💹 <span class="tag">卖方预测</span> 摩根大通《August Crypto Monthly》（Kenneth B. Worthington 等，2026-09-14，扩展资源库，PDF 第 3 页）：目录标题为<u class="minor">"Macro and U.S. Policy Landscape Drives Crypto's Dead Cat Bounce in August"</u>；DeFi 锁仓额（存放在 DeFi 协议里的资产总额）同比仍 −44%。</li>
+<li>🎙️ <span class="tag">分析判断</span> The DeFi Report 播客（Michael Nadeau，2026-09-16 与 09-23）：认为约 85% 的可能已进入早期牛市，但<u class="minor">"The early bull typically is ... the first 9 to 12 months"</u>，且<u class="key">"We haven't seen a lot of new liquidity come into crypto."</u></li>
+<li>💹 <span class="tag">卖方预测</span> 海通国际《复盘比特币牛熊周期》（谭敏铃，2026-08-25，扩展资源库）：<u class="minor">"下一个周期高点将落在 2029 年 8 至 12 月之间"</u>。</li>
+</ul>
+<p><strong>为什么重要：</strong> 3.2 节说 UNI 自己撑不起 45 美元，能补上缺口的只有全市场估值的整体抬升。本节说明，这种抬升在窗口内出现的条件——利率下行、流动性扩张、资金从比特币外溢——目前一个都不具备。</p>
+<h3 id="35-uni">3.5 即使比特币创新高，UNI 还得同时跑赢它两到三倍</h3>
+<p>把 45 美元换算成比价，这一点更直观。比特币回到 12.6 万美元的前高，UNI/BTC 要涨到今天的 3.5 倍；比特币涨到 20 万美元，UNI/BTC 也还要涨到今天的 2.2 倍，回到 2024 年 3 月手续费开关行情的顶点。</p>
+<p>UNI 过去跑赢比特币的记录并不好：2021 年以来，比特币大涨的季度里，UNI 的涨幅只和比特币差不多；比特币大跌的季度里，UNI 跌得接近两倍。<u class="key">把跟随比特币的部分扣掉，UNI 平均每年还要再跑输比特币约三分之一</u>。</p>
+<p>2026 年 6 月以来是 2021 年之后唯一的反例：比特币涨 37%，UNI 涨 257%。如果这种约 4 倍的弹性能再维持一年，比特币回到前高就够了。但这段弹性来自 Robinhood Chain 放量、监管利好这些一次性的催化，9 月 23 日见顶后六天里 UNI 已回落约 21%，同期比特币基本持平。</p>
+<p>依据：</p>
+<ul>
+<li>🏛️ <span class="tag">事实</span> 币安日线（本报告计算）：UNI/BTC 比价 2021-05 约 0.00082，2024-03 约 0.00023，2026-06 低点约 0.00004，今天约 0.00010。</li>
+<li>🏛️ <span class="tag">事实</span> 币安日线（本报告计算）：2021 年以来比特币季度涨超 15% 的 9 个季度，UNI 涨幅中位数 +62%、比特币 +57%；比特币季度跌超 10% 的 9 个季度，UNI 中位数 −28%、比特币 −15%。</li>
+<li>🏛️ <span class="tag">事实</span> 币安日线：UNI 9-23 盘中高点 10.94，9-29 约 8.6；同期比特币在 8.3 万到 8.7 万美元之间。</li>
+</ul>
+<p><strong>为什么重要：</strong> 这一条把"大盘好不好"和"UNI 够不够强"分开了。多数看多 UNI 的理由都只回答了前一个问题，而后一个问题才是 45 美元的门槛所在。</p>
+<h3 id="36-uni-defi-etf">3.6 UNI 手里有两张别的 DeFi 代币没有的牌：回购被监管放行，ETF 通道将在窗口内打开</h3>
+<p>这是本题里最强的看多理由，也是我们没有把判断压得更低的原因。</p>
+<p>第一张牌是合规。手续费开关拖了四年，一个核心顾虑是"把收入分给持币人会让代币变成证券"。9 月 25 日，SEC 公司财务部的问答大幅降低了这个顾虑：只要网络已能运行、没有中心方，宣布回购本身不算发行方承诺"关键管理努力"。但这只是工作人员意见，没有法律效力；Uniswap Labs 在协议里的角色是否满足"没有中心方"，仍有解释空间。</p>
+<p>第二张牌是 ETF。CME 宣布 10 月 19 日上线 UNI 期货；按 SEC 2025 年批准的通用上市标准，一个币的期货在受监管交易所交易满六个月后，现货 ETF 就可以走快速通道上市。<u class="key">这意味着 UNI 现货 ETF 最早在 2027 年 4 月中下旬具备上市条件，落在窗口之内</u>。Bitwise 已于 2026 年 2 月递交了注册文件。</p>
+<p>HYPE 已经演示过这张牌的威力：它的美国现货 ETF 5 月上线，此后在比特币仍比前高低三成的环境里创出新高。</p>
+<p>HYPE 的幅度也不小：它 2026 年 1 月比前高低 65%，此后涨了 4.7 倍才创新高，和 UNI 需要的 5.2 倍相差不远。但两者有三点不同。其一，HYPE 的前高是四个月前、在同一套生意和同一种估值方式下创下的，UNI 的前高是五年前、没有现金流时的狂热价格；其二，HYPE 的年化回购约 6.9 亿美元，是 UNI 当前销毁的三到五倍，而且它这段行情主要来自估值倍数扩张（回购金额反而比一年前少了一半），背后是股票与商品永续合约、美国准入预期这些新业务叙事；其三，山寨币 ETF 的资金量级很小，8 月 SOL 现货 ETF 净流入只有 1.17 亿美元，而比特币 ETF 是 35 亿美元。</p>
+<p>依据：</p>
+<ul>
+<li>🏛️ <span class="tag">事实</span> SEC 公司财务部加密资产问答第 2.5 条（2026-09-25 发布，09-28 更新）：<u class="key">"an issuer's announcement of a non-security crypto asset buyback program would not constitute a representation or promise to undertake essential managerial efforts"</u>，前提是网络可运行且没有中心方。</li>
+<li>🏛️ <span class="tag">事实</span> CME Group 新闻稿（2026-09-22）：Bitcoin Cash 与 Uniswap 期货计划 2026-10-19 上线，待监管审查，标准合约 10,000 枚 UNI。</li>
+<li>🏛️ <span class="tag">事实</span> SEC 批准通用上市标准的命令（Release No. 34-103995，2025-09-17）：条件之一是该资产对应的期货<u class="minor">"has been made available to trade on a designated contract market (DCM) for at least six months"</u>。</li>
+<li>🏛️ <span class="tag">事实</span> SEC 电子申报系统：Bitwise 现货 Uniswap ETF 的 S-1 于 2026-02-05 提交，文件写明当时"There are currently no Uniswap futures contracts that are registered with the CFTC."，此后无修订。</li>
+<li>📰 <span class="tag">事实</span> The Block（Ivan Wu、Bryan Samsoedin，2026-09-08）：HYPE 9 月创新高；Hyperliquid 回购从 2025 年三季度约 2.9 亿美元降到 2026 年二季度约 1.49 亿美元。</li>
+<li>💹 <span class="tag">事实</span> 摩根大通《August Crypto Monthly》（2026-09-14，扩展资源库）：8 月比特币现货 ETF 净流入 35 亿美元，SOL 现货 ETF 净流入 1.17 亿美元。</li>
+</ul>
+<p><strong>为什么重要：</strong> 如果 UNI 在窗口内破前高，最可能的路径就是这一条（见 5.1 节"独立重估"）。它需要 ETF 按时上市、比特币同时创新高、Uniswap 的销毁再放大几倍，三件事在不到半年里叠加。</p>
+<h3 id="37">3.7 好消息带来的上涨历来短命；这一次涨得更扎实，但冲顶时币在流向交易所</h3>
+<p>2021 年之后，UNI 每一次重大利好都给出了同一个模式：公告后急涨五成到一倍多，高点在 1 到 12 天内出现，随后几周到几个月内大部分回吐。2024 年 2 月手续费开关提案后 12 天涨 132%，38 天内又跌掉 65%；2025 年 11 月 UNIfication 公布后两天涨五成多，四天内基本回吐，到 2026 年 6 月比高点跌了近八成——而那段时间里提案获得通过、1 亿枚也已销毁。</p>
+<p>这一次有两点不同，而且都偏正面：上涨持续了 109 天，由好几个真实事件接力推动；推动价格的主要是现货买盘，合约端的资金费率一直接近常态。<u class="minor">2021 年冲向 45 美元时，资金费率是现在的十倍以上</u>。</p>
+<p>但冲顶时的资金流向偏负面：<u class="key">9 月交易所持有的 UNI 创下 1.139 亿枚的纪录，价格冲顶的那几天币安净流入近 1,000 万枚</u>；9 月 28 日，一个在 6–7 月（当时 UNI 约 2.3 到 4.4 美元）收到约 147 万枚的地址转出了 137 万枚，链上分析机构标注的去向是做市商（未独立核实）。把币转进交易所最常见的用途是卖出。</p>
+<p>依据：</p>
+<ul>
+<li>🏛️ <span class="tag">事实</span> 币安日线（本报告计算）：2024-02-22 收 7.36，03-06 高点 17.05，04-13 跌到 5.90；2025-11-09 收 6.57，11-11 盘中高点 10.30，11-14 收 6.99；2026-06-06 低点 2.32，09-23 高点 10.94。</li>
+<li>🏛️ <span class="tag">事实</span> 币安合约公开接口（全部历史）：资金费率 2026-08-16 至 09-23 平均每 8 小时 0.0072%；2021 年 3–5 月平均 0.0788%；2024 年 2–3 月平均 0.0394%。</li>
+<li>📰 <span class="tag">事实</span> BeInCrypto 等引用 CryptoQuant（2026-09-24）：全部交易所的 UNI 余额达到 1.139 亿枚，是 2020 年底有数据以来的最高值。</li>
+<li>🏛️ <span class="tag">事实</span> 以太坊链上记录（本报告读取）：币安热钱包 9-16 至 9-28 净流入约 990 万枚；2026-09-28 一个地址转出 137 万枚，链上分析机构标注其流向做市商 Wintermute（去向标注未独立核实）。</li>
+<li>📰 <span class="tag">来源陈述</span> Arkham Research（2025-06-13）：a16z 在 24 小时内转出价值逾 1.51 亿美元的 UNI。转出不等于卖出，但往往是卖出前的一步。</li>
+</ul>
+<p><strong>为什么重要：</strong> UNI 需要的不是又一次消息行情，而是一整年的持续重估，它过去从没做到过。这一次的上涨质量比以往好，却也还没有摆脱"冲顶时卖方涌入"的老模式。</p>
+<h2 id="4">4. 结算口径</h2>
+<h3 id="41-yes">4.1 什么算 YES</h3>
+<p>2026-09-29 00:00 至 2027-09-29 23:59（UTC）之间，<strong>币安现货 UNI/USDT 交易对上任意一根 1 分钟 K 线的最高价严格高于 45.00 美元</strong>，即结算 YES；否则 NO。</p>
+<ul>
+<li>UNI 指以太坊合约 <code>0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984</code> 对应的代币。</li>
+<li><strong>碰到就算</strong>：只要有一分钟的最高价过线，哪怕随即回落也算。恰好等于 45.00 不算；币安 UNI/USDT 的最小报价单位是 0.001，所以 45.001 就算过线。</li>
+<li>结算来源：币安公开 K 线数据（交易对 UNIUSDT，1 分钟周期）。</li>
+</ul>
+<p><strong>不算 YES：</strong> 其他交易所的单独插针；永续合约或指数价格过线；市值、完全稀释估值、UNI/BTC 比价或协议成交量创新高。这些都不是结算指标，但都是本报告的研究证据。</p>
+<h3 id="42">4.2 什么算"前高"</h3>
+<p>"前高"指 UNI/USDT 在币安的历史最高价 <strong>45.00 美元</strong>（2021-05-03，Uniswap 第三版上线前两天）。CoinGecko 记为 44.92 美元、CoinMarketCap 记为 44.97 美元，是不同数据源汇总方式的差异。</p>
+<p>它不是上一轮行情（2024-12-08）的高点 19.47 美元，那个门槛只作为第 1 节的参考数字。</p>
+<p>用价格而不用市值，是因为两个口径已经分叉：2021 年以来流通量增加，2025 年底又销毁了 1 亿枚，同一个"市值前高"对应的价格已不是 45 美元。</p>
+<h3 id="43">4.3 什么算"窗口内"与数据异常</h3>
+<p>窗口两端都按 UTC 计算。</p>
+<ul>
+<li>若币安在窗口剩余时间里整体下架或暂停 UNI/USDT 现货，改看 CoinGecko 的 UNI/USD 历史最高价字段：刷新到 44.92 美元以上、且日期落在窗口内即算 YES。</li>
+<li>若 UNI 发生官方的代币迁移或面额调整，45.00 美元按官方兑换比例折算。</li>
+<li>结算时按到期日币安公开数据的原样判断；事后被交易所更正的异常成交，以更正后的数据为准。</li>
+<li>计价单位是 USDT（一种与美元挂钩的稳定币），不是美元本身。若 USDT 明显脱钩，按 USDT 计价的结果照常结算。</li>
+</ul>
+<h2 id="5">5. 情景与路径</h2>
+<h3 id="51">5.1 互斥路径</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>路径</th>
+<th>可能性</th>
+<th>怎么走到这里</th>
+<th>UNI 大致区间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>修复延续，但没有普涨</strong></td>
+<td>最可能 <strong>48%</strong></td>
+<td>美联储维持高利率，比特币在 7 万到 12 万美元之间震荡上行；资金集中在比特币、以太坊和少数有现金流的代币。UNI 随 Robinhood Chain 的热度起落，ETF 上市也只带来一段消息行情。</td>
+<td>5–15 美元</td>
+</tr>
+<tr>
+<td><strong>比特币创新高，山寨币只是局部上涨</strong></td>
+<td>次可能 <strong>26%</strong></td>
+<td>油价回落、美联储 2027 年转向，比特币在年中前后突破 12.6 万美元，出现 2024 年 12 月那样的短暂山寨季。UNI 跟涨，但比价不够。</td>
+<td>12–30 美元</td>
+</tr>
+<tr>
+<td><strong>熊市二次探底</strong></td>
+<td><strong>17%</strong></td>
+<td>加息延续、债市动荡，或油价继续冲高，比特币跌破 7 月初的低点。</td>
+<td>2–5 美元</td>
+</tr>
+<tr>
+<td><strong>全面狂热，但 UNI 落在后面</strong></td>
+<td><strong>3%</strong></td>
+<td>流动性转向、比特币远超前高、资金普涨，但热钱流向新叙事的代币，UNI 涨到 20 到 40 美元后见顶。</td>
+<td>20–40 美元</td>
+</tr>
+<tr>
+<td><strong>UNI 独立重估，破前高</strong></td>
+<td><strong>2%</strong></td>
+<td>UNI 现货 ETF 在 2027 年 4 月后上市，Uniswap 成为代币化股票的主要链上交易场所，销毁放大到每年数亿美元，同时比特币创新高，UNI 走出 HYPE 式行情。</td>
+<td>45 美元以上</td>
+</tr>
+<tr>
+<td><strong>全面狂热，UNI 被带过前高</strong></td>
+<td><strong>2%</strong></td>
+<td>2021 年式的全面放水在 2027 年上半年出现，比特币涨到 20 万美元以上，DeFi 代币普涨。</td>
+<td>45 美元以上</td>
+</tr>
+<tr>
+<td><strong>其他：安全事故、监管逆转等</strong></td>
+<td><strong>2%</strong></td>
+<td>重大合约漏洞、中期选举后监管急转，或 UNI 被认定为证券。</td>
+<td>低于 5 美元</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td><strong>100%</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p>严格口径的 YES ＝ "UNI 独立重估" ＋ "全面狂热，UNI 被带过前高" ＝ <strong>4%</strong>。</p>
+<p>碰到 19.47 美元的 25% 主要来自第二条路径的约一半、第一条路径里的少数冲高，以及三条狂热或重估路径；碰到 30 美元的 10% 主要来自三条狂热或重估路径，外加第二条路径的少部分。</p>
+<h3 id="52">5.2 最容易误判的情景</h3>
+<p><strong>把"比特币创新高"读成"UNI 会破前高"。</strong> 2024 年 12 月已经演过一次：比特币比 2021 年前高高出约 45%，山寨季指数冲到 82 以上，UNI 只到前高的 43%。比特币创新高是必要条件之一，远远不够。</p>
+<p><strong>把"Robinhood Chain 成交创新高"读成"UNI 现金流持续放大"。</strong> 成交高峰由 meme 币推动，这条链贡献的销毁 9 月下旬已比月初降了 74%。真正该跟踪的是每周销毁金额，而不是链上成交额。</p>
+<p><strong>把"HYPE 能做到"读成"UNI 也能做到"。</strong> HYPE 确实从前高下方六成多涨了 4.7 倍创出新高，但它的前高只有四个月历史，回购规模是 UNI 销毁的三到五倍，而且主要靠新业务带来的估值倍数扩张；UNI 要回到的是五年前狂热期的价格。</p>
+<p><strong>把一次消息行情读成趋势。</strong> CME 期货、ETF 申请、手续费扩展，每一条都可能带来单日两位数的上涨。过去两次重大利好后，UNI 分别在七周和十天内跌回公告前的价格。</p>
+<h3 id="53">5.3 最强反方</h3>
+<p><strong>"HYPE 剧本在 UNI 身上重演。"</strong></p>
+<p>完整逻辑是：SEC 工作人员的问答已经降低了回购的证券风险，CME 期货 10 月上线，UNI 现货 ETF 最早 2027 年 4 月具备条件；Robinhood、纳斯达克都在推股票代币化，SEC 刚给自动做市商开了口子，Uniswap 是最成熟的链上流动性底层；UNI 的手续费覆盖范围还在扩大，销毁速度半年内已经翻倍；伯恩斯坦预计比特币 2027 年年中到 15 万美元，Galaxy 预计 2027 年底到 25 万美元（2025 年 12 月给出，此后未更新）；而 UNI 今年已经证明自己能以 4 倍于比特币的弹性上涨。只要这几件事叠加，五倍并非不可想象。</p>
+<p><strong>它错在哪里：</strong> 它需要的现金流增长太大。即便给 UNI 与 HYPE 相同的估值倍数，销毁也得再放大四到七倍；而 HYPE 的例子说明，倍数扩张依赖的是新业务带来的叙事，不是回购本身。更重要的是时间：ETF 最早 4 月具备条件，留给价格反映的只有五个月左右，而山寨币 ETF 的资金量级只有比特币 ETF 的几十分之一。</p>
+<p><strong>它还漏了一件事：</strong> 宏观方向。机构对比特币的乐观目标都假设流动性配合，而美联储刚刚在加息，点阵图显示 2027 年不降息。</p>
+<p><strong>它可能对在哪里：</strong> Robinhood 的零售入口其实还没打开——CoinDesk Research 统计，Robinhood 自己 app 用户的交易只占这条链的 1% 到 2%。如果 Robinhood 把 app 里的零售用户大规模导向链上，同时 SEC 豁免的许可制交易池通过 Uniswap 第四版的插件（hooks）接入，Uniswap 成为代币化美股的默认链上场所，现金流的天花板会被重新定义。这是本报告给"独立重估"路径留出 2% 的原因。</p>
+<h2 id="6">6. 关键证据表</h2>
+<div class="legend">
+<p>来源层级：<strong>A</strong> ＝ 官方、监管机构、交易所或链上的原始数据；<strong>B</strong> ＝ 有署名的媒体报道、机构研究或当事人公开发言；<strong>C</strong> ＝ 转述、聚合或自动生成的内容。"倾向"一栏指向 YES 或 NO。</p>
+</div>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>事实或说法</th>
+<th>倾向</th>
+<th>来源、日期、链接</th>
+<th>层级与可靠性</th>
+<th>它支撑哪条路径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>币安 UNI/USDT 历史最高 45.00 美元（2021-05-03）；研究日约 8.6 美元，需涨约 5.2 倍</td>
+<td>—</td>
+<td>🏛️ <a href="https://api.binance.com/api/v3/klines?symbol=UNIUSDT&amp;interval=1d">币安公开 K 线接口</a>，2026-09-29</td>
+<td>A｜事实</td>
+<td>结算基准</td>
+</tr>
+<tr>
+<td>2021 年见顶的 DeFi 蓝筹在 2024–2026 年没有一个回到前高；UNI 上一轮最高只到前高的 43%</td>
+<td>NO</td>
+<td>🏛️ 币安日线＋CoinGecko，本报告计算</td>
+<td>A｜事实</td>
+<td>修复延续；比特币新高但局部上涨</td>
+</tr>
+<tr>
+<td>距前高跌七八成、前高已两年以上的币，一年内回到前高：整体 6%，2023–2025 年起点 2%–7%，前高三年以上 2%</td>
+<td>NO</td>
+<td>🏛️ 币安 675 个交易对日线，本报告计算（<code>research/quant_base_rates.py</code>）</td>
+<td>A｜事实（统计口径见附录）</td>
+<td>所有 NO 路径</td>
+</tr>
+<tr>
+<td>2022 年以来处在"老前高＋已反弹 2.5 倍以上"状态的币：大市值币 28 个币-年无一在之后 12 个月再涨 5 倍；全部交易对 118 个币-年只有 3 个</td>
+<td>NO</td>
+<td>🏛️ 币安日线，本报告计算</td>
+<td>A｜事实</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>UNIfication 公布（2025-11-10）、执行（2025-12-27）；手续费覆盖范围 2026 年三次扩展</td>
+<td>YES</td>
+<td>🏛️ <a href="https://blog.uniswap.org/unification">Uniswap 博客</a>，2025-11-10；🏛️ <a href="https://vote.uniswapfoundation.org/proposals">Uniswap 治理投票</a></td>
+<td>A｜事实</td>
+<td>独立重估</td>
+</tr>
+<tr>
+<td>Hayden Adams："We're running about 100 million annualized"</td>
+<td>中性</td>
+<td>🎙️ <a href="https://podcasts.apple.com/us/podcast/uniswap-is-building-the-liquidity-network-for/id1554930038?i=1000783815286">Empire 播客</a>，2026-08-17，本机转写</td>
+<td>B｜来源陈述（公司创始人）</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>UNI 销毁：最近 7 天折合每年 1.38 亿美元、30 天 1.92 亿美元，过去 12 个月实际 5,278 万美元</td>
+<td>NO</td>
+<td>🏛️ <a href="https://defillama.com/protocol/uniswap">DefiLlama</a>，2026-09-29</td>
+<td>A｜事实（平台口径，与链上记录吻合）</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>"年化 2.63 亿美元"是 9 月初峰值周的 7 天读数</td>
+<td>中性</td>
+<td>🏛️ <a href="https://x.com/haydenzadams/status/2097138770210382193">Hayden Adams 的 X 帖子</a>，2026-09-08</td>
+<td>B｜来源陈述（创始人披露公司数据）</td>
+<td>独立重估</td>
+</tr>
+<tr>
+<td>2021 年高点时，UNI 流通市值约为年化总手续费的 15.8 倍，今天约 2–3 倍</td>
+<td>YES</td>
+<td>🏛️ <a href="https://coinmarketcap.com/historical/20210502/">CoinMarketCap 2021-05-02 快照</a>＋DefiLlama，本报告计算</td>
+<td>A｜事实＋计算</td>
+<td>全面狂热</td>
+</tr>
+<tr>
+<td>Labs 增长预算每年 2,000 万枚，1、4、7 月各发放 500 万枚；持续销毁 1,230 万枚</td>
+<td>NO</td>
+<td>🏛️ UNI 链上转账记录，本报告读取</td>
+<td>A｜事实</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>30 天手续费中只有 7.9% 通过销毁到达 UNI</td>
+<td>NO</td>
+<td>📰 <a href="https://finance.yahoo.com/markets/crypto/articles/uniswap-uni-price-surges-100-090213128.html">BeInCrypto 经 Yahoo 转载</a>，2026-09-03</td>
+<td>B｜事实</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>按 HYPE 的估值倍数，45 美元需要年化销毁 8–10 亿美元</td>
+<td>NO</td>
+<td>🏛️ DefiLlama＋CoinGecko，本报告计算</td>
+<td>B｜分析判断</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>渣打：UNI 2027 年底目标 20 美元</td>
+<td>NO</td>
+<td>📰 <a href="https://www.theblock.co/news/markets/2026-06-15-standard-chartered-uniswap-uni-token-price-100-by-2030-404809">The Block</a>，2026-06-15</td>
+<td>B｜卖方预测</td>
+<td>比特币新高但局部上涨</td>
+</tr>
+<tr>
+<td>Robinhood Chain 成交"a lot of it has been around like meme coin trading but also increasingly around tokenized RWAs"</td>
+<td>NO</td>
+<td>🎙️ Empire 播客，2026-08-17</td>
+<td>B｜来源陈述</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>Robinhood Chain 链上总收入约每天 100 万美元</td>
+<td>NO</td>
+<td>💹 伯恩斯坦，2026-09-16，扩展资源库 <code>415816ef0e2410002004f2db</code>，PDF 第 2 页</td>
+<td>B｜卖方数据</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>Robinhood Chain 贡献的销毁：9/22 一周比 8/31 一周降 74%；全链交易所周成交 182 亿 → 96.5 亿美元</td>
+<td>NO</td>
+<td>🏛️ Robinhood Chain 链上销毁记录＋<a href="https://defillama.com/chain/robinhood-chain">DefiLlama</a>，本报告读取</td>
+<td>A｜事实</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>该链网络费 9 月中旬跌 97%，交易笔数只降约 32%</td>
+<td>中性</td>
+<td>📰 <a href="https://www.coindesk.com/business/2026/09/19/robinhood-chain-fees-collapse-97-even-as-transactions-stay-near-record-highs">CoinDesk</a>，2026-09-19</td>
+<td>B｜事实（费用下降部分来自扩容）</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>Uniswap 占 Robinhood 股票代币 DeFi 存款 99% 以上、代币化股票链上成交 60% 以上</td>
+<td>YES</td>
+<td>📰 <a href="https://www.techflowpost.com/en-US/newsletter/137394">TechFlow</a>，2026-09-23（引 Token Terminal）；<a href="https://startupfortune.com/tokenized-stocks-just-did-209-billion-in-dex-trading-in-30-days/">startupfortune.com</a>，2026-09-27（引 KuCoin）</td>
+<td>C｜转述第三方数据</td>
+<td>独立重估</td>
+</tr>
+<tr>
+<td>8 月下旬链上加速来自 meme 币发射平台</td>
+<td>NO</td>
+<td>💹 德银，2026-09-14，扩展资源库 <code>9f074c3fa992f45cb0656707</code></td>
+<td>B｜来源陈述（转述管理层）</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>SEC 创新豁免只放行许可制自动做市池交易代币化美股</td>
+<td>中性</td>
+<td>🏛️ <a href="https://www.sec.gov/newsroom/press-releases/2026-90-sec-issues-innovation-exemption-facilitate-trading-tokenized-nms-stock-request-comment">SEC 新闻稿 2026-90</a>，2026-09-17</td>
+<td>A｜事实</td>
+<td>独立重估；修复延续</td>
+</tr>
+<tr>
+<td>美联储加息 25 个基点至 3.75%–4.00%，12:0 通过</td>
+<td>NO</td>
+<td>🏛️ <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm">FOMC 声明</a>，2026-09-16</td>
+<td>A｜事实</td>
+<td>修复延续；二次探底</td>
+</tr>
+<tr>
+<td>点阵图：2026、2027 年末利率中位数均约 4.1%</td>
+<td>NO</td>
+<td>🏛️ <a href="https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm">美联储经济预测摘要</a>，2026-09-16</td>
+<td>A｜事实</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>10 年期美债 5.17%，实际收益率 2.83%</td>
+<td>NO</td>
+<td>🏛️ <a href="https://fred.stlouisfed.org/series/DGS10">FRED</a>，2026-09-25</td>
+<td>A｜事实</td>
+<td>修复延续；二次探底</td>
+</tr>
+<tr>
+<td>全球流动性 2025 年三季度末见顶，"next sustained crypto upswing still looks some time away"</td>
+<td>NO</td>
+<td>💹 Capital Wars（Michael Howell），2026-06-28 与 07-29，扩展资源库 <code>24a4317be6b1963b757839aa</code>、<code>38892ff89617e39ddf738c11</code></td>
+<td>B｜作者判断</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>8 月是"Dead Cat Bounce"；DeFi 锁仓额同比 −44%</td>
+<td>NO</td>
+<td>💹 摩根大通，2026-09-14，扩展资源库 <code>b81488570193e1f682521501</code>，PDF 第 2–3、19–20 页</td>
+<td>B｜卖方判断</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>比特币已见底，维持 2026 年底 15 万美元预期</td>
+<td>YES</td>
+<td>💹 伯恩斯坦，2026-08-31，扩展资源库 <code>e7a8c04c5dbf0d959fe8a30e</code></td>
+<td>B｜卖方预测</td>
+<td>比特币新高但局部上涨</td>
+</tr>
+<tr>
+<td>"2026 年重置、2027 年急剧周期性反弹、2028 年正常化"</td>
+<td>中性</td>
+<td>💹 摩根士丹利《Coinbase》首次覆盖，2026-09-10，扩展资源库 <code>c8b8e79dd1ec884264c448d2</code></td>
+<td>B｜卖方预测</td>
+<td>比特币新高但局部上涨</td>
+</tr>
+<tr>
+<td>下一个周期高点在 2029 年下半年</td>
+<td>NO</td>
+<td>💹 海通国际，2026-08-25，扩展资源库 <code>43bc4089089a0df6c3f53063</code></td>
+<td>B｜卖方预测</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>早期牛市"通常持续 9 到 12 个月"，新流动性还没进来</td>
+<td>NO</td>
+<td>🎙️ <a href="https://thedefireport.transistor.fm/episodes/is-the-early-bull-actually-confirmed/transcript">The DeFi Report</a>，2026-09-16、09-23</td>
+<td>B｜作者判断</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>山寨季指数 59–60，比特币市占率 58%</td>
+<td>NO</td>
+<td>🏛️ CoinMarketCap、CoinGecko 数据接口，2026-09-29</td>
+<td>A｜事实</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>SEC 问答 2.5：回购不构成"关键管理努力"承诺</td>
+<td>YES</td>
+<td>🏛️ <a href="https://www.sec.gov/about/divisions-offices/division-corporation-finance/faqs-crypto-assets">SEC 公司财务部问答</a>，2026-09-25</td>
+<td>A｜事实（工作人员意见，无法律效力）</td>
+<td>独立重估</td>
+</tr>
+<tr>
+<td>CME 2026-10-19 上线 UNI 期货（待审查）</td>
+<td>YES</td>
+<td>🏛️ <a href="https://www.prnewswire.com/news-releases/cme-group-to-expand-crypto-derivatives-suite-with-bitcoin-cash-and-uniswap-futures-302886066.html">CME 新闻稿</a>，2026-09-22</td>
+<td>A｜事实</td>
+<td>独立重估</td>
+</tr>
+<tr>
+<td>通用上市标准：期货交易满 6 个月即可快速上市现货 ETF</td>
+<td>YES</td>
+<td>🏛️ <a href="https://www.sec.gov/files/rules/sro/nasdaq/2025/34-103995.pdf">SEC 批准令 Release No. 34-103995</a>，2025-09-17</td>
+<td>A｜事实</td>
+<td>独立重估</td>
+</tr>
+<tr>
+<td>Bitwise 现货 Uniswap ETF 的 S-1 于 2026-02-05 提交，未修订</td>
+<td>中性</td>
+<td>🏛️ <a href="https://www.sec.gov/Archives/edgar/data/2107400/000121390026012830/ea0275734-s1_bitwise.htm">SEC 电子申报系统</a></td>
+<td>A｜事实</td>
+<td>独立重估</td>
+</tr>
+<tr>
+<td>HYPE 创新高时回购比一年前少约一半，估值倍数从约 11 倍扩到约 30 倍</td>
+<td>中性</td>
+<td>📰 <a href="https://www.theblock.co/news/ecosystems/2026-09-08-hyperliquid-open-interest-climbs-14-3-billion-hype-hits-all-time-high-413855">The Block</a>，2026-09-08；DefiLlama，本报告计算</td>
+<td>B｜事实＋计算</td>
+<td>独立重估</td>
+</tr>
+<tr>
+<td>市场结构法案参议院程序性表决 49:50 失败</td>
+<td>NO</td>
+<td>📰 <a href="https://www.coindesk.com/policy/2026/09/15/crypto-clarity-act-flames-out-in-failed-u-s-senate-vote">CoinDesk</a>，2026-09-15</td>
+<td>A＋B｜事实</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>资金费率 8-16 至 9-23 平均每 8 小时 0.0072%，2021 年冲顶期 0.0788%；上涨由现货推动</td>
+<td>中性</td>
+<td>🏛️ <a href="https://fapi.binance.com/fapi/v1/fundingRate?symbol=UNIUSDT">币安合约公开接口</a>，全部历史</td>
+<td>A｜事实</td>
+<td>修复延续；全面狂热</td>
+</tr>
+<tr>
+<td>全部交易所 UNI 余额创纪录 1.139 亿枚；币安热钱包 9-16 至 9-28 净流入约 990 万枚</td>
+<td>NO</td>
+<td>📰 <a href="https://beincrypto.com/uniswap-exchange-reserves-record-whales-buying/">BeInCrypto 引 CryptoQuant</a>，2026-09-24；🏛️ 链上记录，本报告读取</td>
+<td>B＋A｜事实</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>9-28 一个低位买入的大户把 137 万枚转向做市商</td>
+<td>NO</td>
+<td>🏛️ 以太坊链上记录（区块 26,073,129）；去向标注来自 Lookonchain、Arkham</td>
+<td>A＋C｜事实（去向标注未独立核实）</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>扣掉 Robinhood Chain，截至 9-12 的 30 天 Uniswap 成交比 1–7 月月均低约 13%</td>
+<td>NO</td>
+<td>📰 <a href="https://theclarity.today/story/uniswap-processes-over-70b-in-monthly-volume-surpassing-next-three-dexs-combined-c6182fe4">Clarity Today</a>，2026-09-12；DefiLlama</td>
+<td>B｜分析判断</td>
+<td>修复延续</td>
+</tr>
+<tr>
+<td>Robinhood 自己 app 用户的交易只占该链 1%–2%</td>
+<td>YES</td>
+<td>📰 <a href="https://www.coindesk.com/research/robinhood-chain-a-distribution-moat-the-market-is-already-pricing">CoinDesk Research</a>，2026-09-04</td>
+<td>B｜分析判断</td>
+<td>独立重估</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>同源合并说明：</strong> Robinhood Chain 的费用与成交数据，伯恩斯坦、德银、Jefferies（经 TMT Breakout 转述）、CoinDesk 分别引用了 Robinhood 管理层口径或 DefiLlama、Messari 等同一批链上数据平台，本报告按"管理层口径"和"链上数据"两条独立信源计权。美联储的决定与点阵图在多家券商摘要中被反复转述，本报告只引美联储原文。HYPE 的回购金额，Citrini（约 20 亿美元）与 DefiLlama（约 12.85 亿美元）口径不一致，本报告采用后者。</p>
+<h2 id="7">7. 信息缺口树</h2>
+<h3 id="uniswap">一、Uniswap 的销毁还能放大几倍</h3>
+<ul>
+<li><strong>岗位画像：</strong> Uniswap 基金会或 Uniswap Labs 负责协议经济的人；维护 Uniswap 数据看板的链上分析师；Robinhood Chain 生态负责人。</li>
+<li><strong>直接问法：</strong> Robinhood Chain 的网络费补贴 9 月底到期后，每周销毁会稳在什么水平？这条链上 Uniswap 池子的协议费率是多少，会不会提高？第四版带插件的池子会不会纳入收费？协议费会不会扩展到 UniswapX（Uniswap 的聚合下单系统）和更多池子？每年 2,000 万枚的增长预算，Labs 是持有还是卖出，节奏如何？提高协议费率会不会把做市商赶到别的交易所？</li>
+<li><strong>能改变什么：</strong> 决定"现金流撑得起估值"这一环，影响"独立重估"路径约 1 到 2 个百分点。</li>
+<li><strong>好不好约：</strong> 中等。链上分析师好约；基金会和 Labs 的人有公开发言渠道，但私下口径难拿。</li>
+</ul>
+<h3 id="sec-uniswap">二、SEC 豁免之后，代币化美股会不会在 Uniswap 上交易</h3>
+<ul>
+<li><strong>岗位画像：</strong> 熟悉 SEC 创新豁免的证券律师；Robinhood、Coinbase 代币化业务的产品负责人；Uniswap Labs 政策团队。</li>
+<li><strong>直接问法：</strong> 许可制交易池能不能通过 Uniswap 第四版的插件实现？meme 币与股票代币配对的池子会不会被叫停？发行人的反对权会不会让 Robinhood 收缩股票代币？纳斯达克 2027 年的代币化方案会把成交留在链上，还是拉回持牌交易所？</li>
+<li><strong>能改变什么：</strong> 决定销毁有没有新的大来源，影响"独立重估"路径约 1 到 2 个百分点。</li>
+<li><strong>好不好约：</strong> 中等偏难。律师好约，平台产品负责人难约。</li>
+</ul>
+<h3 id="uni-etf">三、UNI 现货 ETF 的真实时间表和资金规模</h3>
+<ul>
+<li><strong>岗位画像：</strong> Bitwise 等 ETF 发行人的产品或法务人员；交易所上市部门；覆盖山寨币 ETF 的资金流分析师。</li>
+<li><strong>直接问法：</strong> CME 期货上线后，Bitwise 会不会更新注册文件？有没有第二家发行人准备申请？HYPE、SOL 现货 ETF 上市后头三个月净流入多少，对币价的影响有多大？机构客户对 DeFi 代币 ETF 的兴趣到底有多少？</li>
+<li><strong>能改变什么：</strong> 影响"独立重估"路径约 1 个百分点，并影响 30 美元档的概率。</li>
+<li><strong>好不好约：</strong> 中等。发行人对公开信息愿意讲，对资金预期会保守。</li>
+</ul>
+<h3 id="_1">四、美联储什么时候转向</h3>
+<ul>
+<li><strong>岗位画像：</strong> 宏观策略师；利率交易员；关注能源价格的大宗商品分析师。</li>
+<li><strong>直接问法：</strong> 10 月、12 月会不会连续加息？霍尔木兹海峡复航的可能性和时间？2027 年上半年通胀回到 2% 的把握有多大？美联储会不会重启缩表？</li>
+<li><strong>能改变什么：</strong> 决定"大盘给出空间"这一环，影响两条"全面狂热"路径合计约 2 个百分点，对 19.47 美元档的影响更大。</li>
+<li><strong>好不好约：</strong> 容易。</li>
+</ul>
+<h3 id="uni">五、谁在卖 UNI</h3>
+<ul>
+<li><strong>岗位画像：</strong> 链上资金流分析师；做 UNI 的做市商；早期投资机构的交易员。</li>
+<li><strong>直接问法：</strong> 交易所里创纪录的 1.1 亿枚 UNI 是谁存进去的，是准备卖出、做合约保证金，还是做市商调库存？Labs 已领取的 1,500 万枚预算怎么用？早期投资机构还持有多少，近三个月有没有向交易所转币？CME 期货上线后，机构是做多还是做对冲？</li>
+<li><strong>能改变什么：</strong> 影响"交易结构不打断上涨"这一环，对 45 美元档影响约 1 个百分点。</li>
+<li><strong>好不好约：</strong> 容易。</li>
+</ul>
+<h2 id="8">8. 信源梯度反馈</h2>
+<p><strong>本报告的信源分四层，可靠性依次递减。</strong></p>
+<p><strong>第一层，价格、利率和监管事实，可靠性最高。</strong> 币安、CME、美联储、SEC、FRED 和 Uniswap 链上治理记录，都是可以逐条复核的原始数据。本报告的横截面基准率、波动率和比价由 <code>research/quant_base_rates.py</code> 从币安公开数据算出，脚本随报告保存；可比案例的统计（回购代币、大市值币参照组、弹性）另用了 CoinGecko、Hyperliquid、OKX、Bybit 的数据，算法记录在 <code>research/angles/D-analogs.md</code>，脚本没有随报告保存。</p>
+<p><strong>第二层，协议数据平台与本报告的链上核对。</strong> 销毁规模和手续费来自 DefiLlama，并用以太坊和 Robinhood Chain 的链上销毁记录逐日核对过，两者吻合；DefiLlama 的交易所总量里混有少量非交易所项目，份额数字的分母偏大，只看量级。</p>
+<p><strong>第三层，扩展资源库里的机构研究。</strong> 我们实际读了摩根大通、伯恩斯坦、摩根士丹利、德银、海通国际、浙商证券、Capital Wars、Citrini、Macro Charts、TMT Breakout 的相关原文或 PDF。它们对"周期和宏观"覆盖充分，但<strong>没有一篇直接研究 Uniswap 或 UNI</strong>：在 2025 年 1 月至今的目录里，"Uniswap"零命中，库里对 2025 年 11–12 月 UNIfication 期间也没有覆盖。所以 UNI 自身的基本面判断，主要来自链上数据、公司发言和署名媒体。</p>
+<p><strong>第四层，播客与加密媒体。</strong> Hayden Adams 与多位加密研究者的发言来自本机语音转写，未经人工校对，数字以公告和链上数据为准。加密媒体里充斥价格预测类文章，本报告只采用有署名记者、且能回溯到原始数据的报道。</p>
+<p><strong>仍然存在的缺口，按优先级：</strong> 一、没有 Uniswap 内部或做市商的专家访谈（全文没有 🗣️ 图标，这是缺口，不是遗漏）；二、Robinhood Chain 上 Uniswap 的协议费率和它对销毁的具体贡献没有公开拆分；三、国库之外的潜在卖盘只查了一部分：疑似 Uniswap 基金会的两个钱包（身份是按国库转账推断的）在这波上涨中只流出约 3.8 万枚，还剩约 1,750 万枚会逐步流出；早期投资机构的现有持仓没有逐个核对；四、SEC 创新豁免对现有无许可交易池的具体影响，需要律师解读。</p>
+<h2 id="9">9. 自检结果</h2>
+<ul>
+<li><code>report_lint.py</code>：结果附于交付说明。</li>
+<li>章节编号 1–10 连续，目录条目数与章节数一致。</li>
+<li>概率数字只出现在第 1 节、第 5 节路径表、第 7 节（各信息缺口的影响幅度）、第 10 节与附录，且处处一致；路径表合计 100%，两条 YES 路径之和等于第 1 节的严格口径数字 4%。</li>
+<li>19.47 美元与 30 美元两个参考数字与路径表的拆分一致（见 5.1 节末）。</li>
+<li>全文未使用被禁术语，没有数学排版残留。</li>
+<li>价格、日期、金额可回到第 6 节的来源、附录的计算脚本或 <code>research/angles/</code> 里的研究记录核对；全文 25 处原文引语、约 120 个数字经过独立复核。</li>
+<li>每条核心判断至少含一条实线下划线证据。没有专家访谈，故全文未出现 🗣️ 图标。</li>
+</ul>
+<h2 id="10">10. 最终预测声明</h2>
+<p><strong>2026-09-29 至 2027-09-29（UTC），币安现货 UNI/USDT 任意一根 1 分钟 K 线最高价高于 45.00 美元的概率：4%。</strong> 同一窗口碰到 30 美元的概率约 10%，碰到 19.47 美元（上一轮高点）的概率约 25%。</p>
+<hr />
+<h2 id="_2">附录·当前估计依据</h2>
+<h3 id="_3">参照类一：跌了七八成的币，一年内回到前高的比例</h3>
+<p>我们用币安全部 675 个 USDT 现货交易对（<strong>含已下架的</strong>，避免只统计活下来的币）做了横截面统计。筛选条件对齐 UNI 今天的处境：收盘价只有历史最高价的 12% 到 28%（UNI 是 19%）；前高至少是两年前创下的；交易对至少上线两年。结果看之后 365 天里有没有任何一天的最高价超过旧前高。为避免长期横盘的币被重复计数，每个币每个季度只取一个观察点。</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>起点所在年份</th>
+<th>回到前高 ／ 观察数</th>
+<th>比例</th>
+<th>那一年之后的大盘</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2020</td>
+<td>22 ／ 30</td>
+<td>73%</td>
+<td>2021 年全面牛市</td>
+</tr>
+<tr>
+<td>2021</td>
+<td>8 ／ 30</td>
+<td>27%</td>
+<td>2021 年牛市尾段</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>0 ／ 13</td>
+<td>0%</td>
+<td>熊市</td>
+</tr>
+<tr>
+<td>2023</td>
+<td>11 ／ 157</td>
+<td>7%</td>
+<td>2024 年比特币领涨</td>
+</tr>
+<tr>
+<td>2024</td>
+<td>8 ／ 458</td>
+<td>2%</td>
+<td>2025 年比特币见顶</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>4 ／ 196</td>
+<td>2%</td>
+<td>2026 年上半年下跌</td>
+</tr>
+<tr>
+<td>2026</td>
+<td>0 ／ 2</td>
+<td>0%</td>
+<td>只有已下架的币有完整观察窗口</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td><strong>53 ／ 886</strong></td>
+<td><strong>6%</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p>几种变体：只看日均成交额 2,000 万美元以上的币为 8%，5,000 万美元以上为 9%，后者的 14 个命中里 8 个是 2020 年的起点，其余 6 个里 5 个是 XRP；<strong>把条件收紧到"前高至少三年前"（UNI 的前高已近五年半），比例降到 2%（8 ／ 399）</strong>。另一组约 80 个历史大市值币的独立统计（含 LUNA、FTT 等已衰落的币）给出相近的结果：2022–2025 年起点、距前高 78% 到 85% 的币，12 个月内回到前高的为 5 ／ 165（3%）。</p>
+<p>这张表说明的不是"6%"这个平均数，而是<strong>结果几乎完全由大盘所处的阶段决定</strong>。</p>
+<h3 id="uni_1">参照类二：UNI 自己的波动</h3>
+<p>UNI 过去一年的年化波动率约 100%。把价格当成随机游走、问"一年内最高点碰到今天的 5.2 倍"的概率：</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>假设</th>
+<th>概率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>预期收益为零（价格没有方向）</td>
+<td>约 4%</td>
+</tr>
+<tr>
+<td>对数价格没有方向（相当于每年有约 65% 的正预期收益）</td>
+<td>约 10%</td>
+</tr>
+<tr>
+<td>抽取 UNI 自 2020 年上线以来的全部历史日收益、按 30 天一段随机拼接</td>
+<td>约 16%</td>
+</tr>
+<tr>
+<td>同上，但去掉上线头八个月（2020-09 至 2021-05 的狂热期）</td>
+<td>约 6%</td>
+</tr>
+</tbody>
+</table></div>
+<p>第三行之所以高，是因为它把 2020–2021 年那段"八个月涨二十倍"的行情当成了可以重演的常态。</p>
+<h3 id="_4">参照类三：换算成相对比特币要涨多少</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>窗口内比特币到</th>
+<th>UNI/BTC 需要到</th>
+<th>相当于今天的</th>
+<th>上一次见到这个比价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>83,200 美元（不动）</td>
+<td>0.00054</td>
+<td>5.2 倍</td>
+<td>2021 年</td>
+</tr>
+<tr>
+<td>126,200 美元（回到前高）</td>
+<td>0.00036</td>
+<td>3.5 倍</td>
+<td>2022 年 12 月</td>
+</tr>
+<tr>
+<td>150,000 美元</td>
+<td>0.00030</td>
+<td>2.9 倍</td>
+<td>2023 年 2 月</td>
+</tr>
+<tr>
+<td>200,000 美元</td>
+<td>0.00023</td>
+<td>2.2 倍</td>
+<td>2024 年 3 月</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="_5">当前判断</h3>
+<p>横截面统计给出 2% 到 6%，波动率模型在合理假设下给出 4% 到 10%（约 16% 那一行把 2021 年的狂热期当成常态，我们不采用），中枢约 4%。</p>
+<p>UNI 特有的证据里，向上的部分是：手续费开关已经落地并持续扩展，7 月底接入 Robinhood Chain 后销毁翻倍；SEC 放行回购；CME 期货和 ETF 通道在窗口内打开；6 月以来它是同类代币里涨得最多的一个，而且主要靠现货买盘。向下的部分同样具体：现金流离 45 美元差四到七倍；增量来自 meme 币，已在降温；美联储在加息，比特币处在修复早段；同类资产在上一轮完整牛市里一次都没有回到前高。两边大致抵消，净结果落在 <strong>4%</strong>。</p>
+<h3 id="_6">口径敏感性</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>若把口径改成</th>
+<th>概率变为</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>要求日线收盘价站上 45 美元</td>
+<td>约 3%</td>
+<td>狂热行情里的冲高多数会留下长影线</td>
+</tr>
+<tr>
+<td>窗口延长到 18 个月（至 2028-03）</td>
+<td>约 6%</td>
+<td>多覆盖半年，更接近减半前的上涨段</td>
+</tr>
+<tr>
+<td>窗口延长到 24 个月（至 2028-09）</td>
+<td>约 9%</td>
+<td>覆盖 2028 年减半前后，按四年周期更可能出现普涨</td>
+</tr>
+<tr>
+<td>"前高"改为上一轮高点 19.47 美元</td>
+<td>约 25%</td>
+<td>见第 1 节</td>
+</tr>
+</tbody>
+</table></div>
+<p>计算脚本与完整输出见 <code>research/quant_base_rates.py</code> 与 <code>research/quant_base_rates.out.txt</code>；事实时间线见 <code>research/chronology.md</code>。</p></main></div>
+</body></html>
