@@ -199,7 +199,7 @@
       "en": {
         "company": "AMD × NVIDIA · World Labs deal",
         "title": "Two years after buying World Labs, will AMD stock beat NVIDIA?",
-        "summary": "A forecast built from next-year earnings that are almost equal while the valuations differ 2.7 times, the production ramp of AMD's Helios rack, custom chips taking the second-supplier share, and what the USD 8.2 billion all-stock deal actually buys; it also judges how both companies and the AI chip market will shift.",
+        "summary": "A forecast built from next-year earnings that are almost equal while the valuations differ 2.7 times, the production ramp of AMD's Helios rack, custom chips taking the second-supplier share, and how NVIDIA's open Cosmos and World Labs differ in world models; it also judges how both companies and the AI chip market will shift.",
         "signalLabel": "Beats NVDA on two-year total return · probability",
         "signal": "38% · ~28% by 20%+",
         "metaTitle": "AMD after World Labs: the two-year race against NVIDIA — Predict Raven",
@@ -209,7 +209,7 @@
       "zh-CN": {
         "company": "AMD × 英伟达 · World Labs 收购",
         "title": "AMD 收购 World Labs 后两年，股价能跑赢英伟达吗？",
-        "summary": "从两家下一年几乎相同的盈利与相差 2.7 倍的估值、Helios 整柜系统的量产节奏、定制芯片对“第二供应商”份额的分流，以及这笔 82 亿美元全股票收购真正买到了什么，估计 AMD 两年总回报高于英伟达的概率，并判断两家竞争力与上游算力芯片格局的变化。",
+        "summary": "从两家下一年几乎相同的盈利与相差 2.7 倍的估值、Helios 整柜系统的量产节奏、定制芯片对“第二供应商”份额的分流，以及英伟达 Cosmos 与 World Labs 在世界模型上的不同定位，估计 AMD 两年总回报高于英伟达的概率，并判断两家竞争力与上游算力芯片格局的变化。",
         "signalLabel": "两年总回报跑赢英伟达 · 概率",
         "signal": "38% · 领先 20% 以上约 28%",
         "metaTitle": "AMD 收购 World Labs 后两年能否跑赢英伟达 — Predict Raven",
