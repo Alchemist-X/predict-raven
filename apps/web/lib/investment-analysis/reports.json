@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-09-29",
+  "asOf": "2026-09-30",
   "reports": [
     {
       "slug": "tencent-hunyuan-workbuddy",
@@ -191,6 +191,30 @@
         "metaTitle": "全球数据中心数据容量调研-26.9 — Predict Raven",
         "metaDescription": "截至 2026 年 9 月 29 日，全球在运数据中心 IT 容量约 110GW（区间 100–125GW），年底约 120GW；美国约 50GW，中国约 27GW。楼的业主中云厂商约占 35%、第三方房东约 53%，并列出各家分别向谁租用。",
         "frameTitle": "全球数据中心数据容量调研完整中文报告"
+      }
+    },
+    {
+      "slug": "amd-worldlabs-vs-nvda-2y",
+      "question": "AMD 收购 World Labs 两年后，股价跑赢英伟达的概率是多少？",
+      "en": {
+        "company": "AMD × NVIDIA · World Labs deal",
+        "title": "Two years after buying World Labs, will AMD stock beat NVIDIA?",
+        "summary": "A forecast built from next-year earnings that are almost equal while the valuations differ 2.7 times, the production ramp of AMD's Helios rack, custom chips taking the second-supplier share, and what the USD 8.2 billion all-stock deal actually buys; it also judges how both companies and the AI chip market will shift.",
+        "signalLabel": "Beats NVDA on two-year total return · probability",
+        "signal": "38% · ~28% by 20%+",
+        "metaTitle": "AMD after World Labs: the two-year race against NVIDIA — Predict Raven",
+        "metaDescription": "As of September 30, 2026: a 38% probability that AMD's total shareholder return from the 2026-09-28 close to the 2028-09-28 close beats NVIDIA's; about 28% that AMD leads by 20% or more and 52% that NVIDIA does. By 2028 NVIDIA still takes about 63–72% of AI accelerator spending by value, custom chips 22–30% and AMD 6–9%.",
+        "frameTitle": "Full AMD vs NVIDIA two-year forecast in Chinese"
+      },
+      "zh-CN": {
+        "company": "AMD × 英伟达 · World Labs 收购",
+        "title": "AMD 收购 World Labs 后两年，股价能跑赢英伟达吗？",
+        "summary": "从两家下一年几乎相同的盈利与相差 2.7 倍的估值、Helios 整柜系统的量产节奏、定制芯片对“第二供应商”份额的分流，以及这笔 82 亿美元全股票收购真正买到了什么，估计 AMD 两年总回报高于英伟达的概率，并判断两家竞争力与上游算力芯片格局的变化。",
+        "signalLabel": "两年总回报跑赢英伟达 · 概率",
+        "signal": "38% · 领先 20% 以上约 28%",
+        "metaTitle": "AMD 收购 World Labs 后两年能否跑赢英伟达 — Predict Raven",
+        "metaDescription": "截至 2026 年 9 月 30 日，AMD 从 2026-09-28 收盘到 2028-09-28 收盘的股东总回报高于英伟达的概率为 38%；AMD 领先 20% 以上约 28%，英伟达领先 20% 以上约 52%。到 2028 年按金额，英伟达约占 AI 加速器支出的 63%–72%，定制芯片 22%–30%，AMD 6%–9%。",
+        "frameTitle": "AMD 收购 World Labs 后两年能否跑赢英伟达完整中文报告"
       }
     }
   ]
