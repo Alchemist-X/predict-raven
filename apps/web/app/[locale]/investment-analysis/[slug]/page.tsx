@@ -51,6 +51,12 @@ const REPORTS: Record<
     descriptionKey: "iaAwsMetaDescription",
     iframeTitleKey: "iaAwsFrameTitle",
     src: "/investment-analysis/reports/aws-operating-margin-5y.html"
+  },
+  "uniswap-ath-12m": {
+    titleKey: "iaUniswapMetaTitle",
+    descriptionKey: "iaUniswapMetaDescription",
+    iframeTitleKey: "iaUniswapFrameTitle",
+    src: "/investment-analysis/reports/uniswap-ath-12m.html"
   }
 };
 

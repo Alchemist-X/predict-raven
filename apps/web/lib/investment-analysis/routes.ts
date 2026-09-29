@@ -6,7 +6,8 @@ export const INVESTMENT_CASE_SLUGS = [
   "meta-capex-6m",
   "openai-gpt6-sol",
   "abivax-acquisition-6m",
-  "aws-operating-margin-5y"
+  "aws-operating-margin-5y",
+  "uniswap-ath-12m"
 ] as const;
 
 export type InvestmentCaseSlug = (typeof INVESTMENT_CASE_SLUGS)[number];

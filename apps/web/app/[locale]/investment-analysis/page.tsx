@@ -66,6 +66,15 @@ const CASES: ReadonlyArray<CaseStudy> = [
     summaryKey: "iaAwsSummary",
     signalLabelKey: "iaAwsSignalLabel",
     signalKey: "iaAwsSignal"
+  },
+  {
+    slug: "uniswap-ath-12m",
+    index: "07",
+    companyKey: "iaUniswapCompany",
+    titleKey: "iaUniswapTitle",
+    summaryKey: "iaUniswapSummary",
+    signalLabelKey: "iaUniswapSignalLabel",
+    signalKey: "iaUniswapSignal"
   }
 ];
 
@@ -89,7 +98,7 @@ export default async function InvestmentAnalysisPage({ params }: { params: Promi
         </div>
         <div className={styles.metaItem}>
           <span>{t(locale, "iaAsOfLabel")}</span>
-          <strong>2026-09-18</strong>
+          <strong>2026-09-29</strong>
         </div>
       </section>
 
