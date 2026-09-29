@@ -1,0 +1,899 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>全球数据中心数据容量调研-26.9</title><link rel="icon" href="data:,">
+<style>
+:root{--ink:#18201d;--muted:#657069;--paper:#fffdf8;--canvas:#eeeae1;--line:#d9d4c8;--accent:#9d3f25;--accent-soft:#f5e7df;--shadow:0 18px 55px rgba(47,42,31,.10)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:var(--canvas);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;line-height:1.72}
+.topbar{position:sticky;top:0;z-index:10;background:rgba(255,253,248,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1480px;margin:auto;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{font-weight:750;letter-spacing:.02em}.brand span{color:var(--accent)}
+.meta{font-size:13px;color:var(--muted)}
+.layout{max-width:1480px;margin:28px auto 64px;padding:0 24px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px}
+.toc{position:sticky;top:72px;align-self:start;max-height:calc(100vh - 96px);overflow:auto;padding:18px 14px;border:1px solid var(--line);border-radius:14px;background:rgba(255,253,248,.72)}
+.toc-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.toc a{display:block;color:var(--ink);text-decoration:none;font-size:13.5px;padding:4px 8px;border-radius:8px;margin:1px 0}
+.toc a:hover{background:var(--accent-soft);color:var(--accent)}
+main{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:40px 48px 56px;min-width:0}
+main h1{font-size:26px;line-height:1.35;margin:.2em 0 .6em;letter-spacing:.01em}
+main h2{font-size:21px;margin:2.2em 0 .7em;padding-top:.6em;border-top:1px solid var(--line)}
+main h3{font-size:17px;margin:1.6em 0 .5em;line-height:1.5}
+main h2:first-of-type{border-top:none;padding-top:0;margin-top:1em}
+main a{color:var(--accent)}
+main blockquote{margin:1.2em 0;padding:12px 18px;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0}
+main blockquote p{margin:.3em 0}
+.tablewrap{overflow-x:auto;margin:1.1em 0}
+main table{border-collapse:collapse;font-size:14px;min-width:60%}
+main th{background:var(--accent-soft);color:var(--ink);text-align:left;font-weight:650}
+main th,main td{border:1px solid var(--line);padding:8px 12px;vertical-align:top;line-height:1.65}
+main tr:nth-child(even) td{background:rgba(238,234,225,.35)}
+main code{background:var(--canvas);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.9em}
+main hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+main li{margin:.25em 0}
+main ul ul,main ol ul{margin-top:.2em}
+main strong{color:#111}
+main u.key{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:4px}
+main u.minor{text-decoration:underline dotted;text-decoration-color:#9aa39d;text-decoration-thickness:1.5px;text-underline-offset:4px}
+main u.ask{text-decoration:underline;text-decoration-color:#8d9a91;text-decoration-thickness:1px;text-underline-offset:5px;font-weight:600;color:#2f3a34}
+main li>u.ask{display:inline-block;margin-bottom:.25em}
+.tag{display:inline-block;font-size:11.5px;line-height:1;padding:3px 6px;border-radius:5px;background:var(--canvas);border:1px solid var(--line);color:var(--muted);margin-right:5px;vertical-align:1px;white-space:nowrap}
+.note{display:block;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.55;font-weight:400}
+.legend{font-size:13.5px;color:#4d5651;background:rgba(238,234,225,.5);border:1px dashed var(--line);border-radius:10px;padding:10px 14px;margin:.6em 0 1.2em;line-height:1.75}
+.legend p{margin:.2em 0}
+.formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"PingFang SC","Hiragino Sans GB",monospace;background:var(--canvas);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:1em 0;line-height:2;font-size:13.5px;overflow-x:auto;white-space:nowrap}
+.formula b{color:var(--accent)}
+.org td:first-child,.tight1 td:first-child{white-space:nowrap}
+.org td:first-child{font-weight:650}
+.org td:nth-child(2){width:58%}
+.org td:nth-child(3){min-width:260px}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.toc{position:static;max-height:none}main{padding:24px 20px}}
+</style></head><body>
+<div class="topbar"><div class="topbar-inner"><div class="brand">Predict-Raven</div><div class="meta">全球数据中心数据容量调研-26.9｜生成 2026-09-29｜research-only / market-blind</div></div></div>
+<div class="layout"><nav class="toc"><div class="toc-title">目录</div><a href="#-269">全球数据中心数据容量调研-26.9</a>
+<a href="#1">1. 结论先看</a>
+<a href="#2">2. 总量与分布</a>
+<a href="#3">3. 最底层：楼归谁</a>
+<a href="#4">4. 上层：各家用了多少</a>
+<a href="#5">5. 每家分别租用的是谁</a>
+<a href="#6">6. 在建与年底</a>
+<a href="#7">7. 口径和数据分歧</a>
+<a href="#8">8. 方法与来源</a></nav><main><style>
+.viz{margin:1.2em 0 1.6em;padding:16px 20px 14px;border:1px solid var(--line);border-radius:12px;background:#fcfcfb;break-inside:avoid;page-break-inside:avoid}
+.viz-title{font-weight:650;font-size:15px;color:#0b0b0b;line-height:1.5}
+.viz-sub{font-size:12.5px;color:#52514e;margin:2px 0 12px;line-height:1.5}
+.hbar{display:grid;grid-template-columns:150px 1fr;align-items:center;column-gap:10px;margin:6px 0}
+.hbar .lab{font-size:13.5px;color:#0b0b0b;white-space:nowrap}
+.hbar .track{display:flex;align-items:center;min-width:0}
+.hbar .bar{height:18px;background:#2a78d6;border-radius:0 4px 4px 0;flex:none}
+.hbar .bar.muted{background:#c3c2b7}
+.hbar .val{font-size:13px;color:#0b0b0b;margin-left:8px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.stackrow{display:grid;grid-template-columns:150px 1fr 64px;align-items:center;column-gap:10px;margin:8px 0}
+.stackrow .lab{font-size:13.5px;color:#0b0b0b;white-space:nowrap;line-height:1.35}
+.stackrow .lab small{display:block;font-size:11.5px;color:#898781}
+.stackrow .tot{font-size:13px;color:#0b0b0b;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+.stack{display:flex;align-items:center;gap:2px;height:24px;min-width:0}
+.stack .seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:12px;white-space:nowrap;overflow:visible;flex:none}
+.stack .seg:last-of-type{border-radius:0 4px 4px 0}
+.stack .c1{background:#2a78d6;color:#fff}.stack .c2{background:#eb6834;color:#0b0b0b}.stack .c3{background:#1baf7a;color:#0b0b0b}.stack .c4{background:#eda100;color:#0b0b0b}
+.viz-legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12.5px;color:#52514e;margin-top:10px}
+.viz-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.viz-note{font-size:12px;color:#898781;margin-top:8px;line-height:1.55}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:1em 0 1.4em;break-inside:avoid;page-break-inside:avoid}
+.tile{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fcfcfb}
+.tile .k{font-size:12.5px;color:#52514e}
+.tile .v{font-size:26px;font-weight:650;color:#0b0b0b;line-height:1.35}
+.tile .d{font-size:12px;color:#898781;line-height:1.5}
+.tight2 td:nth-child(-n+2),.tight2 th:nth-child(-n+2){white-space:nowrap}
+.num td:nth-child(n+2){font-variant-numeric:tabular-nums}
+@media(max-width:640px){.tiles{grid-template-columns:1fr}.hbar,.stackrow{grid-template-columns:96px 1fr}.stackrow .tot{display:none}}
+</style>
+
+<h1 id="-269">全球数据中心数据容量调研-26.9</h1>
+<p><span class="note">总量、分布、楼归谁与各家租用关系｜数据截至 2026 年 9 月 29 日</span></p>
+<div class="legend">
+<p><strong>这份材料是什么。</strong> 这是一次自下而上的统一统计。我们先按楼统计：每一座数据中心归谁所有，现在在运多少。再往上看每家公司用了多少、分别向谁租。最后汇总成全球总量和地区分布。底稿共 1,190 行容量记录、441 条租用关系，每一行都有来源链接和日期。</p>
+<p><strong>资料来源。</strong> 公开资料来自公司财报和上市文件（10-K、10-Q、8-K、S-1 等）、业绩会纪要、房地产和数据中心咨询机构的市场报告、国际能源署（IEA）报告，以及 Epoch AI 公开的大型 AI 数据中心数据库。私有资源库提供了 SemiAnalysis、TMT Breakout、Citrini 等订阅研究和卖方研报摘要。原文不在此复制，只引用数字和结论，并注明出处。</p>
+<p><strong>数字的口径。</strong></p>
+<ul>
+<li><strong>单位</strong>：GW 即吉瓦，1GW = 1,000MW（兆瓦）。</li>
+<li><strong>IT 容量</strong>：除特别注明外，数字都是数据中心能供给服务器、网络等 IT 设备的电力。</li>
+<li><strong>园区总用电</strong>：还包括制冷等配套用电，通常比 IT 容量高约三成。</li>
+<li><strong>状态</strong>：分为在运、在建、已签约（租约或合同已签、楼还没交付）和规划。</li>
+<li><strong>本文推算</strong>：我们用来源数字做的加减或按比例估算。</li>
+</ul>
+<p><strong>怎么避免重复计算。</strong></p>
+<ul>
+<li><strong>同一栋楼只算一次</strong>，算在楼的业主名下，这是"最底层"。</li>
+<li><strong>租用它的公司记作一条租用关系</strong>，这是"上层"。例如 Abilene 园区：楼属于 Crusoe 与 Blue Owl 的合资公司，甲骨文向它租，OpenAI 再向甲骨文买算力。容量只算一次，另记两条租用关系。</li>
+<li><strong>各家公司的"总用量"包含租来的部分</strong>，彼此会重叠，不能相加。</li>
+</ul>
+</div>
+<h2 id="1">1. 结论先看</h2>
+<div class="tiles">
+<div class="tile"><div class="k">全球在运数据中心</div><div class="v">约 110GW</div><div class="d">IT 容量，2026 年 9 月；区间 100–125GW</div></div>
+<div class="tile"><div class="k">2026 年底</div><div class="v">约 120GW</div><div class="d">另有企业自有机房约 16GW 不在其中</div></div>
+<div class="tile"><div class="k">其中大型 AI 专用园区</div><div class="v">13.5GW</div><div class="d">Epoch 追踪的 93 个园区；全部建成约 37GW</div></div>
+</div>
+
+<ul>
+<li><strong>总量</strong>：全球在运的数据中心 IT 容量约 <strong>110GW</strong>（按四舍五入，精确合计 112GW），2026 年底约 <strong>120GW</strong>。<ul>
+<li>加上企业自己机房里的服务器，现在约 120–130GW。</li>
+<li>若按园区总用电算，年底约 150–165GW。</li>
+</ul>
+</li>
+<li><strong>分布</strong>：<ul>
+<li>美国约 <strong>50GW</strong>，占全球四成半；</li>
+<li>中国约 <strong>27GW</strong>，约占四分之一；</li>
+<li>亚太（不含中国）约 15GW；</li>
+<li>欧洲约 13GW；</li>
+<li>加拿大与墨西哥约 3GW；</li>
+<li>拉美约 2GW；</li>
+<li>中东和非洲合计约 2.3GW。</li>
+</ul>
+</li>
+<li><strong>最底层：楼归谁</strong>（本文估算，北美、欧洲有咨询机构数据支撑，其余地区为推算）：<ul>
+<li>云厂商自己拥有的约 <strong>39GW</strong>（35%）；</li>
+<li>第三方房东（专门建机房出租的公司）约 <strong>59GW</strong>（53%）；</li>
+<li>中国三大电信运营商约 9GW（8%）；</li>
+<li>其他约 5GW。</li>
+</ul>
+</li>
+<li><strong>上层：谁在用</strong>：<ul>
+<li><strong>中美十家大云厂商</strong>（下表）合计约 55GW，约占全球一半，其中相当一部分是租来的：SemiAnalysis 估计仅美国四家（微软、Meta、亚马逊、甲骨文）2026 年就向第三方租用约 15GW，字节跳动在国内也租了 4GW 以上。<ul>
+<li>微软约 12GW，含租用；</li>
+<li>亚马逊约 12–16GW，电力口径；</li>
+<li>谷歌约 8–9GW；</li>
+<li>Meta 约 4.5GW；</li>
+<li>甲骨文近一年新交付约 2GW；</li>
+<li>字节跳动年底 5.3GW；</li>
+<li>阿里巴巴约 4GW；</li>
+<li>腾讯 2.4GW、百度 1.1GW、华为 1.0GW（均为年底值）。</li>
+</ul>
+</li>
+<li><strong>AI 公司</strong>：<ul>
+<li>OpenAI 约 2GW，全部租用；</li>
+<li>Anthropic 约 1.3–2GW，全部租用；</li>
+<li>SpaceX（含 xAI）自有约 1.4GW。</li>
+</ul>
+</li>
+<li><strong>NeoCloud</strong>（新兴 GPU 云，专门出租 AI 算力）中最大的 CoreWeave 在运 1.5GW，几乎都在别人的楼里。</li>
+</ul>
+</li>
+<li><strong>每家租谁的</strong>（详见第 5 节）：<ul>
+<li><strong>OpenAI</strong>：主要靠微软和甲骨文。甲骨文的楼又分别来自 Crusoe、Vantage、Related、STACK 四家开发商，加上 CoreWeave 和软银旗下的 SB Energy。</li>
+<li><strong>Anthropic</strong>：主要靠亚马逊、谷歌和 SpaceX，再加上一批由谷歌担保、Fluidstack 承接的矿场改造园区。</li>
+<li><strong>美国云厂商</strong>：租用第三方最多的是微软和甲骨文。</li>
+<li><strong>字节跳动</strong>：在中国几乎全部租用，房东是秦淮、世纪互联、中联数据、润泽等。</li>
+</ul>
+</li>
+<li><strong>一个趋势</strong>：大型 AI 园区现在六成多由云厂商自己拥有，但在建和规划中的部分，第三方出资盖楼的比例明显上升。按全部建成计算，第三方份额从 28% 升到约 42%。</li>
+</ul>
+<h2 id="2">2. 总量与分布</h2>
+<div class="viz">
+<div class="viz-title">各地区在运数据中心容量（GW，IT 容量，2026 年 9 月）</div>
+<div class="viz-sub">本文综合多家机构估计后的中值；各地区区间见下表。</div>
+<div class="hbar"><div class="lab">美国</div><div class="track"><div class="bar" style="width:78%"></div><div class="val">约 50</div></div></div>
+<div class="hbar"><div class="lab">中国</div><div class="track"><div class="bar" style="width:42.1%"></div><div class="val">约 27</div></div></div>
+<div class="hbar"><div class="lab">亚太（不含中国）</div><div class="track"><div class="bar" style="width:23.4%"></div><div class="val">约 15</div></div></div>
+<div class="hbar"><div class="lab">欧洲</div><div class="track"><div class="bar" style="width:20.3%"></div><div class="val">约 13</div></div></div>
+<div class="hbar"><div class="lab">加拿大与墨西哥</div><div class="track"><div class="bar" style="width:4.7%"></div><div class="val">约 3</div></div></div>
+<div class="hbar"><div class="lab">拉美</div><div class="track"><div class="bar" style="width:3.1%"></div><div class="val">约 2</div></div></div>
+<div class="hbar"><div class="lab">中东</div><div class="track"><div class="bar" style="width:2.8%"></div><div class="val">约 1.8</div></div></div>
+<div class="hbar"><div class="lab">非洲</div><div class="track"><div class="bar" style="width:0.8%"></div><div class="val">约 0.5</div></div></div>
+<div class="viz-note">本图依据台账数字绘制。合计约 112GW，不含企业自有机房。</div>
+</div>
+
+<div class="tight2 num">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>地区</th>
+<th>现在</th>
+<th>2026 年底</th>
+<th>主要依据</th>
+<th>可信度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>美国</td>
+<td>约 50（48–53）</td>
+<td>约 56</td>
+<td>SemiAnalysis 年底 56；JLL 北美年中 50；IEA 2025 年 39</td>
+<td>中</td>
+</tr>
+<tr>
+<td>中国</td>
+<td>约 27（24–28）</td>
+<td>28–32</td>
+<td>SemiAnalysis 逐楼统计超过 24；摩根士丹利 2025 年 26；高盛 2025 年底 28</td>
+<td>中</td>
+</tr>
+<tr>
+<td>亚太（不含中国）</td>
+<td>约 15</td>
+<td>15–17</td>
+<td>SemiAnalysis 约 15；Knight Frank 2026 年 16.8</td>
+<td>中</td>
+</tr>
+<tr>
+<td>欧洲</td>
+<td>约 13</td>
+<td>约 13</td>
+<td>CBRE 年底 13；Cushman 12.1</td>
+<td>中</td>
+</tr>
+<tr>
+<td>加拿大与墨西哥</td>
+<td>约 3</td>
+<td>约 3</td>
+<td>北美减美国（本文推算）</td>
+<td>低</td>
+</tr>
+<tr>
+<td>拉美</td>
+<td>约 2</td>
+<td>约 2</td>
+<td>SemiAnalysis 约 2；datacenterHawk 1.9</td>
+<td>中</td>
+</tr>
+<tr>
+<td>中东与非洲</td>
+<td>约 2.3</td>
+<td>约 2.8</td>
+<td>datacenterHawk、JLL</td>
+<td>低</td>
+</tr>
+<tr>
+<td><strong>全球</strong></td>
+<td><strong>约 112（100–125）</strong></td>
+<td><strong>约 120（110–135）</strong></td>
+<td>各地区加总，并与 IEA、Knight Frank、datacenterHawk 交叉核对</td>
+<td>中</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p><strong>各家估计为什么差得多。</strong></p>
+<ul>
+<li><strong>IEA</strong>：用用电量反推，还包含企业机房，得到的数字最低，2025 年为 82GW。</li>
+<li><strong>Knight Frank、CBRE、JLL 等咨询机构</strong>：统计已建成的机房，基本不含中国大陆。</li>
+<li><strong>Gartner、TrendForce 等</strong>：按园区总用电计，2026 年为 132–161GW。</li>
+</ul>
+<p>差异主要来自口径，而不是数据本身。</p>
+<p><strong>主要城市和市场（在运，含云厂商自建，MW）：</strong></p>
+<div class="tight2 num">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>市场</th>
+<th>容量</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>北弗吉尼亚</td>
+<td>5,600–6,900</td>
+<td>Knight Frank、JLL</td>
+</tr>
+<tr>
+<td>达拉斯—沃思堡</td>
+<td>约 4,600</td>
+<td>JLL</td>
+</tr>
+<tr>
+<td>太平洋西北（俄勒冈等）</td>
+<td>约 4,200</td>
+<td>JLL</td>
+</tr>
+<tr>
+<td>哥伦布（俄亥俄）</td>
+<td>约 3,900</td>
+<td>JLL</td>
+</tr>
+<tr>
+<td>奥斯汀、圣安东尼奥</td>
+<td>约 3,300</td>
+<td>JLL</td>
+</tr>
+<tr>
+<td>亚特兰大</td>
+<td>约 2,500（在建另有约 2,900）</td>
+<td>JLL、CBRE</td>
+</tr>
+<tr>
+<td>北京</td>
+<td>约 2,400</td>
+<td>DC Byte</td>
+</tr>
+<tr>
+<td>凤凰城</td>
+<td>约 2,200</td>
+<td>JLL</td>
+</tr>
+<tr>
+<td>孟菲斯</td>
+<td>约 2,100</td>
+<td>JLL（含 SpaceX/xAI）</td>
+</tr>
+<tr>
+<td>东京、伦敦</td>
+<td>各约 1,500</td>
+<td>Knight Frank</td>
+</tr>
+<tr>
+<td>都柏林</td>
+<td>约 1,250</td>
+<td>Knight Frank</td>
+</tr>
+<tr>
+<td>柔佛（马来西亚）、新加坡</td>
+<td>各约 1,100（新加坡全国约 1,600）</td>
+<td>Cushman、Knight Frank、新加坡政府</td>
+</tr>
+<tr>
+<td>法兰克福</td>
+<td>1,000–1,200</td>
+<td>Knight Frank、CBRE</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<h2 id="3">3. 最底层：楼归谁</h2>
+<p><strong>分地区估算。</strong> 北美和欧洲的拆分来自咨询机构的统计；亚太、中国和其他地区是本文估算，可信度较低。</p>
+<div class="viz">
+<div class="viz-title">各地区在运容量按楼的业主类型拆分（占比）</div>
+<div class="viz-sub">右侧为该地区合计（GW，IT 容量）；北美据 JLL，欧洲据 CBRE，其余为本文估算。</div>
+<div class="stackrow"><div class="lab">北美</div><div class="stack"><div class="seg c1" style="width:47%">47%</div><div class="seg c2" style="width:53%">53%</div></div><div class="tot">53</div></div>
+<div class="stackrow"><div class="lab">中国<small>估算</small></div><div class="stack"><div class="seg c1" style="width:18.5%">19%</div><div class="seg c2" style="width:29.6%">30%</div><div class="seg c3" style="width:33.3%">33%</div><div class="seg c4" style="width:18.5%">19%</div></div><div class="tot">27</div></div>
+<div class="stackrow"><div class="lab">亚太（不含中国）<small>估算</small></div><div class="stack"><div class="seg c1" style="width:27%">27%</div><div class="seg c2" style="width:73%">73%</div></div><div class="tot">15</div></div>
+<div class="stackrow"><div class="lab">欧洲</div><div class="stack"><div class="seg c1" style="width:33%">33%</div><div class="seg c2" style="width:67%">67%</div></div><div class="tot">13</div></div>
+<div class="stackrow"><div class="lab">中东、非洲、拉美<small>估算</small></div><div class="stack"><div class="seg c1" style="width:19%">19%</div><div class="seg c2" style="width:81%">81%</div></div><div class="tot">4.3</div></div>
+<div class="stackrow"><div class="lab">全球</div><div class="stack"><div class="seg c1" style="width:35%">35%</div><div class="seg c2" style="width:53%">53%</div><div class="seg c3" style="width:8%">8%</div><div class="seg c4" style="width:4%"></div></div><div class="tot">112</div></div>
+<div class="viz-legend"><span><i style="background:#2a78d6"></i>云厂商自有</span><span><i style="background:#eb6834"></i>第三方房东</span><span><i style="background:#1baf7a"></i>中国三大运营商</span><span><i style="background:#eda100"></i>其他（政府、企业、其他 IDC）</span></div>
+<div class="viz-note">全球行"其他"约 4%，段太窄，未标数字。本图依据台账估算绘制，数字见下表。</div>
+</div>
+
+<div class="tight2 num">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>地区</th>
+<th>合计</th>
+<th>云厂商自有</th>
+<th>第三方房东</th>
+<th>中国运营商</th>
+<th>其他</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>北美</td>
+<td>53</td>
+<td>25</td>
+<td>28</td>
+<td>—</td>
+<td>—</td>
+<td>JLL 年中数据：50GW 中云厂商自有 24、第三方 26</td>
+</tr>
+<tr>
+<td>欧洲</td>
+<td>13</td>
+<td>4.3</td>
+<td>8.7</td>
+<td>—</td>
+<td>—</td>
+<td>CBRE：年底 13GW 中云厂商自建 4.3</td>
+</tr>
+<tr>
+<td>亚太（不含中国）</td>
+<td>15</td>
+<td>约 4</td>
+<td>约 11</td>
+<td>—</td>
+<td>—</td>
+<td>本文估算，以第三方为主</td>
+</tr>
+<tr>
+<td>中国</td>
+<td>27</td>
+<td>约 5</td>
+<td>约 8</td>
+<td>约 9</td>
+<td>约 5</td>
+<td>本文估算；运营商约占三分之一</td>
+</tr>
+<tr>
+<td>中东、非洲、拉美</td>
+<td>4.3</td>
+<td>约 0.8</td>
+<td>约 3.5</td>
+<td>—</td>
+<td>—</td>
+<td>本文估算</td>
+</tr>
+<tr>
+<td><strong>全球</strong></td>
+<td><strong>112</strong></td>
+<td><strong>约 39（35%）</strong></td>
+<td><strong>约 59（53%）</strong></td>
+<td><strong>约 9（8%）</strong></td>
+<td><strong>约 5（4%）</strong></td>
+<td>各地区加总</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p><strong>已公开在运容量的主要楼业主（MW；口径各异，不宜直接相加）：</strong></p>
+<div class="tight2 num">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>类别</th>
+<th>业主</th>
+<th>在运容量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第三方（美欧亚）</td>
+<td>Digital Realty</td>
+<td>3,102（IT）</td>
+<td>另有约 1,400 在建；第一大租户未具名，普遍认为是微软</td>
+</tr>
+<tr>
+<td></td>
+<td>QTS（黑石）</td>
+<td>约 2,900</td>
+<td>含给微软的 Fairwater Atlanta 636MW</td>
+</tr>
+<tr>
+<td></td>
+<td>NTT</td>
+<td>2,000 以上（IT）</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Equinix</td>
+<td>约 1,400</td>
+<td>公司不公布兆瓦数，这是按机柜推算的，可信度低</td>
+</tr>
+<tr>
+<td></td>
+<td>CyrusOne</td>
+<td>1,000–1,600</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>DataBank</td>
+<td>约 1,000</td>
+<td>上限，可能含在建</td>
+</tr>
+<tr>
+<td></td>
+<td>ST Telemedia</td>
+<td>780</td>
+<td>含英国 VIRTUS</td>
+</tr>
+<tr>
+<td></td>
+<td>Crusoe/Blue Owl 合资（Abilene）</td>
+<td>618</td>
+<td>甲骨文口径已交付，租给甲骨文，供 OpenAI 使用</td>
+</tr>
+<tr>
+<td></td>
+<td>CDC（澳新）</td>
+<td>568</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Iron Mountain</td>
+<td>528（IT）</td>
+<td></td>
+</tr>
+<tr>
+<td>第三方（中国）</td>
+<td>世纪互联（批发）</td>
+<td>1,007</td>
+<td>另有 585 在建</td>
+</tr>
+<tr>
+<td></td>
+<td>秦淮数据（中国业务）</td>
+<td>800</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>润泽科技</td>
+<td>约 750</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>数据港、奥飞数据</td>
+<td>401、约 382</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>中联数据</td>
+<td>在运加在建约 2,000</td>
+<td></td>
+</tr>
+<tr>
+<td>中国运营商</td>
+<td>中国电信</td>
+<td>约 8,000（园区总用电）</td>
+<td>2026 年年中</td>
+</tr>
+<tr>
+<td>AI 新势力</td>
+<td>SpaceX（含 xAI）</td>
+<td>约 1,300</td>
+<td>孟菲斯自建</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Vantage、Aligned、STACK、AirTrunk、万国数据等大房东只公布建成加规划的总数，不公布在运兆瓦数。这些未公开的部分估计还有好几个 GW，大多在北美。</p>
+<p><strong>大型 AI 专用园区的细账。</strong> Epoch AI 按卫星图像、许可文件等逐个追踪全球 93 个大型 AI 园区。它们现在在运 13.5GW（IT），约占全球的 12%；2026 年底 16.6GW，全部建成约 37.3GW。我们把每个园区的楼业主和实际使用方逐一对上，见附带的 <code>ai_campuses.csv</code>。</p>
+<div class="viz">
+<div class="viz-title">93 个大型 AI 园区按楼的业主类型拆分</div>
+<div class="viz-sub">右侧为合计（GW，IT 容量）。数据：Epoch AI Frontier Data Centers（2026-09-29），楼业主由本文逐一核对。</div>
+<div class="stackrow"><div class="lab">现在</div><div class="stack"><div class="seg c1" style="width:62.1%">62%</div><div class="seg c2" style="width:27.6%">28%</div><div class="seg c3" style="width:10.3%">10%</div></div><div class="tot">13.5</div></div>
+<div class="stackrow"><div class="lab">2026 年底</div><div class="stack"><div class="seg c1" style="width:56.3%">56%</div><div class="seg c2" style="width:34%">34%</div><div class="seg c3" style="width:9.7%">10%</div></div><div class="tot">16.6</div></div>
+<div class="stackrow"><div class="lab">全部建成</div><div class="stack"><div class="seg c1" style="width:49.7%">50%</div><div class="seg c2" style="width:41.8%">42%</div><div class="seg c3" style="width:8.5%">8%</div></div><div class="tot">37.3</div></div>
+<div class="viz-legend"><span><i style="background:#2a78d6"></i>云厂商自有（含合资）</span><span><i style="background:#eb6834"></i>第三方房东或开发商</span><span><i style="background:#1baf7a"></i>AI 新势力自有及主权基金</span></div>
+<div class="viz-note">第三方份额上升，主要来自甲骨文为 OpenAI 租用的一批园区（Vantage、STACK、Related、SB Energy 承建），以及 QTS 等房东的新园区。</div>
+</div>
+
+<p><strong>现在在运的前 15 个 AI 园区（MW，IT）：</strong></p>
+<div class="tight2 num">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>园区</th>
+<th>在运</th>
+<th>楼的业主</th>
+<th>谁在用（租用链条）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Colossus 2（孟菲斯）</td>
+<td>946</td>
+<td>SpaceX（含 xAI）</td>
+<td>自用，部分转租给 Anthropic、谷歌、Cursor</td>
+</tr>
+<tr>
+<td>New Carlisle（印第安纳）</td>
+<td>910</td>
+<td>亚马逊</td>
+<td>Anthropic（Project Rainier）</td>
+</tr>
+<tr>
+<td>Fairwater Atlanta</td>
+<td>636</td>
+<td>QTS</td>
+<td>微软，可能与 OpenAI 共用</td>
+</tr>
+<tr>
+<td>Abilene（得州）</td>
+<td>618</td>
+<td>Crusoe/Blue Owl 合资</td>
+<td>甲骨文 → OpenAI（Epoch 7 月观测为 421）</td>
+</tr>
+<tr>
+<td>Prometheus（俄亥俄）</td>
+<td>496</td>
+<td>Meta（部分楼属 QTS、Vantage）</td>
+<td>Meta</td>
+</tr>
+<tr>
+<td>Fairwater Wisconsin</td>
+<td>369</td>
+<td>微软</td>
+<td>微软、OpenAI</td>
+</tr>
+<tr>
+<td>谷歌 Pryor（俄克拉何马）</td>
+<td>368</td>
+<td>谷歌</td>
+<td>谷歌</td>
+</tr>
+<tr>
+<td>Colossus 1（孟菲斯）</td>
+<td>340</td>
+<td>SpaceX（含 xAI）</td>
+<td>整体租给 Anthropic</td>
+</tr>
+<tr>
+<td>谷歌 New Albany</td>
+<td>333</td>
+<td>谷歌</td>
+<td>谷歌</td>
+</tr>
+<tr>
+<td>DayOne Kempas（柔佛）</td>
+<td>322</td>
+<td>DayOne</td>
+<td>未披露</td>
+</tr>
+<tr>
+<td>谷歌 Columbus</td>
+<td>303</td>
+<td>谷歌</td>
+<td>谷歌</td>
+</tr>
+<tr>
+<td>亚马逊 Madison（密西西比）</td>
+<td>284</td>
+<td>亚马逊</td>
+<td>亚马逊（可能供 Anthropic）</td>
+</tr>
+<tr>
+<td>CoreWeave Denton（得州）</td>
+<td>262</td>
+<td>Core Scientific</td>
+<td>CoreWeave → OpenAI</td>
+</tr>
+<tr>
+<td>DayOne Nusajaya（柔佛）</td>
+<td>240</td>
+<td>DayOne</td>
+<td>未披露</td>
+</tr>
+<tr>
+<td>QTS Richmond 1</td>
+<td>238</td>
+<td>QTS</td>
+<td>未披露</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p><strong>规划规模最大的几个园区（全部建成，IT，MW）：</strong></p>
+<ul>
+<li>微软 Fairwater Wisconsin 2,263；</li>
+<li>亚马逊—Anthropic New Carlisle 1,925；</li>
+<li>甲骨文—OpenAI 新墨西哥 1,750，STACK 承建；</li>
+<li>Meta Hyperion 1,632，与 Blue Owl 合资；</li>
+<li>Colossus 2 1,531；</li>
+<li>甲骨文—OpenAI Frontier 1,400，Vantage 承建；</li>
+<li>QTS Cedar Rapids 1,133，租户可能是 Meta；</li>
+<li>谷歌 Goodnight 约 1,000；</li>
+<li>Stargate 阿联酋 1,000。</li>
+</ul>
+<h2 id="4">4. 上层：各家用了多少</h2>
+<p>下表的"用量"包含自有和租用，并且口径各异：有的是 IT 容量，有的是电力。租用会互相嵌套，比如 OpenAI 的算力就在微软、甲骨文的数字里，所以<strong>不能相加</strong>。</p>
+<div class="tight2">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>公司</th>
+<th>现在</th>
+<th>2026 年底</th>
+<th>自有还是租用</th>
+<th>主要来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>微软</td>
+<td>约 12GW</td>
+<td>约 13GW</td>
+<td>重度租用；只有约 2GW 跑 AI 专用芯片</td>
+<td>彭博；10-K（未起租租约 3,291 亿美元）</td>
+</tr>
+<tr>
+<td>亚马逊 AWS</td>
+<td>12–16GW（电力口径）</td>
+<td>20–23GW</td>
+<td>以自建为主</td>
+<td>美银、Cleanview；亚马逊称 2025 年新增 3.9GW</td>
+</tr>
+<tr>
+<td>谷歌</td>
+<td>8–9GW</td>
+<td>约 11GW</td>
+<td>以自建为主</td>
+<td>TD Cowen</td>
+</tr>
+<tr>
+<td>Meta</td>
+<td>约 4.5GW</td>
+<td>约 7GW</td>
+<td>自建为主，新增转向合资和租赁</td>
+<td>路透转述的内部备忘录</td>
+</tr>
+<tr>
+<td>甲骨文</td>
+<td>近一年新交付约 2GW</td>
+<td>Abilene 年底约 1.2GW（园区总用电）</td>
+<td>几乎全部租用</td>
+<td>甲骨文财报</td>
+</tr>
+<tr>
+<td>字节跳动</td>
+<td>国内租用超过 4GW</td>
+<td>5.3GW</td>
+<td>几乎全部租用</td>
+<td>SemiAnalysis（图表值经观察者网转述）</td>
+</tr>
+<tr>
+<td>阿里巴巴</td>
+<td>约 4GW（2025 年底）</td>
+<td>3.9GW</td>
+<td>自建、BOT 与租用混用</td>
+<td>摩根大通；SemiAnalysis</td>
+</tr>
+<tr>
+<td>腾讯 / 百度 / 华为</td>
+<td>—</td>
+<td>2.4 / 1.1 / 1.0GW</td>
+<td>腾讯新增以租用为主；华为 90% 以上自建</td>
+<td>SemiAnalysis</td>
+</tr>
+<tr>
+<td>CoreWeave</td>
+<td>1.5GW</td>
+<td>超过 1.85GW</td>
+<td>几乎全在别人的楼里</td>
+<td>CoreWeave 10-Q</td>
+</tr>
+<tr>
+<td>SpaceX（含 xAI）</td>
+<td>1.4GW</td>
+<td>超过 2GW</td>
+<td>自有，也对外出租</td>
+<td>SpaceX 10-Q、首席财务官</td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td>约 2GW</td>
+<td>约 3GW（能对应到机房的）</td>
+<td>全部租用</td>
+<td>OpenAI 官方；Epoch</td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td>1.3–2.1GW</td>
+<td>3–5GW</td>
+<td>全部租用</td>
+<td>Epoch；The Information</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>BOT：云厂商拥有土地和楼，合作方投资并运营机电设备，靠长期服务合同回本。</p>
+<p><strong>交叉核对。</strong></p>
+<ul>
+<li>中美十家大云厂商的用量合计约 55GW，约占全球的一半。IEA 和 Synergy 的统计也显示，云厂商用了全球约一半的容量。</li>
+<li>最底层估算出云厂商自有约 39GW，与用量相差约 16GW。这个差额在量级上与已知的租用规模相当：美国四家约 15GW，字节跳动 4GW 以上。由于各家用量口径不一，两边只能做到量级吻合。</li>
+<li>剩下约一半的容量，由企业、电信业务、政府、零售托管客户和 NeoCloud 使用。</li>
+</ul>
+<h2 id="5">5. 每家分别租用的是谁</h2>
+<p>下表按租用方列出主要的提供方，并写明楼实际属于谁（MW 为 IT 容量，"—"表示未披露）。完整清单共 83 条，见 <code>tenancy_map.csv</code>。</p>
+<div class="tight1">
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>租用方</th>
+<th>提供方 → 楼的业主（地点，MW，状态）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenAI</strong></td>
+<td>微软 → QTS（Fairwater Atlanta 636，在运，与微软共用）、微软自有楼（威斯康星 369 等）；2,500 亿美元 Azure 合同约合 7GW（SemiAnalysis 估算）<br>甲骨文 → Crusoe 合资（Abilene 618，在运）、Vantage（Frontier 1,400、Lighthouse 902，在建）、STACK（新墨西哥 1,300–1,750，在建，甲骨文已发不可抗力通知）、Related（密歇根约 1,000，在建）<br>CoreWeave → Core Scientific（Denton 262，在运）<br>SB Energy（软银）（得州 Milam 753，在建；俄亥俄 PORTS-Pike 8,024，2028–32 年）<br>另有亚马逊约 2GW（2027 年起）、Cerebras 250、自建佐治亚园区 3.2GW（规划）</td>
+</tr>
+<tr>
+<td><strong>Anthropic</strong></td>
+<td>亚马逊 → 自有楼（New Carlisle 910，在运；新合同最多 5GW）<br>谷歌 → TPU（2026 年超过 1GW，2027 年起另 5GW）<br>SpaceX → Colossus 1 整座 340 与 Colossus 2 约 200（在运）<br>Fluidstack（谷歌担保）→ TeraWulf、Cipher、Hut 8 等矿场改造园区（合计约 1,400，大多 2026–27 年交付）<br>Nscale（西弗吉尼亚 460）、TeraWulf 直租（肯塔基 401）、Lambda 经英伟达转租（得州约 350）、微软（最多 1,000，约 2026 年 11 月起）</td>
+</tr>
+<tr>
+<td><strong>SpaceX（含 xAI）</strong></td>
+<td>自有孟菲斯园区（Colossus 2 946，在运）；另租 QTS 亚特兰大 17。同时是房东：把算力租给 Anthropic、谷歌（约 11 万张 GPU）、Cursor 等</td>
+</tr>
+<tr>
+<td><strong>微软</strong></td>
+<td>QTS（Fairwater Atlanta 636）、Crusoe（Abilene 扩建 672，2027 年）、Digital Realty（第一大租户，普遍认为是微软）、Pure DC（芬兰 550）<br>NeoCloud：CoreWeave（微软占其 2025 年收入 67%，MW 未披露）、Nebius（新泽西 315，现约 50–100）、Nscale（约 680，多地）、IREN（得州 200）、Lambda；阿联酋 Khazna 200</td>
+</tr>
+<tr>
+<td><strong>Meta</strong></td>
+<td>自建为主（Prometheus 等）<br>合资：Hyperion（路易斯安那 1,632，在建，Blue Owl 占 80%）、El Paso（1,000，2028 年）<br>租用：爱荷华 1,000（运营商未披露，推测为 QTS Cedar Rapids）、QTS/Vantage 部分楼、CleanSpark（佐治亚 175）、Crusoe（约 1,600）、Reliance（印度 168）<br>云合同：CoreWeave 约 350 亿美元、Nebius 最多约 270–300 亿美元、谷歌云、甲骨文</td>
+</tr>
+<tr>
+<td><strong>甲骨文</strong></td>
+<td>Crusoe/Blue Owl 合资（Abilene 618）、Vantage（2,302）、Related + 黑石（约 1,000）、STACK + BorderPlex（1,300–1,750）、Applied Digital（200）、Digital Realty（第二大租户，42 个站点）、DayOne（巴淡岛 72）；主要供 OpenAI，也供 Meta、TikTok</td>
+</tr>
+<tr>
+<td><strong>亚马逊 AWS</strong></td>
+<td>以自建为主；向 Cipher 租 286（得州，15 年约 75 亿美元）、希腊 PPC 300（2028 年）</td>
+</tr>
+<tr>
+<td><strong>谷歌</strong></td>
+<td>以自建为主；得州 Goodnight 约 1,000（合成租赁，Crusoe 承建）、印度 Vizag 1,000（AdaniConneX）；还向 SpaceX 租算力；为 Fluidstack 的几个园区提供担保（担保方，不是租户）</td>
+</tr>
+<tr>
+<td><strong>CoreWeave</strong></td>
+<td>Core Scientific（590）、Galaxy（Helios 526，现 133）、Applied Digital（Ellendale 400）、印尼三处（360）、自建新泽西 Kenilworth（250）；客户是微软、OpenAI、Meta、Anthropic 等</td>
+</tr>
+<tr>
+<td><strong>字节跳动</strong></td>
+<td>国内租用超过 4GW：秦淮数据（秦淮中国约 90% 收入来自单一客户）、世纪互联（一季度单笔 510）、中联数据、润泽、合盈等<br>自建集群在建（大同、芜湖、和林格尔、乌兰察布，规划约 3GW）<br>海外：Bridge DC、DayOne（东南亚）、Green Mountain（挪威 90）、Hyperco（芬兰 150）、巴西 200（2027 年）、甲骨文（TikTok 美国）</td>
+</tr>
+<tr>
+<td><strong>阿里巴巴</strong></td>
+<td>数据港（BOT，阿里是其第一大客户）、万国数据、云联（张北）、中国电信（韶关）；在美国寻找约 500MW（2027 年底前）</td>
+</tr>
+<tr>
+<td><strong>腾讯 / 百度</strong></td>
+<td>腾讯：科华数据（BOT）、中国联通（宁夏中卫）；百度：奥飞数据（BOT）</td>
+</tr>
+<tr>
+<td><strong>英伟达</strong></td>
+<td>自用：Tract 400、Digital Realty 96、Vantage 64、Aligned 36；并承租 Hut 8 得州 704，转给 Lambda，最终供 Anthropic</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<h2 id="6">6. 在建与年底</h2>
+<ul>
+<li><strong>全球在建</strong>：约 45–90GW，口径不同差距较大。<ul>
+<li>JLL 统计北美在建 66GW，其中 95% 已预租；</li>
+<li>Cushman 统计美洲、欧洲中东非洲、亚太合计约 46GW。</li>
+</ul>
+</li>
+<li><strong>美国</strong>：2027 年预计交付 38GW。其中 22GW 已在盖主体建筑，16GW 在规划、大多已融资（SemiAnalysis，9 月 15 日）。</li>
+<li><strong>中国</strong>：约 20GW 已开工或已排定交付时间，另有约 30GW 只宣布、未排期（SemiAnalysis，9 月 25 日）。</li>
+<li><strong>大型 AI 园区</strong>：从现在的 13.5GW，到年底 16.6GW，全部建成约 37.3GW（Epoch）。</li>
+<li><strong>NeoCloud 与矿场改造</strong>：托管方已签约约 5.6GW，但目前只有约 1GW 在运，大部分在 2027–28 年交付。</li>
+</ul>
+<h2 id="7">7. 口径和数据分歧</h2>
+<ol>
+<li><strong>中国总量</strong>：各家估计从 19GW 到 39GW 不等，按官方机架数折算最高。本文取 24–28GW，理由是 SemiAnalysis 逐楼统计和两家投行估计相互吻合。</li>
+<li><strong>亚马逊</strong>：从北美在运 IT 6.2GW 到全球电力口径约 15GW，差距来自口径（在运还是控制、IT 还是电力、北美还是全球）。</li>
+<li><strong>谷歌</strong>：TD Cowen 估约 7GW，富国估 15GW。本文采用前者，把后者当作上限。</li>
+<li><strong>Meta 的 14GW</strong>：路透原文是"2027 年合计 14GW"，美银解读为"2026–27 两年新增 14GW"，尚无定论。</li>
+<li><strong>微软</strong>：彭博的 12GW 是全球、含租用；另一项估计为北美自控 5.5GW。两者口径不同，可以同时成立，但微软未确认。</li>
+<li><strong>美国 2026 年新增量</strong>：SemiAnalysis 6 月说约 24GW，9 月的说法倒推不到 19GW，口径待核。</li>
+<li><strong>可能的重复计数</strong>：巴淡岛同一批约 360MW 被三方各报一次，本文只算一次；Abilene 已交付量有 618MW（甲骨文）和 421MW（Epoch 7 月）两个口径。</li>
+<li><strong>中国各家分项</strong>：字节、阿里、腾讯、百度、华为的数字来自 SemiAnalysis 图表，经媒体转述，未直接读图。SemiAnalysis 正文说百度规模最小，与图表值不一致。</li>
+</ol>
+<h2 id="8">8. 方法与来源</h2>
+<ul>
+<li><strong>做法</strong>：6 个研究小组分头检索，范围分别是：<ul>
+<li>市场总量与地理分布；</li>
+<li>美国云厂商；</li>
+<li>AI 实验室；</li>
+<li>NeoCloud 与 GPU 托管；</li>
+<li>批发与零售托管房东；</li>
+<li>中国及其他地区。</li>
+<li>每条数字都记录来源链接、发布日期、口径和状态，再按"同一栋楼只算一次"的规则合并。</li>
+</ul>
+</li>
+<li><strong>来源</strong>：公司财报与上市文件、业绩会纪要，CBRE、JLL、Cushman &amp; Wakefield、Knight Frank、datacenterHawk 的市场报告，IEA 报告，以及 Epoch AI 的公开数据库（CC-BY 授权）。另外用了私有资源库中的 SemiAnalysis、TMT Breakout、Citrini、Damnang 等订阅研究，以及卖方研报摘要。</li>
+<li><strong>局限</strong>：<ul>
+<li>部分付费或受限页面无法读取，如 CBRE 亚太与欧洲的详细报告、部分行业媒体。</li>
+<li>各云厂商都不公布全球 GW 总数，只能用泄露信息、卖方模型和追踪机构的估计。</li>
+<li>自有和租用的兆瓦拆分几乎没有公开数据。</li>
+</ul>
+</li>
+<li><strong>随附数据</strong>（<code>research/ledger/</code>）：<ul>
+<li>原始台账：<code>ledger_supply.csv</code>（1,190 行）、<code>ledger_tenancy.csv</code>（441 条）；</li>
+<li>AI 园区明细：<code>ai_campuses.csv</code>（93 个园区的楼业主、使用方、在运、年底和规划容量）；</li>
+<li>本文汇总表：<code>region_totals.csv</code>、<code>owner_split.csv</code>、<code>company_rollup.csv</code>、<code>tenancy_map.csv</code>；</li>
+<li>可复现的构建脚本：<code>build_ledger.py</code>。</li>
+</ul>
+</li>
+</ul></main></div>
+</body></html>

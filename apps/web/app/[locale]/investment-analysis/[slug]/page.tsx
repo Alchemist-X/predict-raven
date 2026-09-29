@@ -57,6 +57,12 @@ const REPORTS: Record<
     descriptionKey: "iaUniswapMetaDescription",
     iframeTitleKey: "iaUniswapFrameTitle",
     src: "/investment-analysis/reports/uniswap-ath-12m.html"
+  },
+  "global-datacenter-capacity": {
+    titleKey: "iaDatacenterMetaTitle",
+    descriptionKey: "iaDatacenterMetaDescription",
+    iframeTitleKey: "iaDatacenterFrameTitle",
+    src: "/investment-analysis/reports/global-datacenter-capacity.html"
   }
 };
 

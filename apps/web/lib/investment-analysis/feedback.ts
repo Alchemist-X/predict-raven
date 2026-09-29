@@ -12,7 +12,8 @@ export const REPORT_QUESTIONS: Record<InvestmentCaseSlug, string> = {
   "openai-gpt6-sol": "GPT-6 的非旗舰模型采用官方名称 Sol 的概率是多少？",
   "abivax-acquisition-6m": "Abivax 在接下来六个月内被收购的概率是多少？",
   "aws-operating-margin-5y": "AWS 的经营利润率会在接下来五年里超过 40% 吗？",
-  "uniswap-ath-12m": "未来 12 个月 Uniswap 破前高的概率是多少？"
+  "uniswap-ath-12m": "未来 12 个月 Uniswap 破前高的概率是多少？",
+  "global-datacenter-capacity": "全球和各家大厂分别有多少 GW 数据中心，分别向谁租用？"
 };
 
 export interface FeedbackInput {
