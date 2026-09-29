@@ -2,72 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import styles from "../../../../components/investment-analysis/investment-analysis.module.css";
 import { ReportFeedback, type FeedbackMessages } from "../../../../components/investment-analysis/report-feedback";
-import {
-  INVESTMENT_CASE_SLUGS,
-  investmentHref,
-  isInvestmentCaseSlug,
-  type InvestmentCaseSlug
-} from "../../../../lib/investment-analysis/routes";
-import { localeOf, t, type Locale, type StrKey } from "../../../../lib/world-cup/i18n";
+import { findInvestmentReport, INVESTMENT_REPORTS } from "../../../../lib/investment-analysis/reports";
+import { investmentHref } from "../../../../lib/investment-analysis/routes";
+import { localeOf, t, type Locale } from "../../../../lib/world-cup/i18n";
 
 const ORIGIN = "https://forecasting-agent.com";
 
-const REPORTS: Record<
-  InvestmentCaseSlug,
-  { titleKey: StrKey; descriptionKey: StrKey; iframeTitleKey: StrKey; src: string }
-> = {
-  "tencent-hunyuan-workbuddy": {
-    titleKey: "iaTencentMetaTitle",
-    descriptionKey: "iaTencentMetaDescription",
-    iframeTitleKey: "iaTencentFrameTitle",
-    src: "/investment-analysis/reports/tencent-hunyuan-workbuddy.html"
-  },
-  "google-hassabis": {
-    titleKey: "iaGoogleMetaTitle",
-    descriptionKey: "iaGoogleMetaDescription",
-    iframeTitleKey: "iaGoogleFrameTitle",
-    src: "/investment-analysis/reports/google-hassabis.html"
-  },
-  "meta-capex-6m": {
-    titleKey: "iaMetaCapexMetaTitle",
-    descriptionKey: "iaMetaCapexMetaDescription",
-    iframeTitleKey: "iaMetaCapexFrameTitle",
-    src: "/investment-analysis/reports/meta-capex-6m.html"
-  },
-  "openai-gpt6-sol": {
-    titleKey: "iaOpenaiMetaTitle",
-    descriptionKey: "iaOpenaiMetaDescription",
-    iframeTitleKey: "iaOpenaiFrameTitle",
-    src: "/investment-analysis/reports/openai-gpt6-sol.html"
-  },
-  "abivax-acquisition-6m": {
-    titleKey: "iaAbivaxMetaTitle",
-    descriptionKey: "iaAbivaxMetaDescription",
-    iframeTitleKey: "iaAbivaxFrameTitle",
-    src: "/investment-analysis/reports/abivax-acquisition-6m.html"
-  },
-  "aws-operating-margin-5y": {
-    titleKey: "iaAwsMetaTitle",
-    descriptionKey: "iaAwsMetaDescription",
-    iframeTitleKey: "iaAwsFrameTitle",
-    src: "/investment-analysis/reports/aws-operating-margin-5y.html"
-  },
-  "uniswap-ath-12m": {
-    titleKey: "iaUniswapMetaTitle",
-    descriptionKey: "iaUniswapMetaDescription",
-    iframeTitleKey: "iaUniswapFrameTitle",
-    src: "/investment-analysis/reports/uniswap-ath-12m.html"
-  },
-  "global-datacenter-capacity": {
-    titleKey: "iaDatacenterMetaTitle",
-    descriptionKey: "iaDatacenterMetaDescription",
-    iframeTitleKey: "iaDatacenterFrameTitle",
-    src: "/investment-analysis/reports/global-datacenter-capacity.html"
-  }
-};
-
 export function generateStaticParams() {
-  return INVESTMENT_CASE_SLUGS.map((slug) => ({ slug }));
+  return INVESTMENT_REPORTS.map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -76,19 +18,20 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale: localeParam, slug } = await params;
-  if (!isInvestmentCaseSlug(slug)) return {};
+  const report = findInvestmentReport(slug);
+  if (!report) return {};
 
   const locale: Locale = localeOf(localeParam);
-  const report = REPORTS[slug];
+  const copy = report.copy[locale];
   const canonical = `${ORIGIN}${investmentHref(`/investment-analysis/${slug}`, locale)}`;
 
   return {
-    title: t(locale, report.titleKey),
-    description: t(locale, report.descriptionKey),
+    title: copy.metaTitle,
+    description: copy.metaDescription,
     alternates: { canonical },
     openGraph: {
-      title: t(locale, report.titleKey),
-      description: t(locale, report.descriptionKey),
+      title: copy.metaTitle,
+      description: copy.metaDescription,
       siteName: "Predict Raven",
       url: canonical,
       type: "article",
@@ -103,8 +46,8 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary",
-      title: t(locale, report.titleKey),
-      description: t(locale, report.descriptionKey),
+      title: copy.metaTitle,
+      description: copy.metaDescription,
       images: [`${ORIGIN}/brand/raven-icon.png`]
     }
   };
@@ -112,10 +55,10 @@ export async function generateMetadata({
 
 export default async function InvestmentReportPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   const { locale: localeParam, slug } = await params;
-  if (!isInvestmentCaseSlug(slug)) notFound();
+  const report = findInvestmentReport(slug);
+  if (!report) notFound();
 
   const locale: Locale = localeOf(localeParam);
-  const report = REPORTS[slug];
 
   const messages: FeedbackMessages = {
     iaFeedbackOpen: t(locale, "iaFeedbackOpen"),
@@ -134,7 +77,7 @@ export default async function InvestmentReportPage({ params }: { params: Promise
 
   return (
     <main className={styles.reportMain}>
-      <iframe className={styles.reportFrame} src={report.src} title={t(locale, report.iframeTitleKey)} />
+      <iframe className={styles.reportFrame} src={report.src} title={report.copy[locale].frameTitle} />
       <ReportFeedback reportSlug={slug} locale={locale} messages={messages} />
     </main>
   );

@@ -38,6 +38,8 @@
     "wc:baseline": "tsx scripts/world-cup/fetch-baseline-prices.ts",
     "wc:performance": "tsx scripts/world-cup/build-performance.ts",
     "wc:gen-tw": "tsx scripts/world-cup/gen-traditional.ts",
+    "ia:add-report": "tsx scripts/investment-analysis/add-report.ts",
+    "ia:verify-live": "node scripts/investment-analysis/verify-live.mjs",
     "forecast:event": "tsx scripts/forecast/cli.ts",
     "forecast:api": "pnpm --filter @autopoly/forecast-api dev",
     "raven:dev": "pnpm --filter @autopoly/raven dev",
