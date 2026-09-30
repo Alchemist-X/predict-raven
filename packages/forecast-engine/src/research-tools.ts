@@ -59,6 +59,77 @@ export function agentTimeoutMs(explicit?: number): number {
   return configuredLimit("FORECAST_AGENT_TIMEOUT_MS", signalDeskEnabled() ? 0 : 360_000, explicit);
 }
 
+// OpenAI-compatible tool loops send raw tool JSON to the model. Unlike the
+// Claude CLI they do not cap MCP output, so one complete report or search page
+// could overflow the context window.
+export const DEFAULT_MAX_TOOL_RESULT_CHARS = 60_000;
+export function maxToolResultChars(): number {
+  return configuredLimit("FORECAST_MAX_TOOL_RESULT_CHARS", DEFAULT_MAX_TOOL_RESULT_CHARS);
+}
+
+// Keep one tool result within the budget as valid JSON that says what was
+// withheld and how to continue. Provenance derived from the bounded result
+// records only what the model actually received.
+export function boundResearchResult(tool: string, result: Record<string, unknown>, maxChars: number): Record<string, unknown> {
+  const fits = (value: unknown) => JSON.stringify(value).length <= maxChars;
+  if (maxChars <= 0 || fits(result)) return result;
+  // Largest n in [0, max] whose bounded form fits, or -1 when none does.
+  const largest = (max: number, make: (n: number) => Record<string, unknown>): number => {
+    if (!fits(make(0))) return -1;
+    let low = 0, high = max;
+    while (low < high) {
+      const mid = Math.ceil((low + high) / 2);
+      if (fits(make(mid))) low = mid;
+      else high = mid - 1;
+    }
+    return low;
+  };
+  if (typeof result.text === "string") {
+    const text = result.text;
+    const make = (n: number): Record<string, unknown> => {
+      const kept = text.slice(0, /[\uD800-\uDBFF]/.test(text[n - 1] ?? "") ? n - 1 : n);
+      const bounded: Record<string, unknown> = { ...result, text: kept };
+      if (tool === "signal_desk_pdf") {
+        // The last page marker shown may be incomplete; resume there.
+        const resume = [...kept.matchAll(/\[Page (\d+)\]/g)].at(-1)?.[1];
+        Object.assign(bounded, { status: "partial", access: "body_partial", ...(resume ? { next_page: Number(resume) } : {}) });
+      } else bounded.next_offset = (typeof result.offset === "number" ? result.offset : 0) + kept.length;
+      bounded.engine_truncated = { field: "text", original_chars: text.length, returned_chars: kept.length, max_chars: maxChars,
+        note: tool === "signal_desk_pdf"
+          ? "Only the leading page text fits this tool result budget. Request next_page onward with start_page and max_pages before relying on later pages."
+          : "Only the leading text fits this tool result budget. Continue from next_offset with the same article_id or url before relying on the rest." };
+      return bounded;
+    };
+    const n = largest(Math.min(text.length, maxChars), make);
+    if (n >= 0) return make(n);
+  }
+  if (Array.isArray(result.results)) {
+    const rows = result.results as unknown[];
+    const attested = new Set(Array.isArray(result.source_urls) ? result.source_urls : []);
+    const url = (row: unknown) => (row && typeof row === "object" ? (row as Record<string, unknown>).url : undefined);
+    const make = (n: number): Record<string, unknown> => ({
+      ...result,
+      results: rows.slice(0, n),
+      ...(Array.isArray(result.source_urls)
+        ? { source_urls: [...new Set(rows.slice(0, n).map(url).filter((u) => typeof u === "string" && attested.has(u)))] }
+        : {}),
+      engine_truncated: { field: "results", original_count: rows.length, returned_count: n, max_chars: maxChars,
+        note: "Only the leading results fit this tool result budget. Narrow the query, add keywords or dates, or page with offset to see the rest." }
+    });
+    const n = largest(rows.length, make);
+    if (n >= 0) return make(n);
+  }
+  // Last resort: an explicit prefix of the JSON; nothing in it counts as discovered or read.
+  const serialized = JSON.stringify(result);
+  const prefix = (n: number): Record<string, unknown> => ({
+    status: result.status,
+    engine_truncated: { field: "json", original_chars: serialized.length, returned_chars: n, max_chars: maxChars,
+      note: "The result exceeds this tool result budget and is shown only as a JSON prefix. Request a narrower range." },
+    partial_json: serialized.slice(0, n)
+  });
+  return prefix(Math.max(0, largest(Math.min(serialized.length, maxChars), prefix)));
+}
+
 export function researchCommand(): string {
   return process.env.FORECAST_SIGNAL_DESK_COMMAND || join(homedir(), ".local", "bin", "raven-signal-desk");
 }

@@ -2,6 +2,7 @@
 import { runAgent } from "./agent";
 import type { AgentRunResult, AgentUsage, RunAgentOptions } from "./claude-agent";
 import type { AnswerKind, AnswerOption, AnswerRequest, QuestionSpec } from "./answer-types";
+import { librarySubject } from "./expanded-library";
 import { languageDirective } from "./language";
 
 export type AgentRunner = (prompt: string, options: RunAgentOptions) => Promise<AgentRunResult>;
@@ -119,7 +120,8 @@ export function validateQuestionSpec(raw: unknown, original: string, kind: Answe
     const q = object(row); const targetId = text(q.targetId, "targetId");
     if (targetId !== "question" && !entities.some(e => e.id === targetId)) throw new Error("Search target is not an option/entity");
     if (!Array.isArray(q.keywords) || !q.keywords.length || q.keywords.length > 6) throw new Error("Use 1–6 short research keywords");
-    return {targetId, query: text(q.query, "query"), keywords: q.keywords.map(k => text(k, "keyword"))};
+    const subject = librarySubject(q.subject);
+    return {targetId, query: text(q.query, "query"), keywords: q.keywords.map(k => text(k, "keyword")), ...(subject ? {subject} : {})};
   });
   if (kind === "independent_ranking" && entities.some(e => !searchQueries.some(q => q.targetId === e.id))) throw new Error("Research must cover every ranked entity");
   if (!Array.isArray(o.assumptions) || o.assumptions.some(s => typeof s !== "string")) throw new Error("assumptions must be a string array");
@@ -144,9 +146,10 @@ Priors come from reference classes, not specific current evidence or market pric
 This tool-free framing has NO historical dataset. Explicitly describe every prior as a subjective starting assumption, not a measured base rate. Never invent sample counts, counted events or an empirical frequency. A short qualitative rationale is sufficient; the research phase must source any claimed historical frequency. Keep the complete framing response concise (under 1600 words).
 Plan concise company/topic AND research keywords and a public query per entity; all entities must be covered. Never use year/direction words as mandatory subscription keywords unless needed.
 Use canonical short topic tokens in keywords, e.g. ["Microsoft","capex"], ["Meta","revenue"], ["Google","TPU"]. Do not append "guidance", "outlook", "plan" or "forecast" to a topic keyword; that would make a restrictive exact phrase. Use those modifiers only in the public query.
+Give each search query a subject: the one company or named entity it researches, spelled as publications name it (e.g. "Microsoft"; a protocol name rather than its ticker). The library search requires the subject in every matched article and records when none mentions it. Use null only for a broad theme with no single entity.
 ${languageDirective()}
 JSON only, exact camelCase fields:
-{"kind":"${kind}","resolutionCriteria":"...","resolutionDate":"YYYY-MM-DD","settlementSource":"...","assumptions":["..."],"options":[{"id":"a","label":"..."},{"id":"b","label":"..."}],"unit":null,"minimum":null,"maximum":null,"scoreRubric":null,"prior":{"a":0.5,"b":0.5},"priorRationale":"...","searchQueries":[{"targetId":"a","query":"...","keywords":["company","metric"]}]}
+{"kind":"${kind}","resolutionCriteria":"...","resolutionDate":"YYYY-MM-DD","settlementSource":"...","assumptions":["..."],"options":[{"id":"a","label":"..."},{"id":"b","label":"..."}],"unit":null,"minimum":null,"maximum":null,"scoreRubric":null,"prior":{"a":0.5,"b":0.5},"priorRationale":"...","searchQueries":[{"targetId":"a","subject":"company","query":"...","keywords":["company","metric"]}]}
 For numeric, options=[] and prior={"mean":78,"standardDeviation":8}; fill unit and applicable bounds/rubric; targetId="question".`;
   const validate = (raw: unknown) => validateQuestionSpec(raw, question, kind, request, asOf);
   const first = await validatedCall(prompt, validate, {...opts, allowedTools: ""});

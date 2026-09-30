@@ -126,3 +126,16 @@ it("requires actual model reading for directory claims and gap closure while pre
   applyResearchReview(s,proposal,2,modelVisibleSourceUrls(s));
   expect(s.researchGaps![0].status).toBe("resolved");
 });
+
+it("keeps library follow-up searches anchored to the subject recorded by the initial sweep",async()=>{
+  vi.stubEnv("FORECAST_SIGNAL_DESK","1");
+  const gap={...request,targetIds:["question"]};
+  const target={targetId:"question",subject:"Uniswap",subjectCovered:false,queryCount:1,candidateCount:0,readArticleCount:0,pdfAttemptCount:0,pdfReadCount:0,coverageExhausted:false,limitations:[]};
+  const budgets={maxQueriesPerTarget:null,maxPagesPerQuery:null,candidatesPerPage:null,maxArticlesPerTarget:null,maxPdfArticles:null,maxPdfArticlesPerTarget:null,maxCharsPerRead:0};
+  const s:ResearchReviewState={expandedLibrary:{required:true,searchedAtUtc:"2026-09-29",queries:[],readings:[],usedArticleIds:[],exclusions:[],
+    collectionAudit:[{mode:"broad",startedAtUtc:"2026-09-29",completedAtUtc:"2026-09-29",budgets,targets:[target],pdfAttemptCount:0,pdfReadCount:0}]}};
+  applyResearchReview(s,{researchGaps:[gap],gapResolutions:[]},1,[]);
+  const collect=vi.fn().mockResolvedValue(null), call=vi.fn().mockResolvedValue({status:"ok",source_urls:[],results:[]});
+  await retrieveResearchGaps(s,2,()=>{},{callTool:call,collectLibrary:collect});
+  expect(collect).toHaveBeenCalledWith({searchQueries:[{targetId:"question",query:gap.query,keywords:gap.keywords,subject:"Uniswap"}]},expect.any(Function),expect.objectContaining({mode:"focused"}));
+});
