@@ -139,6 +139,7 @@
 | 命令、部署、依赖矩阵 | [`docs/diagrams/dev-reference.md`](diagrams/dev-reference.md) |
 | Delta PM 运维 | [`docs/delta-pm-operations.md`](delta-pm-operations.md) |
 | Forecasting 成本画像 | [`docs/diagrams/forecasting-cost-profile.md`](diagrams/forecasting-cost-profile.md) |
+| Kalshi 降雨市场 35 站 NWS 降水概率每小时自动快照（GitHub Actions → 分支 `data/nws-rain-chance`；研究数据，非交易依据） | [`docs/weather-rain-chance.md`](weather-rain-chance.md)（2026-11-02） |
 | 历史设计 / review | [`docs/internal/review/`](internal/review/) 与 [`docs/internal/plan/`](internal/plan/) |
 | 已完成历史 | git log、merged PR、`docs/archive/` |
 

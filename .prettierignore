@@ -17,3 +17,6 @@ pnpm-lock.yaml
 
 # Python (handled separately; Prettier doesn't own it)
 packages/market-intelligence
+
+# One station per line is the point of this table; Prettier would explode it to ten lines each.
+scripts/weather/kalshi-rain-stations.json

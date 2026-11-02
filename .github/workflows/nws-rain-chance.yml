@@ -1,0 +1,96 @@
+# NWS rain-chance snapshot for the 35 Kalshi daily / weekend rain settlement
+# stations (scripts/weather/kalshi-rain-stations.json). Read-only against the
+# public api.weather.gov; no credentials, no orders, no trading-path code.
+#
+# Runs hourly. Data goes to the dedicated branch `data/nws-rain-chance` (created
+# on the first run, never to main). A station is written only when NWS actually
+# issued a new forecast (its updateTime moved), so quiet hours commit nothing.
+# If some stations fail, the rest are still committed and the run is marked
+# failed (exit 2) so it shows up red in the Actions tab.
+#
+# Read the data without touching your local main:
+#   git fetch origin data/nws-rain-chance
+#   git show origin/data/nws-rain-chance:latest/summary.md
+# Docs: docs/weather-rain-chance.md
+#
+# Manual test: Actions tab -> "NWS rain chance snapshot" -> Run workflow.
+name: NWS rain chance snapshot
+
+on:
+  schedule:
+    # Hourly at :25 UTC (off the top of the hour, when GitHub's cron queue is busiest).
+    - cron: "25 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+# Never let two runs push the data branch at once.
+concurrency:
+  group: nws-rain-chance
+  cancel-in-progress: false
+
+env:
+  DATA_BRANCH: data/nws-rain-chance
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout main (code only)
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      # The script has no npm dependencies, so there is no pnpm install here.
+      - name: Check out the data branch into data-out/ (bootstrap it if missing)
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --heads origin "$DATA_BRANCH" >/dev/null; then
+            git fetch --depth=1 origin "$DATA_BRANCH"
+            git worktree add --detach data-out FETCH_HEAD
+            git -C data-out checkout -q -B "$DATA_BRANCH"
+            echo "data branch exists; checked out $(git -C data-out rev-parse --short HEAD)"
+          else
+            git worktree add --detach data-out
+            git -C data-out checkout -q --orphan "$DATA_BRANCH"
+            git -C data-out rm -rfq .
+            printf '# NWS rain chance data\n\nWritten by .github/workflows/nws-rain-chance.yml on main. See docs/weather-rain-chance.md there.\n' > data-out/README.md
+            echo "data branch missing; bootstrapped an orphan branch"
+          fi
+
+      - name: Fetch snapshot
+        id: fetch
+        run: |
+          set +e
+          node scripts/weather/fetch-nws-rain-chance.mjs --out data-out --only-changed
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          # 2 = partial failure: keep going so the successful stations get committed; fail the job at the end.
+          if [ "$code" = "2" ]; then exit 0; fi
+          exit "$code"
+
+      - name: Commit and push data
+        run: |
+          set -euo pipefail
+          cd data-out
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No new NWS forecast issuance since the last snapshot; nothing to commit."
+            exit 0
+          fi
+          git commit -q -m "data(nws-rain-chance): $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push origin "HEAD:refs/heads/$DATA_BRANCH"
+          echo "pushed $(git rev-parse --short HEAD) to $DATA_BRANCH"
+
+      - name: Fail the run if any station failed
+        if: steps.fetch.outputs.exit_code != '0'
+        run: |
+          echo "::error::fetch exited with ${{ steps.fetch.outputs.exit_code }} — some stations failed (see the Fetch snapshot log). Successful stations were still committed."
+          exit 1

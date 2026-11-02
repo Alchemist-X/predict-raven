@@ -139,6 +139,7 @@ These are independent products. Do not bundle them into the GPT Pro provider PR 
 | Commands, deployment, dependency matrix | [`docs/diagrams/dev-reference.md`](../diagrams/dev-reference.md) |
 | Delta PM operations | [`docs/delta-pm-operations.md`](../delta-pm-operations.md) |
 | Forecasting cost profile | [`docs/diagrams/forecasting-cost-profile.md`](../diagrams/forecasting-cost-profile.md) |
+| Hourly NWS rain-chance snapshot for the 35 Kalshi rain-market stations (GitHub Actions → branch `data/nws-rain-chance`; research data, not a trading basis) | [`docs/en/weather-rain-chance.md`](weather-rain-chance.md) (2026-11-02) |
 | Historical design / review | [`docs/internal/review/`](../internal/review/) and [`docs/internal/plan/`](../internal/plan/) |
 | Completed history | git log, merged PRs, `docs/archive/` |
 

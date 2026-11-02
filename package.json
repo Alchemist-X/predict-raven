@@ -48,6 +48,7 @@
     "db:migrate": "pnpm --filter @autopoly/db drizzle-kit migrate",
     "db:seed": "pnpm --filter @autopoly/db seed",
     "vendor:sync": "node scripts/sync-vendors.mjs",
+    "weather:rain-chance": "node scripts/weather/fetch-nws-rain-chance.mjs",
     "daily:pulse": "pnpm daily:forecast",
     "pulse:live": "pnpm forecast:live",
     "pulse:recommend": "pnpm forecast:recommend",
